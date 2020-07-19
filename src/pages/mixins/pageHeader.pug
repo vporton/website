@@ -1,0 +1,19 @@
+mixin pageHeader(title, icon = '', pages = [])
+  .page-header
+    h3.page-title
+      if icon && icon.length
+        span.page-title-icon.bg-gradient-primary.text-white.mr-2
+          i(class=`mdi ${icon}`)
+        = title
+      else
+        = title
+    
+    if pages.length
+      nav(aria-label="breadcrumb")
+        ol.breadcrumb
+          each o, i in pages
+            if i !== (pages.length - 1)
+              li.breadcrumb-item
+                a(href=o.link)= o.title
+            else
+              li.breadcrumb-item.active(aria-current="page")= o.title

@@ -1,0 +1,15 @@
+extends pages/layout
+
+block scripts
+  script(src="https://cdn.jsdelivr.net/npm/jdenticon@2.2.0" async)
+  script(src="./assets/scripts/tokens.ts")
+
+block vars
+  - var page = 'tokens'
+
+block content
+  +pageHeader('Token Holders', 'mdi-contacts', [{title: 'My DAO Name', link: './'}, {title: 'Tokens'}])
+
+  .card: .card-body
+    #tokens-table
+      tbody

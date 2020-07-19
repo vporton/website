@@ -1,0 +1,26 @@
+include mixins/mixins
+
+<!DOCTYPE html>
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title DAO Garden
+    block scripts
+      script(src="./assets/scripts/dashboard.ts")
+  body
+    block vars
+      - var page = 'home'
+      
+    .container-scroller
+      include partials/navbar
+
+      .container-fluid.page-body-wrapper
+        include partials/sidebar
+
+        .main-panel
+          .content-wrapper
+            block content
+              +pageHeader('Blank Page')
+
+          include partials/footer

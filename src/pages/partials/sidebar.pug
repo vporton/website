@@ -1,0 +1,14 @@
+nav#sidebar.sidebar.sidebar-offcanvas
+  ul.nav
+    li(class=`nav-item ${page === 'home'? 'active': ''}`)
+      a.nav-link(href="./") 
+        span.menu-title Home
+        i.mdi.mdi-home.menu-icon
+    li(class=`nav-item ${page === 'tokens'? 'active': ''}`)
+      a.nav-link(href="./tokens.pug")
+        span.menu-title Token Holders
+        i.mdi.mdi-contacts.menu-icon
+    li(class=`nav-item ${page === 'votes'? 'active': ''}`)
+      a.nav-link(href="./votes.pug")
+        span.menu-title Votes
+        i.mdi.mdi-format-list-bulleted.menu-icon
