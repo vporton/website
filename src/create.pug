@@ -15,7 +15,15 @@ html(lang="en")
            
             h3.mt-5 Create a new DAO
 
-            .row
+            .row.mining(style="display: none")
+              .card.card-body.col-md-6.mb-5(style="margin: 20px auto")
+                h6.mb-3 Your DAO is under creation, please wait until the block is mined.
+                a.btn.btn-outline-primary
+                  .d-flex.justify-content-center
+                    i.gg-loadbar-alt
+                  | Mining your DAO
+
+            .row.steps
               .card.card-body.col-md-6.mb-5.center-align(style="margin: 20px auto;")
                 form.text-left
                   .step1
@@ -150,6 +158,6 @@ html(lang="en")
 
                   .buttons.row.mt-5
                     .col-md-6.text-center
-                      a.btn.btn-outline-light.text-black.btn-fw.back Back
+                      a.btn.btn-outline-light.text-black.btn-fw.back(href="#!") Back
                     .col-md-6.text-center
-                      a.btn.btn-outline-primary.continue Continue
+                      a.btn.btn-outline-primary.continue(href="#!") Continue

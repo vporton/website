@@ -152,9 +152,16 @@ $(document).ready(() => {
   $('.continue').on('click', (e: any) => {
     e.preventDefault();
 
-    if($(e.target).is('.btn-primary') && currentStep < 4) {
-      $(`.step${currentStep}`).fadeOut(() => {
-        $(`.step${++currentStep}`).fadeIn();
+    if($(e.target).is('.btn-primary')) {
+      if(++currentStep === 5) {
+        $('.steps').fadeOut(() => {
+          $('.mining').fadeIn();
+        });
+
+        return;
+      }
+      $(`.step${(currentStep-1)}`).fadeOut(() => {
+        $(`.step${currentStep}`).fadeIn();
 
         $(e.target).removeClass('btn-primary').addClass('btn-outline-primary');
         $('.back').removeClass('btn-outline-light').addClass('btn-light');
