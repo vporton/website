@@ -5,6 +5,7 @@ import DaoGarden from '../daogarden-js/daogarden';
 import $ from '../libs/jquery';
 import { BalancesWorker } from "../workers/balances";
 import { VotesWorker } from "../workers/votes";
+import Utils from "../utils";
 
 export default class PageDashboard {
   private arweave: Arweave;
@@ -47,20 +48,22 @@ export default class PageDashboard {
     const {users, balance} = await this.balancesWorker.usersAndBalance(state.balances);
     const {vaultUsers, vaultBalance} = await this.balancesWorker.vaultUsersAndBalance(state.vault);
 
+    $('.users').text(users.length).parents('.dimmer').removeClass('active');
+    $('.users-vault').text(`${vaultUsers.length} `);
+
     const votes = await this.votesWorker.activeVotesByType(state.votes);
     const votesMint = votes.mint? votes.mint.length : 0;
     const votesVault = votes.mintLocked? votes.mintLocked.length : 0;
     const votesActive = votes.active? votes.active.length : 0;
     const votesAll = votes.all? votes.all.length : 0;
 
-    $('.users').text(users.length);
-    $('.users-vault').text(`${vaultUsers.length} `);
-    $('.minted').text(balance + vaultBalance);
-    $('.mint-waiting').text(`${votesMint} `);
-    $('.vault').text(vaultBalance);
-    $('.vault-waiting').text(`${votesVault} `);
+    
+    $('.minted').text(Utils.formatMoney(balance + vaultBalance, 0));
+    $('.mint-waiting').text(`${votesMint} `).parents('.dimmer').removeClass('active');
+    $('.vault').text(Utils.formatMoney(vaultBalance, 0));
+    $('.vault-waiting').text(`${votesVault} `).parents('.dimmer').removeClass('active');
     $('.ticker').text(` ${state.ticker} `);
     $('.votes').text(`${votesActive} `);
-    $('.votes-completed').text(`${(votesAll - votesActive)} `);
+    $('.votes-completed').text(`${(votesAll - votesActive)} `).parents('.dimmer').removeClass('active');
   }
 }

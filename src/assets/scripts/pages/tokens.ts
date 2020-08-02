@@ -8,6 +8,7 @@ import $ from '../libs/jquery';
 import { BalancesWorker } from '../workers/balances';
 import { TokensWorker } from '../workers/tokens';
 import { StateInterface } from '../daogarden-js/faces';
+import Utils from '../utils';
 
 export default class PageTokens {
   private arweave: Arweave;
@@ -50,8 +51,8 @@ export default class PageTokens {
     const {balance} = await this.balancesWorker.usersAndBalance(state.balances);
     const {vaultBalance} = await this.balancesWorker.vaultUsersAndBalance(state.vault);
 
-    $('.minted').text(balance + vaultBalance);
-    $('.vault').text(vaultBalance);
+    $('.minted').text(Utils.formatMoney(balance + vaultBalance, 0));
+    $('.vault').text(Utils.formatMoney(vaultBalance, 0));
     $('.minted').parents('.dimmer').removeClass('active');
     
     const holdersByBalance = await this.tokensWorker.sortHoldersByBalance(state.balances, state.vault);
@@ -67,6 +68,8 @@ export default class PageTokens {
       const holder = holders[i];
       const arId = await arweaveId.get(holder.address, this.arweave);
       const avatar = arId.avatarDataUri || arweaveId.getIdenticon(holder.address);
+      const balance = holder.balance > holder.vaultBalance? holder.balance-holder.vaultBalance : holder.vaultBalance-holder.balance;
+
 
       html += `<tr>
         <td data-label="Token Holder">
@@ -79,10 +82,10 @@ export default class PageTokens {
           </div>
         </td>
         <td class="text-muted" data-label="Balance">
-          ${holder.balance > holder.vaultBalance? holder.balance-holder.vaultBalance : holder.vaultBalance-holder.balance}
+          ${Utils.formatMoney(balance, 0)}
         </td>
-        <td class="text-muted" data-label="Vault Balance">${holder.vaultBalance}</td>
-        <td class="text-muted" data-label="Total Balance">${holder.balance}</td>
+        <td class="text-muted" data-label="Vault Balance">${Utils.formatMoney(holder.vaultBalance, 0)}</td>
+        <td class="text-muted" data-label="Total Balance">${Utils.formatMoney(holder.balance, 0)}</td>
         <td class="text-muted d-none d-lg-table-cell" data-label="Role">TODO: UPDATE</td>
         <td class="text-right">
           <span class="dropdown ml-1">
