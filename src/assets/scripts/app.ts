@@ -1,5 +1,6 @@
 import "../styles/board.scss";
 
+import "threads/register";
 import Arweave from 'arweave/web';
 import DaoGarden from './daogarden-js/daogarden';
 import $ from './libs/jquery';
