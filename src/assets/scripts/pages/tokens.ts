@@ -73,7 +73,7 @@ export default class PageTokens {
           <div class="d-flex lh-sm py-1 align-items-center">
             <span class="avatar mr-2" style="background-image: url(${avatar})"></span>
             <div class="flex-fill">
-              <div class="strong">${arId.name}</div>
+              <div class="strong">${arId.name || holder.address}</div>
               <div class="text-muted text-h5">${holder.address}</div>
             </div>
           </div>
@@ -88,8 +88,10 @@ export default class PageTokens {
           <span class="dropdown ml-1">
             <button class="btn btn-light dropdown-toggle align-text-top" data-boundary="viewport" data-toggle="dropdown">Actions</button>
             <div class="dropdown-menu dropdown-menu-right">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another</a>
+              <a class="dropdown-item" href="#">Transfer</a>
+              <a class="dropdown-item" href="#">Mint</a>
+              <a class="dropdown-item" href="#">Mint Locked</a>
+              <a class="dropdown-item" href="#">Burn</a>
             </div>
           </span>
         </td>
