@@ -1,10 +1,8 @@
-import "../styles/board.scss";
-
 import Arweave from 'arweave/web';
-import DaoGarden from './daogarden-js/daogarden';
-import $ from './libs/jquery';
+import DaoGarden from '../daogarden-js/daogarden';
+import $ from '../libs/jquery';
 
-export default class Dashboard {
+export default class PageDashboard {
   private arweave: Arweave;
   private daoGarden: DaoGarden;
 
@@ -14,12 +12,13 @@ export default class Dashboard {
   }
 
   async open() {
+    $('.link-home').addClass('active');
     $('.page-dashboard').show();
     this.syncPageState();
   }
 
   async close() {
-    $('.dimmer').addClass('active');
+    $('.link-home').removeClass('active');
     $('.page-dashboard').hide();
   }
 

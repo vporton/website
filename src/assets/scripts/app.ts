@@ -6,7 +6,11 @@ import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
 
 import './global';
-import Dashboard from "./dashboard";
+import PageDashboard from "./pages/dashboard";
+import PageTokens from "./pages/tokens";
+import PageVotes from "./pages/votes";
+import PageVault from "./pages/vault";
+import PageSettings from "./pages/settings";
 
 class App {
   private hash: string;
@@ -15,22 +19,31 @@ class App {
   private daoGarden: DaoGarden;
   
   // Pages
-  private currentPage: Dashboard; // Add all possible page objects here
-  private dashboard: Dashboard;
+  private currentPage: PageDashboard | PageTokens | PageVotes | PageVault | PageSettings; // Add all possible page objects here
+  private pageDashboard: PageDashboard;
+  private pageTokens: PageTokens;
+  private pageVotes: PageVotes;
+  private pageVault: PageVault;
+  private pageSettings: PageSettings;
   
 
   constructor() {
-    this.hashChanged();
-    
     this.arweave = Arweave.init({});
     this.daoGarden = new DaoGarden(this.arweave);
-    this.dashboard = new Dashboard(this.arweave, this.daoGarden);
+
+    this.pageDashboard = new PageDashboard(this.arweave, this.daoGarden);
+    this.pageTokens = new PageTokens(this.arweave, this.daoGarden);
+    this.pageVotes = new PageVotes(this.arweave, this.daoGarden);
+    this.pageVault = new PageVault(this.arweave, this.daoGarden);
+    this.pageSettings = new PageSettings(this.arweave, this.daoGarden);
+
+    this.hashChanged(false);
   }
 
   async init() {
     await this.daoGarden.setDAOTx(this.hashes[0]);
+    await this.pageChanged();
 
-    this.pageChanged();
     this.events();
   }
 
@@ -41,13 +54,13 @@ class App {
   private async updateLinks() {
     $('a').each((i: number, e: Element) => {
       const link = $(e).attr('href').split('#');
-      if(link.length > 1) {
+      if(link.length > 1 && link[1] !== '!' && !link[1].startsWith(this.hashes[0])) {
         $(e).attr('href', `#${this.hashes[0]}${link[1]}`);
       }
     });
   }
 
-  private async hashChanged() {
+  private async hashChanged(updatePage = true) {
     this.hash = location.hash.substr(1);
     this.hashes = this.hash.split('/');
     
@@ -56,24 +69,29 @@ class App {
       window.location.href = './create.html';
     }
 
-    this.pageChanged();
+    if(updatePage) {
+      await this.pageChanged();
+    }
   }
 
   private async pageChanged() {
+    $('.dimmer').addClass('active');
+
     if(this.currentPage) {
       this.currentPage.close();
     }
 
     const page = await this.getCurrentPage();
     if(page === 'home') {
-      $('.link-home').addClass('active');
-      this.currentPage = this.dashboard;
+      this.currentPage = this.pageDashboard;
     } else if(page === 'tokens') {
-      $('.link-tokens').addClass('active');
+      this.currentPage = this.pageTokens;
     } else if(page === 'votes') {
-      $('.link-votes').addClass('active');
+      this.currentPage = this.pageVotes;
     } else if(page === 'vault') {
-      $('.link-vault').addClass('active');
+      this.currentPage = this.pageVault;
+    } else if(page === 'settings') {
+      this.currentPage = this.pageSettings;
     }
 
     await this.currentPage.open();
