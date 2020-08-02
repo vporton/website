@@ -1,7 +1,7 @@
-import 'css.gg/icons/css/loadbar-alt.css';
 import "../styles/style.scss";
 
 import Arweave from 'arweave/web';
+import DaoGarden from './daogarden-js/daogarden';
 import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
 
@@ -9,6 +9,7 @@ import './global';
 import { JWKInterface } from "arweave/web/lib/wallet";
 
 const arweave = Arweave.init({});
+const daoGarden = new DaoGarden(arweave);
 
 let currentStep = 1;
 let wallet: JWKInterface;
@@ -25,34 +26,69 @@ const create = {
   lockMaxLength: 0
 }
 
-const allowContinue = () => {
-  $('.continue').text(currentStep === 4? 'Launch DAO' : 'Continue');
-  $('.continue').removeClass('btn-outline-primary').addClass('btn-primary');
+const createDAO = () => {
+  daoGarden.create().then(daoTx => {
+    $('.mining-btn').attr('href', `./#${daoTx}`);
+
+    const attempt = async () => {
+      const res = await arweave.transactions.getStatus(daoTx);
+      if (res.status !== 200 && res.status !== 202) {
+        $('.mining-btn').removeClass('btn-primary').addClass('btn-danger').removeAttr('href').text('Transaction Rejected');
+      }
+
+      if(res.confirmed) {
+        // TODO: Show confirmed transaction
+        $('.mining-btn').text(`DONE! VISIT YOUR DAO`).removeClass('disabled');
+        return;
+      }
+
+      setTimeout(() => attempt(), 30000);
+    };
+    attempt();
+  }).catch(e => {
+    console.log('inside catch.');
+    console.log(e);
+  });
 }
 
-const validate = (e: any, fromContinue = false) => {
-  if(currentStep === 1 && !fromContinue) {
-    $('.file-upload-info').val($(e.target).val().replace(/C:\\fakepath\\/i, ''));
+const allowContinue = () => {
+  $('.continue').text(currentStep === 4? 'Launch DAO' : 'Continue');
+  $('.continue').prop('disabled', false);
+}
 
-    $('.file-upload-browse').html('<i class="gg-loadbar-alt"></i>');
+const validate = async (e: any) => {
+  if(currentStep === 1) {
+    if($('.form-file-button').text() !== 'Browse') return;
 
-    const fileReader = new FileReader();
-    fileReader.onload = async (ev: any) => {
-      wallet = JSON.parse(ev.target.result);
-      create.address = await arweave.wallets.jwkToAddress(wallet);
-      create.balance = +arweave.ar.winstonToAr((await arweave.wallets.getBalance(create.address)), { formatted: true, decimals: 5, trim: true });
+    if(e.target && e.target.files) {
+      $('.form-file-text').text($(e.target).val().replace(/C:\\fakepath\\/i, ''));
+      $('.form-file-button').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
 
-      $('.addy').text(create.address);
-      $('.bal').text(create.balance);
+      const fileReader = new FileReader();
+      fileReader.onload = async (ev: any) => {
+        wallet = JSON.parse(ev.target.result);
+        create.address = await arweave.wallets.jwkToAddress(wallet);
+        create.balance = +arweave.ar.winstonToAr((await arweave.wallets.getBalance(create.address)), { formatted: true, decimals: 5, trim: true });
 
-      $('.file-upload-browse').html('Wallet');
+        daoGarden.setWallet(wallet);
+
+        $('.addy').text(create.address);
+        $('.bal').text(create.balance);
+
+        $('.form-file-button').html('Browse');
+        allowContinue();
+      };
+      fileReader.readAsText(e.target.files[0]);
+    } else if(wallet && create.address && create.balance) {
       allowContinue();
-    };
-    fileReader.readAsText(e.target.files[0]);
+    }
 
   } else if(currentStep === 2) {
     create.daoName = $('#daoname').val().trim();
     create.ticker = $('#psttoken').val().trim().toUpperCase();
+
+    $('.daoname').text(create.daoName);
+    $('.ticker').text(create.ticker);
 
     const $holders = $('.holder');
     const $holdersBalance = $('.holder-balance');
@@ -76,18 +112,16 @@ const validate = (e: any, fromContinue = false) => {
     }
 
     if(create.daoName.length && create.ticker.length && Object.keys(create.balances).length) {
-      $('.daoname').text(create.daoName);
-      $('.ticker').text(create.ticker);
-
-      // TODO: add each holders and their balances
+      // add each holders and their balances
       let html = '';
-
       let i = 0;
       for(let acc in create.balances) {
-        html += `<small class="form-text text-muted mt-3">Token Holder #${++i}</small>`;
-        html += `<div class="row"><div class="col-md-8">${acc}</div><div class="col-md-4">${create.balances[acc]} ${create.ticker}</div></div>`;
+        html += `<tr>
+          <td data-label="Token Holder #${++i}">${acc}</td>
+          <td data-label="Balance">${create.balances[acc]}</td>
+        </tr>`;
       }
-      $('.show-holders').html(html);
+      $('.show-holders').find('tbody').html(html);
 
       allowContinue();
     }
@@ -124,7 +158,20 @@ const validate = (e: any, fromContinue = false) => {
       allowContinue();
     }
   } else if(currentStep === 4) {
-    allowContinue();
+    await daoGarden.setState(create.daoName, create.ticker, create.balances, create.quorum, create.support, create.voteLength, create.lockMinLength, create.lockMaxLength);
+    const cost = await daoGarden.getCreateCost();
+    const ar = +arweave.ar.winstonToAr(cost, {formatted: true, decimals: 5, trim: true});
+    $('.cost').text(ar);
+    if(create.balance < ar) {
+      $(e.target).removeClass('btn-primary, btn-outline-primary').addClass('btn-danger').text('Not enough balance');
+      return;
+    }
+
+    const checked = $('#confirm').prop("checked") && $('#aknowledge').prop("checked");
+    if(checked) {
+      $('#confirm, #aknowledge').prop('disabled', true);
+      allowContinue();
+    }
   }
 };
 
@@ -133,40 +180,48 @@ $(document).ready(() => {
 
   $('.back').on('click', (e: any) => {
     e.preventDefault();
+    $(e.target).blur();
 
-    if($(e.target).is('.btn-light') && currentStep > 1) {
+    if($(e.target).attr('href') === '#!' && currentStep > 1) {
       $(`.step${currentStep}`).fadeOut(() => {
         $(`.step${--currentStep}`).fadeIn();
 
-        $('.continue').text(currentStep === 4? 'Launch DAO' : 'Continue');
-        $('.continue').removeClass('btn-outline-primary').addClass('btn-primary');
         if(currentStep === 1) {
-          $(e.target).removeClass('btn-light').addClass('btn-outline-light');
+          $(e.target).removeAttr('href');
         } else {
-          $(e.target).removeClass('btn-outline-light').addClass('btn-light');
+          $(e.target).attr('href', '#!');
         }
+
+        $('.continue').text(currentStep === 4? 'Launch DAO' : 'Continue');
+        $('.continue').removeClass('btn-danger').addClass('btn-primary').prop('disabled', true);
+        validate(e);
       });
     }
   });
 
-  $('.continue').on('click', (e: any) => {
+  $('.continue').on('click', async (e: any) => {
     e.preventDefault();
+    $(e.target).blur();
 
     if($(e.target).is('.btn-primary')) {
-      if(++currentStep === 5) {
-        $('.steps').fadeOut(() => {
+      currentStep++;
+
+      if(currentStep === 5) {
+        $('.create-steps').fadeOut(() => {
           $('.mining').fadeIn();
+          createDAO();
         });
 
         return;
       }
+
       $(`.step${(currentStep-1)}`).fadeOut(() => {
         $(`.step${currentStep}`).fadeIn();
 
-        $(e.target).removeClass('btn-primary').addClass('btn-outline-primary');
-        $('.back').removeClass('btn-outline-light').addClass('btn-light');
+        $(e.target).prop('disabled', true);
+        $('.back').attr('href', '#!');
 
-        validate(e, true);
+        validate(e);
       });
     }
   });
@@ -187,7 +242,17 @@ $(document).ready(() => {
   $('.add-holders').on('click', (e: any) => {
     e.preventDefault();
 
-    $('.holders').append(`<div class="col-sm-8 mb-3"><input class="holder form-control form-control-sm" type="text"></div><div class="col-sm-4 mb-3"><div class="input-group input-group-sm"><input class="holder-balance form-control input-number" type="text" value="0"><div class="input-group-append"><div class="input-group-text bg-gradient-primary text-white ticker">${create.ticker}</div></div></div></div>`);
+    $('.holders').find('tbody').append(`<tr>
+      <td data-label="Token Holder">
+        <input class="holder form-control" type="text">
+      </td>
+      <td data-label="Balance">
+        <div class="input-group">  
+          <input class="holder-balance input-number form-control" type="text" value="0">
+          <span class="input-group-text ticker">${create.ticker}</span>
+        </div>
+      </td>
+    </tr>`);
   
   });
   $(document).on('input', '.input-number', (e: any) => {

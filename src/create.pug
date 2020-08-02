@@ -6,158 +6,218 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title DAO Garden
-    script(src="./assets/scripts/create.ts")
-  body  
-    .container-scroller
-      .container-fluid.page-body-wrapper
-          .content-wrapper.text-center
-            img(src="./assets/images/logo.png", width="300px")
-           
-            h3.mt-5 Create a new DAO
+  body.antialised.border-top-wide.border-primary.d-flex.flex-column
+    .flex-fill.d-flex.flex-column.justify-content-center
+      .container-tight.py-6
+        .text-center.mb-4
+          img(src="./assets/images/logo.png", width="300")
 
-            .row.mining(style="display: none")
-              .card.card-body.col-md-6.mb-5(style="margin: 20px auto")
-                h6.mb-3 Your DAO is under creation, please wait until the block is mined.
-                a.btn.btn-outline-primary
-                  .d-flex.justify-content-center
-                    i.gg-loadbar-alt
-                  | Mining your DAO
+        .mining(style="display: none")
+          .card
+            .card-header: .card-title Creating DAO
+            .card-body
+              p Your DAO is under creation, please wait.
+              a.mining-btn.btn.btn-primary.disabled(href="#!")
+                .spinner-border.spinner-border-sm.mr-2(role="status")
+                | Mining your DAO
 
-            .row.steps
-              .card.card-body.col-md-6.mb-5.center-align(style="margin: 20px auto;")
-                form.text-left
-                  .step1
-                    .form-group
-                      label Wallet Key File:
-                      input#wallet.file-upload-default(type="file", name="wallet")
-                      .input-group.col-xs12
-                        input.form-control.file-upload-info(type="text", disabled='', placeholder="Wallet File")
-                        span.input-group-append
-                          button.file-upload-browse.btn.btn-info Wallet
+        .card.create-steps
+          .card-header
+            .card-title Create a new DAO
+          
+          .card-body
+            .row
+              .col-xs-12.step1
+                .mb-3
+                  .form-label Wallet Key File
+                  .form-file
+                    input#wallet.form-file-upload(type="file", style="display: none;")
+                    label.form-file-label(for="wallet")
+                      span.form-file-text Choose a wallet...
+                      span.form-file-button Browse
 
-                    p.mb-3
-                      small.form-text.text-muted Wallet Address: 
-                      .addy
-                    p.mb-3
-                      small.form-text.text-muted Wallet Balance: 
-                      .bal
+                .mb-3
+                  .form-label Wallet Address
+                  .addy.form-control-plaintext -
+                .mb-3
+                  .form-label Wallet Balance: 
+                  .form-control-plaintext
+                    span.bal 0
+                    |  AR
 
-                  .step2
-                    .form-group
-                      label(for="daoname") DAO Name:
-                      input#daoname.form-control.form-control-sm(type="text")
-                      small.form-text.text-muted What's your DAO organization's name.
-                      
-                    .form-group
-                      label(for="psttoken") PST Token Ticker:
-                      input#psttoken.form-control.form-control-sm(type="text", style="text-transform: uppercase;")
-                      small.form-text.text-muted Token Symbol or ticker (in capital letters). For example: GAR.
+              .col-xs-12.step2
+                .mb-3
+                  label.form-label(for="daoname") DAO Name
+                  .row.row-sm
+                    .col
+                      input#daoname.form-control(type="text")
+                    .col-auto.align-self-center
+                      span.form-help(data-toggle="popover", data-placement="top", data-content="What's your DAO organization's name.", data-html="false") ?
+                  
+                .mb-3
+                  label.form-label(for="psttoken") PST Token Ticker
+                  .row.row-sm
+                    .col
+                      input#psttoken.form-control(type="text", style="text-transform: uppercase;")
+                    .col-auto.align-self-center
+                      span.form-help(data-toggle="popover", data-placement="top", data-content="<p>Token Symbol or ticker (in capital letters).</p> <p class=\"mb-0\">Example: GAR</p>", data-html="true") ?
 
-                    .row.holders
-                      .col-sm-8.mb-3
-                        label Token Holders
-                        input.holder.form-control.form-control-sm(type="text")
-                      .col-sm-4.mb-3
-                        label Balances
-                        .input-group.input-group-sm
-                          input.holder-balance.form-control.input-number(type="text", value="0")
-                          .input-group-append
-                            .input-group-text.bg-gradient-primary.text-white.ticker
+                .holders.mb-3
+                  .form-label Token Holders 
+                    a.add-holders(href="#!"): i.feather-16(data-feather="plus-circle")
+                  .table-responsive
+                    table.table.table-vcenter.table-mobile-md.card-table
+                      thead: tr
+                        th Token Holder
+                        th Balance
+                      tbody: tr
+                        td(data-label="Token Holder")
+                          input.holder.form-control(type="text")
+                        td(data-label="Balance")
+                          .input-group
+                            input.holder-balance.input-number.form-control(type="text", value="0")
+                            span.input-group-text.ticker
 
-                    .row
-                      .col
-                        a.btn.btn-info.btn-sm.add-holders Add More
-
-                  .step3
-                    .form-group
-                      label(for="support") Support:
-                      .input-group.input-group-sm
+              .col-xs-12.step3
+                .mb-3
+                  label.form-label(for="support") Support
+                  .row.row-sm
+                    .col
+                      .input-group
                         input#support.form-control.input-number.percent(type="text", value="50")
-                        .input-group-append
-                          .input-group-text.bg-gradient-primary.text-white %
-                      small.form-text.text-muted Support is the relative percentage of tokens that are required to vote “Yes” for a proposal to be approved. For example, if “Support” is set to 50%, then more than 50% of the tokens used to vote on a proposal must vote “Yes” for it to pass.
+                        span.input-group-text %
+                    .col-auto.align-self-center
+                      span.form-help(data-toggle="popover", data-placement="top", data-content="Support is the relative percentage of tokens that are required to vote “Yes” for a proposal to be approved. For example, if “Support” is set to 50%, then more than 50% of the tokens used to vote on a proposal must vote “Yes” for it to pass.") ?
 
-                    .form-group
-                      label(for="quorum") Quorum:
-                      .input-group.input-group-sm
+                .mb-3
+                  label.form-label(for="quorum") Quorum
+                  .row.row-sm
+                    .col
+                      .input-group
                         input#quorum.form-control.input-number.percent(type="text", value="50")
-                        .input-group-append
-                          .input-group-text.bg-gradient-primary.text-white %
-                      small.form-text.text-muted Quorum is how much of the vault weight is required to vote on a proposal to be approved. For example, if “Quorum” is set to 50%, then more than 50% of the vault weight must vote for it to pass.
+                        span.input-group-text %
+                    .col-auto.align-self-center
+                      span.form-help(data-toggle="popover", data-placement="top", data-content="Quorum is how much of the vault weight is required to vote on a proposal to be approved. For example, if “Quorum” is set to 50%, then more than 50% of the vault weight must vote for it to pass.") ?
 
-                    .form-group
-                      label(for="voteLength") Vote Length:
-                      .input-group.input-group-sm
+                .mb-3
+                  label.form-label(for="voteLength") Vote Length
+                  .row.row-sm
+                    .col
+                      .input-group
                         input#voteLength.form-control.input-number(type="text", value="2000")
-                        .input-group-append
-                          .input-group-text.bg-gradient-primary.text-white BLOCKS
-                      small.form-text.text-muted For how many blocks a proposal is considered active and able to vote on it.
+                        span.input-group-text BLOCKS
+                    .col-auto.align-self-center
+                      span.form-help(data-toggle="popover", data-placement="top", data-content="For how many blocks a proposal is considered active and able to vote on it.") ?
 
-                    .form-group
-                      label(for="lockMinLength") Lock Minimum Length:
-                      .input-group.input-group-sm
+                .mb-3
+                  label.form-label(for="lockMinLength") Lock Minimum Length
+                  .row.row-sm
+                    .col
+                      .input-group
                         input#lockMinLength.form-control.input-number(type="text", value="720")
-                        .input-group-append
-                          .input-group-text.bg-gradient-primary.text-white BLOCKS
-                      small.form-text.text-muted What is the minimum allowed lock time (in blocks) for each locked token.
+                        span.input-group-text BLOCKS
+                    .col-auto.align-self-center
+                      span.form-help(data-toggle="popover", data-placement="top", data-content="What is the minimum allowed lock time (in blocks) for each locked token.") ?
 
-                    .form-group
-                      label(for="lockMaxLength") Lock Maximum Length:
-                      .input-group.input-group-sm
+                .mb-3
+                  label.form-label(for="lockMaxLength") Lock Maximum Length
+                  .row.row-sm
+                    .col
+                      .input-group
                         input#lockMaxLength.form-control.input-number(type="text", value="720")
-                        .input-group-append
-                          .input-group-text.bg-gradient-primary.text-white BLOCKS
-                      small.form-text.text-muted What is the maximum allowed lock time (in blocks) for each locked token.
+                        span.input-group-text BLOCKS
+                    .col-auto.align-self-center
+                      span.form-help(data-toggle="popover", data-placement="top", data-content="What is the maximum allowed lock time (in blocks) for each locked token.") ?
 
-                  .step4.collapse
-                    p.mb-3 Have a look at your settings and click Launch DAO when ready.
-                    .row
-                      .col-md-4.text-center
-                        a.btn.btn-primary(href="#general") General
-                      .col-md-4.text-center
-                        a.btn.btn-outline-primary(href="#voting") Voting
-                      .col-md-4.text-center
-                        a.btn.btn-outline-primary(href="#tokens") Tokens
+              .col-xs-12.step4
+                h4 Have a look at your settings and click Launch DAO when ready.
 
-                    #general.collapse-content
-                      small.form-text.text-muted.mt-3 Wallet Address:
-                      .addy
+                .card
+                  ul.nav.nav-tabs.nav-fill(data-toggle="tab")
+                    li.nav-item
+                      a.nav-link.active(href="#general", data-toggle="tab") General
+                    li.nav-item
+                      a.nav-link(href="#voting", data-toggle="tab") Voting
+                    li.nav-item
+                      a.nav-link(href="#tokens", data-toggle="tab") Tokens
 
-                      small.form-text.text-muted.mt-3 Wallet Balance:
-                      .bal
+                  .card-body
+                    .tab-content
+                      #general.tab-pane.active.show
+                        .mb-3
+                          .form-label DAO Name
+                          .form-control-plaintext.daoname
+                        .mb-3
+                          .form-label Wallet Address
+                          .form-control-plaintext.addy
+                        .mb-3
+                          .form-label Wallet Balance
+                          .form-control-plaintext
+                            span.bal
+                            |  AR
+                        .mb-3
+                          .form-label DAO Creation Cost
+                          .form-control-plaintext
+                            span.cost
+                            |  AR
 
-                      small.form-text.text-muted.mt-3 DAO Name:
-                      .daoname
+                      #voting.tab-pane
+                        .mb-3
+                          .form-label Support
+                          .form-control-plaintext
+                            span.support 
+                            |  %
 
-                    #voting.collapse-content(style="display: none")
-                      small.form-text.text-muted.mt-3 Support % :
-                      span.support 
-                      |  %
+                        .mb-3
+                          .form-label Quorum
+                          .form-control-plaintext
+                            span.quorum 
+                            |  %
 
-                      small.form-text.text-muted.mt-3 Quorum % :
-                      span.quorum 
-                      |  %
+                        .mb-3
+                          .form-label Vote Length
+                          .form-control-plaintext
+                            span.voteLength 
+                            |  blocks
 
-                      small.form-text.text-muted.mt-3 Vote Length:
-                      span.voteLength 
-                      |  blocks
+                        .mb-3
+                          .form-label Vault Lock Min Length
+                          .form-control-plaintext
+                            span.lockMinLength 
+                            |  blocks
 
-                      small.form-text.text-muted.mt-3 Vault Lock Min Length:
-                      span.lockMinLength 
-                      |  blocks
+                        .mb-3
+                          .form-label Vault Lock Max Length
+                          .form-control-plaintext
+                            span.lockMaxLength 
+                            |  blocks
 
-                      small.form-text.text-muted.mt-3 Vault Lock Max Length:
-                      span.lockMaxLength 
-                      |  blocks
-                      
-                    #tokens.collapse-content(style="display: none")
-                      small.form-text.text-muted.mt-3 PST Ticker:
-                      .ticker
+                      #tokens.tab-pane
+                        .mb-3
+                          .form-label PST Ticker
+                          .form-control-plaintext.ticker
 
-                      .show-holders
+                        .mb-3
+                          .form-label Token Holders
+                          .show-holders.responsive-table
+                            table.table.table-vcenter.table-mobile-xl.card-table
+                                thead: tr
+                                  th Token Holder
+                                  th Balance
+                                tbody: tr
 
-                  .buttons.row.mt-5
-                    .col-md-6.text-center
-                      a.btn.btn-outline-light.text-black.btn-fw.back(href="#!") Back
-                    .col-md-6.text-center
-                      a.btn.btn-outline-primary.continue(href="#!") Continue
+                .mt-3
+                  label.form-check
+                    input#confirm.form-check-input(type="checkbox")
+                    span.form-check-label I reviewed my DAO and It's ready for deploy.
+
+                  label.form-check
+                    input#aknowledge.form-check-input(type="checkbox")
+                    span.form-check-label The smartweave contract for this project has been audited by professional security teams. But there may still has unexpected risks. I understand these risks.
+
+          .card-footer.text-right
+            .d-flex
+              a.back.btn.btn-link Back
+              button.continue.btn.btn-primary.ml-auto(disabled) Continue
+
+    script(src="./assets/scripts/create.ts")

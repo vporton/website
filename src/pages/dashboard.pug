@@ -1,16 +1,60 @@
-+pageHeader('Home', 'mdi-home', [{title: 'My DAO Name', link: './'}, {title: 'Home'}])
+.page-dashboard(style="display: none;")
+  .page-header: .row.align-items-center
+    .col-auto
+      .page-pretitle Dashboard
+      .page-title DAOName
 
-.row.mt-5
-  .col-md-6.stretch-card.grid-margin
-    a.card.bg-primary.card-img-holder.text-white(href="./tokens.pug")
-      .card-body
-        img.card-img-absolute(src="./assets/images/leaves.png", alt="")
-        h2.font-weight-normal.mb-5.mt-5 Token Holders
-          i.mdi.mdi-contacts.float-right
+  .row
+    .col-md-6: .card: .card-body: .dimmer.active
+      .loader
+      .dimmer-content.d-flex.align-items-center
+        span.bg-blue.text-white.stamp.mr-3
+          i.icon(data-feather="users")
+        .mr-3.lh-sm
+          .strong
+            span.users
+            |  Token Holders
+          .text-muted
+            span.users-vault
+            |  with voting power
 
-  .col-md-6.stretch-card.grid-margin
-    a.card.bg-info.card-img-holder.text-white(href="./votes.pug")
-      .card-body
-        img.card-img-absolute(src="./assets/images/leaves.png", alt="")
-        h2.font-weight-normal.mb-5.mt-5 Votes
-          i.mdi.mdi-format-list-bulleted.float-right
+    .col-md-6: .card: .card-body: .dimmer.active
+      .loader
+      .dimmer-content.d-flex.align-items-center
+        span.bg-green.text-white.stamp.stamp-lg.mr-3
+          i.icon(data-feather="bar-chart-2")
+        .mr-3.lh-sm
+          .strong
+            span.minted
+            span.ticker
+            |  Minted
+          .text-muted
+            span.mint-waiting
+            |  waiting in votes
+
+    .col-md-6: .card: .card-body: .dimmer.active
+      .loader
+      .dimmer-content.d-flex.align-items-center
+        span.bg-dark.text-white.stamp.mr-3
+          i.icon(data-feather="lock")
+        .mr-3.lh-sm
+          .strong
+            span.vault
+            span.ticker
+            |  Locked
+          .text-muted
+            span.vault-waiting
+            |  waiting in votes
+
+    .col-md-6: .card: .card-body: .dimmer.active
+      .loader
+      .dimmer-content.d-flex.align-items-center
+        span.bg-yellow.text-white.stamp.mr-3
+          i.icon(data-feather="check-circle")
+        .mr-3.lh-sm
+          .strong
+            span.votes 
+            |  Active Proposals
+          .text-muted
+            span.votes-completed
+            |  completed

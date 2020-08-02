@@ -8,23 +8,24 @@
   },
   "license": "UNLICENSED",
   "devDependencies": {
+    "@types/feather-icons": "^4.7.0",
     "parcel-bundler": "^1.12.4",
     "pug": "^3.0.0",
     "sass": "^1.26.10",
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@mdi/font": "3.7.95",
+    "@mdi/font": "^5.4.55",
+    "apexcharts": "^3.20.0",
     "arweave": "^1.8.0",
-    "arweave-id": "^2.0.6",
-    "bootstrap": "^4.3.1",
-    "bootstrap-datepicker": "^1.9.0",
-    "brand-colors": "^2.1.1",
-    "compass-mixins": "^0.12.10",
+    "arweave-id": "^2.0.7",
+    "bootstrap": "twbs/bootstrap#4fc701f",
     "css.gg": "^2.0.0",
-    "gridjs": "^1.11.0",
+    "feather-icons": "^4.28.0",
+    "gridjs": "^1.14.0",
     "jquery": "^3.5.1",
-    "jquery-sparkline": "^2.4.0",
-    "perfect-scrollbar": "^1.5.0"
+    "peity": "^3.3.0",
+    "smartweave": "https://arweave.net/AM-u4X2po-3Tx7fma3lRonCfLwrjI42IALwDL_YFXBs",
+    "threads": "^1.6.3"
   }
 }

@@ -6,21 +6,18 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title DAO Garden
-    block scripts
-      script(src="./assets/scripts/dashboard.ts")
-  body
+  body.antialised
     block vars
       - var page = 'home'
-      
-    .container-scroller
+
+    .page
       include partials/navbar
 
-      .container-fluid.page-body-wrapper
-        include partials/sidebar
+      .content
+        .container-xl
+          block content
 
-        .main-panel
-          .content-wrapper
-            block content
-              +pageHeader('Blank Page')
+        include partials/footer
 
-          include partials/footer
+    block scripts
+      script(src="./assets/scripts/app.ts")
