@@ -19,23 +19,33 @@ export default class DAOGarden {
   private daoContract = '';
   private state!: StateInterface;
   private lastStateCall: number = 0;
-  private stateRefreshEach: number = 1000 * 60 * 2; // 2 minutes
+  private cacheRefreshInterval: number = 1000 * 60 * 2; // 2 minutes
 
   /**
    * Before interacting with DAOGarden you need to have at least Arweave initialized.
    * @param arweave - Arweave instance
    * @param wallet - JWK wallet file data
+   * @param cacheRefreshInterval - Refresh interval in milliseconds for the cached state
    */
-  constructor(arweave: Arweave, wallet?: JWKInterface) {
+  constructor(arweave: Arweave, wallet?: JWKInterface, cacheRefreshInterval = (1000 * 60 * 2)) {
     this.arweave = arweave;
+
     if (wallet) {
       this.wallet = wallet;
       arweave.wallets.jwkToAddress(wallet).then(addy => this.walletAddress = addy).catch(console.error);
     }
+
+    if(cacheRefreshInterval) {
+      this.cacheRefreshInterval = cacheRefreshInterval;
+    }
   }
 
+  /**
+   * Get the current DAO state.
+   * @param cached - Wether to return the cached version or reload
+   */
   public async getState(cached = true): Promise<StateInterface> {
-    if(!cached || ((new Date()).getTime() - this.lastStateCall) < this.stateRefreshEach) {
+    if(!cached || ((new Date()).getTime() - this.lastStateCall) < this.cacheRefreshInterval) {
       // @ts-ignore
       this.state = await readContract(this.arweave, this.daoContract);
     }
@@ -184,8 +194,11 @@ export default class DAOGarden {
    * @param target - Target Wallet Address
    * @param qty - Amount of the token to send
    */
-  public async transfer(target: string, qty: number): Promise<any> {
-    return this.interact({function: 'transfer', target, qty});
+  public async transfer(target: string, qty: number): Promise<string> {
+    const res = await this.interact({function: 'transfer', target, qty});
+    await this.chargeFee('transfer');
+
+    return res;
   }
 
   /**
@@ -214,7 +227,6 @@ export default class DAOGarden {
     });
 
     const fee = (await this.arweave.api.get(`/price/${bytes}`)).data;
-    console.log(fee);
 
     const tx = await this.arweave.createTransaction(
       {

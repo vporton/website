@@ -47,21 +47,25 @@ export default class PageTokens {
   private async syncPageState() {
     const state = await this.daoGarden.getState();
 
-    // TODO: Update the page with state here
     const {balance} = await this.balancesWorker.usersAndBalance(state.balances);
     const {vaultBalance} = await this.balancesWorker.vaultUsersAndBalance(state.vault);
 
+    $('.ticker').text(state.ticker);
     $('.minted').text(Utils.formatMoney(balance + vaultBalance, 0));
     $('.vault').text(Utils.formatMoney(vaultBalance, 0));
     $('.minted').parents('.dimmer').removeClass('active');
     
     const holdersByBalance = await this.tokensWorker.sortHoldersByBalance(state.balances, state.vault);
     this.createOrUpdateCharts(holdersByBalance, state, balance);
-    this.createOrUpdateTable(holdersByBalance);
+    this.createOrUpdateTable(holdersByBalance, state);
 
   }
 
-  private async createOrUpdateTable(holders) {
+  private async createOrUpdateTable(holders: {
+    address: string;
+    balance: number;
+    vaultBalance: number;
+}[], state: StateInterface): Promise<void> {
     let html = '';
 
     for(let i = 0, j = holders.length; i < j; i++) {
@@ -70,8 +74,12 @@ export default class PageTokens {
       const avatar = arId.avatarDataUri || arweaveId.getIdenticon(holder.address);
       const balance = holder.balance > holder.vaultBalance? holder.balance-holder.vaultBalance : holder.vaultBalance-holder.balance;
 
+      let role = '-';
+      if(holder.address in state.roles) {
+        role = state.roles[holder.address];
+      }
 
-      html += `<tr>
+      html += `<tr data-holder='${JSON.stringify(holder)}'>
         <td data-label="Token Holder">
           <div class="d-flex lh-sm py-1 align-items-center">
             <span class="avatar mr-2" style="background-image: url(${avatar})"></span>
@@ -86,7 +94,7 @@ export default class PageTokens {
         </td>
         <td class="text-muted" data-label="Vault Balance">${Utils.formatMoney(holder.vaultBalance, 0)}</td>
         <td class="text-muted" data-label="Total Balance">${Utils.formatMoney(holder.balance, 0)}</td>
-        <td class="text-muted d-none d-lg-table-cell" data-label="Role">TODO: UPDATE</td>
+        <td class="text-muted d-none d-lg-table-cell" data-label="Role">${role}</td>
         <td class="text-right">
           <span class="dropdown ml-1">
             <button class="btn btn-light dropdown-toggle align-text-top" data-boundary="viewport" data-toggle="dropdown">Actions</button>
