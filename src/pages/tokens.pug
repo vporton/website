@@ -3,20 +3,53 @@
     .page-pretitle Tokens
     .page-title DAOName
 
-  .box: .card Token INFO
+  .row
+    .col-md-6
+      .card
+        .card-header
+          .card-title Token info
+        .card-body
+          .dimmer.active
+            .loader
+            .dimmer-content            
+              .mb-3.d-flex.align-items-center
+                .strong Token name
+                .token.ml-auto
 
-  .box: .card: .dimmer.active
+              .mb-3.d-flex.align-items-center
+                .strong Total supply
+                .minted.ml-auto 0
+
+              .mb-3.d-flex.align-items-center
+                .strong Tokens in Vault
+                .vault.ml-auto 0
+
+    .col-md-6
+      .card
+        .card-body
+          .dimmer.active
+            .loader
+            .dimmer-content
+              #chart-total-tokens
+
+
+  .card
+    .card-header
+      .card-title Token Holders
+    .dimmer.active
       .loader
       .dimmer-content
-        .table-responsive: table.table.table-vcenter.card-table
+        .table-responsive: table.token-holders.table.table-vcenter.card-table
           thead
             tr
               th Token Holder
               th Balance
               th Vault Balance
               th Total Balance
-              th Role
+              th.d-none.d-lg-table-cell Role
               th.w-1
 
           tbody
             tr
+
+    //- TODO: Add pagination

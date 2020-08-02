@@ -62,7 +62,5 @@ export default class PageDashboard {
     $('.ticker').text(` ${state.ticker} `);
     $('.votes').text(`${votesActive} `);
     $('.votes-completed').text(`${(votesAll - votesActive)} `);
-
-    $('.dimmer').removeClass('active');
   }
 }
