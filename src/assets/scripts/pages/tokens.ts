@@ -131,6 +131,8 @@ export default class PageTokens {
         title: {
           text: 'Top Holders'
         },
+        labels: [],
+        series: [],
         noData: { 
           text: 'Loading...'
         },
