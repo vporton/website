@@ -28,6 +28,10 @@ export default class Account {
     this.events();
   }
 
+  async getArweaveId(address: string = this.address) {
+    return get(address, this.arweave);
+  }
+
   private async loadWallet(wallet: JWKInterface) {
     this.wallet = wallet;
 

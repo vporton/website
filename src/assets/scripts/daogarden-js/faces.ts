@@ -36,7 +36,7 @@ export interface ActionInterface {
 }
 
 export interface InputInterface extends VoteInterface {
-  function: 'transfer' | 'balance' | 'unlockedBalance' | 'vote' | 'propose' | 'finalize' | 'lock' | 'increaseVault' | 'unlock' | 'vaultBalance' | 'role';
+  function: GetFunctionType | SetFunctionType;
   cast?: string;
 }
 
@@ -57,3 +57,14 @@ export interface VoteInterface {
   start?: number;
   lockLength?: number;
 }
+
+export interface ResultInterface {
+  result: {
+    target: string;
+    balance: number;
+    role: string;
+  }
+}
+
+export type GetFunctionType = 'balance' | 'unlockedBalance' | 'vaultBalance' | 'role';
+export type SetFunctionType = 'transfer' | 'vote' | 'propose' | 'finalize' | 'lock' | 'increaseVault' | 'unlock';

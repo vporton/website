@@ -1,8 +1,8 @@
 import Arweave from 'arweave/web';
-import { interactWrite, createContractFromTx, selectWeightedPstHolder, readContract, interactWriteDryRun } from 'smartweave';
+import { interactWrite, createContractFromTx, selectWeightedPstHolder, readContract, interactWriteDryRun, interactRead } from 'smartweave';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import Transaction from 'arweave/web/lib/transaction';
-import { BalancesInterface, VaultInterface, VoteInterface, RoleInterface, StateInterface, InputInterface } from './faces';
+import { BalancesInterface, VaultInterface, VoteInterface, RoleInterface, StateInterface, InputInterface, GetFunctionType, ResultInterface } from './faces';
 import Utils from './utils';
 
 export default class DAOGarden {
@@ -187,7 +187,44 @@ export default class DAOGarden {
     this.state = await readContract(this.arweave, this.daoContract);
   }
 
-  /** Token Functions **/
+  /** Getters **/
+
+  /**
+   * Do a GET call to any function on the contract.
+   * @param params - InputInterface
+   * @returns ResultInterface
+   */
+  public async get(params: InputInterface = {function: 'balance'}): Promise<ResultInterface> {
+    // @ts-ignore
+    return interactRead(this.arweave, this.wallet, this.daoContract, Object.assign({function: func}, params));
+  }
+
+  /**
+   * Get the target or current wallet balance
+   * @param target 
+   * @returns - Current target token balance
+   */
+  public async getBalance(target: string = this.walletAddress): Promise<number> {
+    const res = await this.get({ function: 'balance', target });
+    return res.result.balance;
+  }
+
+  public async getUnlockedBalance(target: string = this.walletAddress): Promise<number> {
+    const res = await this.get({ function: 'unlockedBalance', target});
+    return res.result.balance;
+  }
+
+  public async getVaultBalance(target: string = this.walletAddress): Promise<number> {
+    const res = await this.get({ function: 'vaultBalance', target});
+    return res.result.balance;
+  }
+
+  public async getRole(target: string = this.walletAddress): Promise<string> {
+    const res = await this.get({ function: 'role', target});
+    return res.result.role;
+  }
+
+  /** Setters **/
 
   /**
    * 
@@ -195,8 +232,8 @@ export default class DAOGarden {
    * @param qty - Amount of the token to send
    */
   public async transfer(target: string, qty: number): Promise<string> {
-    const res = await this.interact({function: 'transfer', target, qty});
     await this.chargeFee('transfer');
+    const res = await this.interact({function: 'transfer', target, qty});
 
     return res;
   }

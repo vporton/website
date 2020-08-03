@@ -71,7 +71,7 @@ export default class PageTokens {
 
     for(let i = 0, j = holders.length; i < j; i++) {
       const holder = holders[i];
-      const arId = await arweaveId.get(holder.address, this.arweave);
+      const arId = await this.account.getArweaveId(holder.address);
       const avatar = arId.avatarDataUri || arweaveId.getIdenticon(holder.address);
       const balance = holder.balance > holder.vaultBalance? holder.balance-holder.vaultBalance : holder.vaultBalance-holder.balance;
 
