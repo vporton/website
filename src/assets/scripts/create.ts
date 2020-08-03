@@ -67,10 +67,8 @@ const validate = async (e: any) => {
       const fileReader = new FileReader();
       fileReader.onload = async (ev: any) => {
         wallet = JSON.parse(ev.target.result);
-        create.address = await arweave.wallets.jwkToAddress(wallet);
+        create.address = await daoGarden.setWallet(wallet);
         create.balance = +arweave.ar.winstonToAr((await arweave.wallets.getBalance(create.address)), { formatted: true, decimals: 5, trim: true });
-
-        daoGarden.setWallet(wallet);
 
         $('.addy').text(create.address);
         $('.bal').text(create.balance);

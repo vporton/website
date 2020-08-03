@@ -13,7 +13,7 @@ export default class Account {
   private username: string = '';
   private avatar: string = '';
   private address: string = '';
-  private balance: number = 0;
+  private arBalance: number = 0; // AR Balance
 
   constructor(arweave: Arweave, daoGarden: DaoGarden) {
     this.arweave = arweave;
@@ -32,11 +32,35 @@ export default class Account {
     return get(address, this.arweave);
   }
 
+  async getBalance(onlyAr = false): Promise<number | {arBalance: number, balance: number, unlockedBalance: number, vaultBalance: number}> {
+    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    $('.user-ar-balance').text(this.arBalance);
+    if(onlyAr) {
+      return this.arBalance;
+    }
+
+    const balance = await this.daoGarden.getBalance();
+    const unlockedBalance = await this.daoGarden.getUnlockedBalance();
+    const vaultBalance = await this.daoGarden.getVaultBalance();
+
+    $('.user-balance').text(balance);
+    $('.user-unlocked-balance').text(unlockedBalance);
+    $('.user-vault-balance').text(vaultBalance);
+
+    return {
+      arBalance: this.arBalance,
+      balance,
+      unlockedBalance,
+      vaultBalance
+    };
+  }
+
+  // Setters
   private async loadWallet(wallet: JWKInterface) {
     this.wallet = wallet;
 
-    this.address = await this.arweave.wallets.jwkToAddress(this.wallet);
-    this.balance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    this.address = await this.daoGarden.setWallet(wallet);
+    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
 
     const acc = await get(this.address, this.arweave);
     this.username = acc.name;
@@ -47,7 +71,7 @@ export default class Account {
 
     // Complete login
     $('.form-file-button').html('Browse');
-    if(this.address.length && this.balance >= 0) {
+    if(this.address.length && this.arBalance >= 0) {
       $('#login-modal').modal('hide');
       $('.loggedin').show();
       $('.loggedout').hide();
@@ -63,7 +87,7 @@ export default class Account {
       fileReader.onload = async (ev: any) => {
         await this.loadWallet(JSON.parse(ev.target.result));
         
-        if(this.address.length && this.balance >= 0) {
+        if(this.address.length && this.arBalance >= 0) {
           window.sessionStorage.setItem('sesswall', btoa(ev.target.result));
         }
       };
@@ -74,6 +98,21 @@ export default class Account {
   private events() {
     $('.file-upload-default').on('change', (e: any) => {
       this.login(e);
+    });
+
+    $('.logout').on('click', (e: any) => {
+      e.preventDefault();
+
+      $('.loggedin').hide();
+      $('.loggedout').show();
+
+      this.wallet = null;
+      this.username = '';
+      this.avatar = '';
+      this.address = '';
+      this.arBalance = 0;
+
+      window.sessionStorage.removeItem('sesswall');
     });
   }
 }

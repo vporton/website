@@ -56,10 +56,13 @@ export default class DAOGarden {
   /**
    * Set the user wallet data.
    * @param wallet - JWK wallet file data
+   * @returns The wallet address
    */
-  public async setWallet(wallet: JWKInterface): Promise<void> {
+  public async setWallet(wallet: JWKInterface): Promise<string> {
     this.wallet = wallet;
     this.walletAddress = await this.arweave.wallets.jwkToAddress(this.wallet);
+
+    return this.walletAddress;
   }
 
   /**
