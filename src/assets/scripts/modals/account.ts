@@ -13,7 +13,10 @@ export default class Account {
   private username: string = '';
   private avatar: string = '';
   private address: string = '';
-  private arBalance: number = 0; // AR Balance
+  private arBalance: number = -1;
+  private balance: number = -1;
+  private unlockedBalance: number = -1;
+  private vaultBalance: number = -1;
 
   constructor(arweave: Arweave, daoGarden: DaoGarden) {
     this.arweave = arweave;
@@ -32,27 +35,31 @@ export default class Account {
     return get(address, this.arweave);
   }
 
-  async getBalance(onlyAr = false): Promise<number | {arBalance: number, balance: number, unlockedBalance: number, vaultBalance: number}> {
-    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
-    $('.user-ar-balance').text(this.arBalance);
-    if(onlyAr) {
+  async getArBalance(cached = true): Promise<number> {
+    if(cached && this.arBalance > -1) {
       return this.arBalance;
     }
 
-    const balance = await this.daoGarden.getBalance();
-    const unlockedBalance = await this.daoGarden.getUnlockedBalance();
-    const vaultBalance = await this.daoGarden.getVaultBalance();
+    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    return this.arBalance;
+  }
 
-    $('.user-balance').text(balance);
-    $('.user-unlocked-balance').text(unlockedBalance);
-    $('.user-vault-balance').text(vaultBalance);
+  async getUnlockedBalance(cached = true): Promise<number> {
+    if(cached && this.unlockedBalance > -1) {
+      return this.unlockedBalance;
+    }
 
-    return {
-      arBalance: this.arBalance,
-      balance,
-      unlockedBalance,
-      vaultBalance
-    };
+    this.unlockedBalance = await this.daoGarden.getUnlockedBalance();
+    return this.unlockedBalance;
+  }
+
+  async getVaultBalance(cached = true): Promise<number> {
+    if(cached && this.vaultBalance > -1) {
+      return this.vaultBalance;
+    }
+
+    this.vaultBalance = await this.daoGarden.getVaultBalance();
+    return this.vaultBalance;
   }
 
   // Setters

@@ -172,9 +172,23 @@ export default class DAOGarden {
   /**
    * Returns the current create cost as a winston string.
    */
-  public async getCreateCost(): Promise<string> {
+  public async getCreateCost(inAr = false, options?: {formatted: boolean, decimals: number, trim: boolean}): Promise<string> {
     const byteSize = new Blob([JSON.stringify(this.state)]).size;
     const res = await this.arweave.api.get(`/price/${(byteSize+this.createFee)}`);
+
+    if(inAr) {
+      return this.arweave.ar.winstonToAr(res.data, options);
+    }
+
+    return res.data;
+  }
+
+  public async getActionCost(inAr = false, options?: {formatted: boolean, decimals: number, trim: boolean}): Promise<string> {
+    const res = await this.arweave.api.get(`/price/${this.txFee}`);
+
+    if(inAr) {
+      return this.arweave.ar.winstonToAr(res.data, options);
+    }
 
     return res.data;
   }
@@ -189,8 +203,6 @@ export default class DAOGarden {
     // @ts-ignore
     this.state = await readContract(this.arweave, this.daoContract);
   }
-
-  /** Getters **/
 
   /**
    * Do a GET call to any function on the contract.

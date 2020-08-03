@@ -77,13 +77,17 @@
       .row.align-items-end
         .col-lg-8
           .mb-3
-            .form-label Transfer amount ( #[span.text-muted 12543541 GARDEN] )
-            input.form-control(type="text")
+            .form-label Transfer amount ( #[span.text-muted.user-unlocked-balance 0] #[span.text-muted.token] )
+            input.input-max-balance.form-control(type="text")
 
         .col-lg-4
           .mb-3
-            a.btn.btn-success(href="#") MAX
+            a.btn-max-balance.btn.btn-success(href="#") MAX
 
     .modal-footer
-      a.btn.btn-link.link-secondary(data-dismiss="modal" href="#") Cancel
-      a.btn.btn-primary.ml-auto(data-dismiss="modal" href="#") Transfer tokens
+      div
+        span.strong Fee:
+        span.text-muted 
+          span.tx-fee 0.25 
+          | AR
+      a.do-transfer-tokens.btn.btn-primary.ml-auto(data-dismiss="modal" href="#") Transfer tokens

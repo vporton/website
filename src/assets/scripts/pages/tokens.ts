@@ -38,11 +38,15 @@ export default class PageTokens {
     $('.link-tokens').addClass('active');
     $('.page-tokens').show();
     this.syncPageState();
+
+    this.events();
   }
 
   async close() {
     $('.link-tokens').removeClass('active');
     $('.page-tokens').hide();
+
+    await this.removeEvents();
   }
 
   private async syncPageState() {
@@ -60,6 +64,29 @@ export default class PageTokens {
     this.createOrUpdateCharts(holdersByBalance, state, balance);
     this.createOrUpdateTable(holdersByBalance, state);
 
+    const bal = await this.account.getUnlockedBalance(false);
+    $('.user-unlocked-balance').text(Utils.formatMoney(bal, 0));
+
+    const transferFee = await this.daoGarden.getActionCost(true, {formatted: true, decimals: 5, trim: true});
+    $('.tx-fee').text(` ${transferFee} `);
+  }
+
+  private async events() {
+    $('.btn-max-balance').on('click', async (e: any) => {
+      e.preventDefault();
+
+      $('.input-max-balance').val(await this.account.getUnlockedBalance());
+    });
+
+    $('.do-transfer-tokens').on('click', async (e: any) => {
+      e.preventDefault();
+
+      
+    });
+  }
+
+  private async removeEvents() {
+    $('.btn-max-balance, .do-transfer-tokens').off('click');
   }
 
   private async createOrUpdateTable(holders: {
