@@ -41,9 +41,6 @@ export default class PageDashboard {
 
   private async syncPageState() {
     const state = await this.daoGarden.getState();
-    console.log(state);
-
-    $('.page-header').find('.page-title').text(state.name);
 
     const {users, balance} = await this.balancesWorker.usersAndBalance(state.balances);
     const {vaultUsers, vaultBalance} = await this.balancesWorker.vaultUsersAndBalance(state.vault);
