@@ -1,7 +1,15 @@
 .page-tokens(style="display: none")
-  .page-header: .row.align-items-center: .col-auto
-    .page-pretitle Tokens
-    .page-title DAOName
+  .page-header: .row.align-items-center
+    .col-auto
+      .page-pretitle Tokens
+      .page-title DAOName
+
+    .col-auto.ml-auto.d-print-none
+      a.btn.btn-primary.d-none.d-sm-inline-block(href="#", data-toggle="modal", data-target="#modal-transfer")
+        i.icon(data-feather="plus") 
+        | Transfer tokens
+      a.btn.btn-primary.d-sm-none.btn-icon(href="#", data-toggle="modal", data-target="#modal-transfer", aria-label="Transfer tokens")
+        i.icon(data-feather="plus")
 
   .row
     .col-md-6
@@ -53,3 +61,29 @@
             tr
 
     //- TODO: Add pagination
+
+#modal-transfer.modal.modal-blur.fade(role="dialog")
+  .modal-dialog(role="document"): .modal-content
+    .modal-header
+      h5.modal-title Transfer tokens
+      button.close(data-dismiss="modal" aria-label="Close")
+        i.icon(data-feather="x")
+
+    .modal-body
+      .mb-3
+        label.form-label Target wallet address
+        input.form-control(type="text")
+
+      .row.align-items-end
+        .col-lg-8
+          .mb-3
+            .form-label Transfer amount ( #[span.text-muted 12543541 GARDEN] )
+            input.form-control(type="text")
+
+        .col-lg-4
+          .mb-3
+            a.btn.btn-success(href="#") MAX
+
+    .modal-footer
+      a.btn.btn-link.link-secondary(data-dismiss="modal" href="#") Cancel
+      a.btn.btn-primary.ml-auto(data-dismiss="modal" href="#") Transfer tokens
