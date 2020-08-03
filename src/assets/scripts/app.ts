@@ -35,17 +35,18 @@ class App {
     this.daoGarden = new DaoGarden(this.arweave);
     this.account = new Account(this.arweave, this.daoGarden);
 
-    this.pageDashboard = new PageDashboard(this.arweave, this.daoGarden);
-    this.pageTokens = new PageTokens(this.arweave, this.daoGarden);
-    this.pageVotes = new PageVotes(this.arweave, this.daoGarden);
-    this.pageVault = new PageVault(this.arweave, this.daoGarden);
-    this.pageSettings = new PageSettings(this.arweave, this.daoGarden);
+    this.pageDashboard = new PageDashboard(this.daoGarden);
+    this.pageTokens = new PageTokens(this.daoGarden, this.account);
+    this.pageVotes = new PageVotes(this.daoGarden, this.account);
+    this.pageVault = new PageVault(this.daoGarden, this.account);
+    this.pageSettings = new PageSettings(this.daoGarden);
 
     this.hashChanged(false);
   }
 
   async init() {
-    this.account.init();
+    await this.account.init();
+    $('body').show();
 
     await this.daoGarden.setDAOTx(this.hashes[0]);
     await this.pageChanged();

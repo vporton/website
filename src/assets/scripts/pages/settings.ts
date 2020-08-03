@@ -3,11 +3,9 @@ import DaoGarden from '../daogarden-js/daogarden';
 import $ from '../libs/jquery';
 
 export default class PageSettings {
-  private arweave: Arweave;
   private daoGarden: DaoGarden;
 
-  constructor(arweave: Arweave, daoGarden: DaoGarden) {
-    this.arweave = arweave;
+  constructor(daoGarden: DaoGarden) {
     this.daoGarden = daoGarden;
   }
 

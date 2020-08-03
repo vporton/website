@@ -9,10 +9,11 @@ import { BalancesWorker } from '../workers/balances';
 import { TokensWorker } from '../workers/tokens';
 import { StateInterface } from '../daogarden-js/faces';
 import Utils from '../utils';
+import Account from '../modals/account';
 
 export default class PageTokens {
-  private arweave: Arweave;
   private daoGarden: DaoGarden;
+  private account: Account;
 
   private chart: ApexCharts;
 
@@ -21,9 +22,9 @@ export default class PageTokens {
   private balancesWorker: ModuleThread<BalancesWorker>;
   private tokensWorker: ModuleThread<TokensWorker>;
 
-  constructor(arweave: Arweave, daoGarden: DaoGarden) {
-    this.arweave = arweave;
+  constructor(daoGarden: DaoGarden, account: Account) {
     this.daoGarden = daoGarden;
+    this.account = account;
   }
 
   async open() {

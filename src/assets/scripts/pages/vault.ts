@@ -1,14 +1,15 @@
 import Arweave from 'arweave/web';
 import DaoGarden from '../daogarden-js/daogarden';
 import $ from '../libs/jquery';
+import Account from '../modals/account';
 
 export default class PageVault {
-  private arweave: Arweave;
   private daoGarden: DaoGarden;
+  private account: Account;
 
-  constructor(arweave: Arweave, daoGarden: DaoGarden) {
-    this.arweave = arweave;
+  constructor(daoGarden: DaoGarden, account: Account) {
     this.daoGarden = daoGarden;
+    this.account = account;
   }
 
   async open() {

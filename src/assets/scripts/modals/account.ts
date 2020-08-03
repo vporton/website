@@ -20,9 +20,34 @@ export default class Account {
     this.daoGarden = daoGarden;
   }
 
-  init() {
+  async init() {
+    if(window.sessionStorage.getItem('sesswall')) {
+      await this.loadWallet(JSON.parse(atob(window.sessionStorage.getItem('sesswall'))));
+    }
 
     this.events();
+  }
+
+  private async loadWallet(wallet: JWKInterface) {
+    this.wallet = wallet;
+
+    this.address = await this.arweave.wallets.jwkToAddress(this.wallet);
+    this.balance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+
+    const acc = await get(this.address, this.arweave);
+    this.username = acc.name;
+    this.avatar = acc.avatarDataUri || getIdenticon(this.address);
+
+    $('.user-name').text(this.username);
+    $('.user-avatar').css('background-image', `url(${this.avatar})`);
+
+    // Complete login
+    $('.form-file-button').html('Browse');
+    if(this.address.length && this.balance >= 0) {
+      $('#login-modal').modal('hide');
+      $('.loggedin').show();
+      $('.loggedout').hide();
+    }
   }
 
   private login(e: any) {
@@ -32,23 +57,10 @@ export default class Account {
 
       const fileReader = new FileReader();
       fileReader.onload = async (ev: any) => {
-        this.wallet = JSON.parse(ev.target.result);
-        this.address = await this.arweave.wallets.jwkToAddress(this.wallet);
-        this.balance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
-
-        const acc = await get(this.address, this.arweave);
-        this.username = acc.name;
-        this.avatar = acc.avatarDataUri || getIdenticon(this.address);
-
-        $('.user-name').text(this.username);
-        $('.user-avatar').css('background-image', this.avatar);
-
-        // Complete login
-        $('.form-file-button').html('Browse');
+        await this.loadWallet(JSON.parse(ev.target.result));
+        
         if(this.address.length && this.balance >= 0) {
-          $('#login-modal').modal('hide');
-          $('.loggedin').show();
-          $('.loggedout').hide();
+          window.sessionStorage.setItem('sesswall', btoa(ev.target.result));
         }
       };
       fileReader.readAsText(e.target.files[0]);

@@ -8,7 +8,6 @@ import { VotesWorker } from "../workers/votes";
 import Utils from "../utils";
 
 export default class PageDashboard {
-  private arweave: Arweave;
   private daoGarden: DaoGarden;
 
   // workers
@@ -16,8 +15,7 @@ export default class PageDashboard {
   private balancesWorker: ModuleThread<BalancesWorker>;
   private votesWorker: ModuleThread<VotesWorker>;
 
-  constructor(arweave: Arweave, daoGarden: DaoGarden) {
-    this.arweave = arweave;
+  constructor(daoGarden: DaoGarden) {
     this.daoGarden = daoGarden;
   }
 
