@@ -15,12 +15,12 @@ header.navbar.navbar-expand-md.navbar-light
           .card
             .card-body Lorem ipsum bla bla bla
 
-      .loggedin.nav-item.dropdown
+      .loggedin.nav-item.dropdown(style="display: none")
         a.nav-link.d-flex.lh-1.text-reset.p-0(href="#" data-toggle="dropdown")
-          span.avatar(style="background-image: url(./static/avatars/000m.jpg)")
+          span.avatar.user-avatar(style="background-image: url(./static/avatars/000m.jpg)")
           .d-none.d-xl-block.pl-2
-            div Cedrik Boudreau
-            .mt-1.small.text-muted Role
+            div.user-name
+            .mt-1.small.text-muted.user-role
 
         .dropdown-menu.dropdown-menu-right.dropdown-menu-arrow
           a.dropdown-item(href="#/profile") 
@@ -31,8 +31,8 @@ header.navbar.navbar-expand-md.navbar-light
             i.icon.dropdown-item-icon(data-feather="log-out")
             | Logout
           
-      .login.nav-item
-        a.btn.btn-primary(href="#")
+      .loggedout.nav-item
+        a.btn.btn-primary(href="#", data-toggle="modal", data-target="#login-modal")
           i.icon(data-feather="user")
           | Login
 
@@ -68,3 +68,16 @@ header.navbar.navbar-expand-md.navbar-light
               span.nav-link-icon.d-md-none.d-lg-inline-block
                 i.icon(data-feather="settings")
               span.nav-link-title Community
+
+#login-modal.modal.modal-blur.fade(role="dialog")
+  .modal-dialog(role="document"): .modal-content
+    .modal-body
+      .form-label Wallet key file
+      .form-file
+        input#wallet.form-file-upload.file-upload-default(type="file" style="display: none")
+        label.form-file-label(for="wallet")
+          span.form-file-text Choose a wallet...
+          span.form-file-button Browse
+
+    .modal-footer
+      a.btn.btn-link.link-secondary(data-dismiss="modal" href="#") Cancel

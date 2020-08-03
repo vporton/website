@@ -12,12 +12,14 @@ import PageTokens from "./pages/tokens";
 import PageVotes from "./pages/votes";
 import PageVault from "./pages/vault";
 import PageSettings from "./pages/settings";
+import Account from "./modals/account";
 
 class App {
   private hash: string;
   private hashes: string[];
   private arweave: Arweave;
   private daoGarden: DaoGarden;
+  private account: Account;
   
   // Pages
   private currentPage: PageDashboard | PageTokens | PageVotes | PageVault | PageSettings; // Add all possible page objects here
@@ -31,6 +33,7 @@ class App {
   constructor() {
     this.arweave = Arweave.init({});
     this.daoGarden = new DaoGarden(this.arweave);
+    this.account = new Account(this.arweave, this.daoGarden);
 
     this.pageDashboard = new PageDashboard(this.arweave, this.daoGarden);
     this.pageTokens = new PageTokens(this.arweave, this.daoGarden);
@@ -42,6 +45,8 @@ class App {
   }
 
   async init() {
+    this.account.init();
+
     await this.daoGarden.setDAOTx(this.hashes[0]);
     await this.pageChanged();
 
