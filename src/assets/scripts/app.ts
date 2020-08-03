@@ -82,6 +82,8 @@ class App {
   }
 
   private async pageChanged() {
+    await this.account.getBalance();
+    
     const state = await this.daoGarden.getState();
     $('.page-header').find('.page-title').text(state.name);
 

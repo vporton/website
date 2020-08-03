@@ -199,7 +199,7 @@ export default class DAOGarden {
    */
   public async get(params: InputInterface = {function: 'balance'}): Promise<ResultInterface> {
     // @ts-ignore
-    return interactRead(this.arweave, this.wallet, this.daoContract, Object.assign({function: func}, params));
+    return interactRead(this.arweave, this.wallet, this.daoContract, params);
   }
 
   /**
