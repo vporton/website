@@ -20,6 +20,8 @@ export default class PageDashboard {
   }
 
   async open() {
+    $('.page-dashboard').show();
+
     if(this.firstCall) {
       this.balancesWorker = await spawn<BalancesWorker>(new Worker('../workers/balances.ts'));
       this.votesWorker = await spawn<VotesWorker>(new Worker('../workers/votes.ts'));
@@ -28,7 +30,6 @@ export default class PageDashboard {
     }
 
     $('.link-home').addClass('active');
-    $('.page-dashboard').show();
     this.syncPageState();
   }
 
