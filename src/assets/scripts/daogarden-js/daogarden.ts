@@ -209,22 +209,22 @@ export default class DAOGarden {
    */
   public async getBalance(target: string = this.walletAddress): Promise<number> {
     const res = await this.get({ function: 'balance', target });
-    return res.result.balance;
+    return res.balance;
   }
 
   public async getUnlockedBalance(target: string = this.walletAddress): Promise<number> {
     const res = await this.get({ function: 'unlockedBalance', target});
-    return res.result.balance;
+    return res.balance;
   }
 
   public async getVaultBalance(target: string = this.walletAddress): Promise<number> {
     const res = await this.get({ function: 'vaultBalance', target});
-    return res.result.balance;
+    return res.balance;
   }
 
   public async getRole(target: string = this.walletAddress): Promise<string> {
     const res = await this.get({ function: 'role', target});
-    return res.result.role;
+    return res.role;
   }
 
   /** Setters **/

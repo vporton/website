@@ -59,11 +59,9 @@ export interface VoteInterface {
 }
 
 export interface ResultInterface {
-  result: {
-    target: string;
-    balance: number;
-    role: string;
-  }
+  target: string;
+  balance: number;
+  role: string;
 }
 
 export type GetFunctionType = 'balance' | 'unlockedBalance' | 'vaultBalance' | 'role';
