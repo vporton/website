@@ -37,7 +37,7 @@ class App {
 
     this.pageDashboard = new PageDashboard(this.daoGarden);
     this.pageTokens = new PageTokens(this.daoGarden, this.account, this.arweave);
-    this.pageVotes = new PageVotes(this.daoGarden, this.account);
+    this.pageVotes = new PageVotes(this.daoGarden, this.account, this.arweave);
     this.pageVault = new PageVault(this.daoGarden, this.account, this.arweave);
     this.pageSettings = new PageSettings(this.daoGarden);
 

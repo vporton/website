@@ -41,8 +41,8 @@ export interface InputInterface extends VoteInterface {
 }
 
 export interface VoteInterface {
-  status?: 'active' | 'quorumFailed' | 'passed' | 'failed';
-  type?: 'mint' | 'mintLocked' | 'burnVault' | 'indicative' | 'set';
+  status?: VoteStatus;
+  type?: VoteType;
   id?: number;
   totalWeight?: number;
   recipient?: string;
@@ -64,5 +64,7 @@ export interface ResultInterface {
   role: string;
 }
 
+export type VoteStatus = 'active' | 'quorumFailed' | 'passed' | 'failed';
+export type VoteType = 'mint' | 'mintLocked' | 'burnVault' | 'indicative' | 'set';
 export type GetFunctionType = 'balance' | 'unlockedBalance' | 'vaultBalance' | 'role';
 export type SetFunctionType = 'transfer' | 'vote' | 'propose' | 'finalize' | 'lock' | 'increaseVault' | 'unlock';

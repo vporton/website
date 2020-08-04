@@ -208,7 +208,7 @@ export default class PageTokens {
       const transferTarget = $target.val().trim();
       const transferBalance = +$balance.val().trim();
 
-      if(isNaN(transferBalance) || transferBalance < 1) {
+      if(isNaN(transferBalance) || transferBalance < 1 || !Number.isInteger(transferBalance)) {
         return;
       }
 

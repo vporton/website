@@ -2,7 +2,7 @@ import Arweave from 'arweave/web';
 import { interactWrite, createContractFromTx, selectWeightedPstHolder, readContract, interactWriteDryRun, interactRead } from 'smartweave';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import Transaction from 'arweave/web/lib/transaction';
-import { BalancesInterface, VaultInterface, VoteInterface, RoleInterface, StateInterface, InputInterface, GetFunctionType, ResultInterface } from './faces';
+import { BalancesInterface, VaultInterface, VoteInterface, RoleInterface, StateInterface, InputInterface, GetFunctionType, ResultInterface, VoteType } from './faces';
 import Utils from './utils';
 
 export default class DAOGarden {
@@ -277,6 +277,13 @@ export default class DAOGarden {
   public async increaseVault(vaultId: number, lockLength: number): Promise<string> {
     await this.chargeFee('increaseVault');
     return this.interact({function: 'increaseVault', id: vaultId, lockLength });
+  }
+
+  public async proposeVote(params: VoteInterface) {
+    await this.chargeFee('proposeVote');
+
+    const input: InputInterface = {function: 'propose', ...params};
+    return this.interact(input);
   }
 
   /**

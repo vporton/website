@@ -7,8 +7,8 @@
     .col-auto.ml-auto.d-print-none
       a.btn.btn-primary.d-none.d-sm-inline-block(href="#", data-toggle="modal", data-target="#modal-new-vote")
         i.icon(data-feather="plus") 
-        | New proposal
-      a.btn.btn-primary.d-sm-none.btn-icon(href="#", data-toggle="modal", data-target="#modal-new-vote", aria-label="New proposal")
+        | New vote
+      a.btn.btn-primary.d-sm-none.btn-icon(href="#", data-toggle="modal", data-target="#modal-new-vote", aria-label="New vote")
         i.icon(data-feather="plus")
 
   .dimmer.active
@@ -227,25 +227,87 @@
 #modal-new-vote.modal.modal-blur.fade(role="dialog")
   .modal-dialog(role="document"): .modal-content
     .modal-header
-      h5.modal-title New Proposal
+      h5.modal-title New vote
       button.close(data-dismiss="modal" aria-label="Close")
         i.icon(data-feather="x")
 
     .modal-body
       .mb-3
-        label.form-label Target wallet address
-        input#transfer-target.form-control(type="text")
+        .form-label Vote type
+        .form-selectgroup
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="mint", checked)
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="users")
+              | Mint
+
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="mintLocked")
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="lock") 
+              | MintLocked
+
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="burnVault")
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="delete")
+              | Burn Vault
+
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="set")
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="settings")
+              | Set
+
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="indicative")
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="help-circle")
+              | Indicative
+
+      .vote-recipient.mb-3
+          label.form-label Recipient
+          input#vote-recipient.form-control(type="text")
+          .invalid-feedback Invalid recipient
+
+      .vote-qty.mb-3
+        label.form-label Quantity
+        input#vote-qty.form-control.input-number(type="text")
+
+      .vote-lock-length.mb-3(style="display: none")
+        .form-label Lock length in blocks
+        .input-group
+          input#vote-lock-length.input-max-lock.input-number.form-control(type="text")
+          a.btn-max-lock.btn.btn-success(href="#") MAX
+
+        small.form-hint Minimum length is #[span.min-lock-length.strong] and maximum is #[span.max-lock-length.strong] blocks.
+        
+      .vote-fields.vote-burn-vault.mb-3(style="display: none")
+        label.form-label Target
+        input#vote-target.form-control(type="text")
         .invalid-feedback Invalid target
 
-      .row.align-items-end
-        .col-lg-8
-          .mb-3
-            .form-label Transfer amount ( #[span.text-muted.user-unlocked-balance 0] #[span.text-muted.token] )
-            input#transfer-balance.input-max-balance.input-number.form-control(type="text")
+      .vote-fields.vote-set(style="display: none")
+        .mb-3
+          label.form-label Key
+          select#vote-set-key.form-select
+            option(value="quorum") Quorum
+            option(value="support") Support
+            option(value="lockMinLength") Minimum lock length
+            option(value="lockMaxLength") Maximum lock length
+            option(value="role") Role
 
-        .col-lg-4
-          .mb-3
-            a.btn-max-balance.btn.btn-success(href="#") MAX
+        //- This one changes depending on what the user has selected for his form-label, 
+        //- also could add .input-number to input
+        .mb-3
+          label.vote-set-key.form-label Value
+          input#vote-set-value.form-control(type="text")
+          .lock-set-value-invalid.invalid-feedback  
+
+      .mb-3
+        label.form-label Note
+        textarea#vote-note.form-control
+        .invalid-feedback Explain why are you creating this vote.
 
     .modal-footer
       div
@@ -253,4 +315,4 @@
         span.text-muted 
           span.tx-fee 0.25 
           | AR
-      a.do-transfer-tokens.btn.btn-primary.ml-auto(href="#") Transfer tokens
+      a.do-vote.btn.btn-primary.ml-auto(href="#") Create vote
