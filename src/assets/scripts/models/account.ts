@@ -4,6 +4,8 @@ import { get, getIdenticon } from 'arweave-id';
 
 import DaoGarden from '../daogarden-js/daogarden';
 import $ from '../libs/jquery';
+import app from "../app";
+import Toast from "../utils/toast";
 
 export default class Account {
   private arweave: Arweave;
@@ -49,6 +51,11 @@ export default class Account {
     return this.arBalance;
   }
 
+  async showLoginError() {
+    const toast = new Toast();
+    toast.show('Login first', 'Before being able to do this action you need to login.', 'login', 10000);
+  }
+
   // Setters
   private async loadWallet(wallet: JWKInterface) {
     this.wallet = wallet;
@@ -81,6 +88,7 @@ export default class Account {
       const fileReader = new FileReader();
       fileReader.onload = async (ev: any) => {
         await this.loadWallet(JSON.parse(ev.target.result));
+        app.getCurrentPage().syncPageState();
         
         if(this.address.length && this.arBalance >= 0) {
           window.sessionStorage.setItem('sesswall', btoa(ev.target.result));
@@ -95,7 +103,7 @@ export default class Account {
       this.login(e);
     });
 
-    $('.logout').on('click', (e: any) => {
+    $('.logout').on('click', async (e: any) => {
       e.preventDefault();
 
       $('.loggedin').hide();
@@ -108,7 +116,10 @@ export default class Account {
       this.address = '';
       this.arBalance = 0;
 
+      app.getCurrentPage().syncPageState();
       window.sessionStorage.removeItem('sesswall');
+
+      await this.daoGarden.setWallet(null);
     });
   }
 }

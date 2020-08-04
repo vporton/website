@@ -67,6 +67,7 @@ export default class PageVault {
       const {me, others} = await this.vaultWorker.meVsOthersWeight(state.vault, await this.account.getAddress());
       this.createOrUpdateCharts(me, others);
     } else {
+      $('.table-vault').find('tbody').html('');
       $('#chart-vault').addClass('text-center').text('Account doesn\'t have any locked balances.');
       $('.dimmer').removeClass('active');
     }
@@ -134,8 +135,6 @@ export default class PageVault {
 
     const labels: string[] = ['Me', 'Others'];
 
-    console.log(me, others);
-
     const total = me + others;
     let series = [0, 0];
     if(total > 0) {
@@ -169,6 +168,11 @@ export default class PageVault {
 
     $('.do-lock-tokens').on('click', async (e: any) => {
       e.preventDefault();
+
+      if(!await this.account.isLoggedIn()) {
+        $('#modal-lock').modal('hide');
+        return this.account.showLoginError();
+      }
       
       const balance = +$('#lock-balance').val().trim();
       const length = +$('#lock-length').val().trim();
@@ -207,6 +211,10 @@ export default class PageVault {
 
     $('.btn-unlock-vault').on('click', async (e: any) => {
       e.preventDefault();
+
+      if(!await this.account.isLoggedIn()) {
+        return this.account.showLoginError();
+      }
 
       const prevHtml = $(e.target).html();
       $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');

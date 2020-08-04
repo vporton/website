@@ -173,8 +173,6 @@ export default class PageTokens {
         series.push(Math.round(holders[i].balance / balance * 100));
     }
 
-    console.log(labels, series, holders);
-
     this.chart.updateSeries(series);
     this.chart.updateOptions({
       labels
@@ -195,6 +193,11 @@ export default class PageTokens {
 
     $('.do-transfer-tokens').on('click', async (e: any) => {
       e.preventDefault();
+
+      if(!await this.account.isLoggedIn()) {
+        $('#modal-transfer').modal('hide');
+        return this.account.showLoginError();
+      }
 
       const $target = $('#transfer-target');
       const $balance = $('#transfer-balance');

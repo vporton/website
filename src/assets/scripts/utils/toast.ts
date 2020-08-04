@@ -7,11 +7,23 @@ import Utils from './utils';
 export default class Toast {
   private t: any;
 
-  show(title: string, message: string, type: 'error' | 'success' | 'none', duration: number = 500) {
+  show(title: string, message: string, type: 'error' | 'success' | 'none' | 'login', duration: number = 500) {
     const autohide: boolean = duration > 0;
 
-    const bg = type === 'error'? 'bg-red' : (type === 'success' ? 'bg-green' : 'bg-yellow');
-    const icon = type === 'error'? feather.icons.x.toSvg() : (type === 'success'? feather.icons.check.toSvg() : '<div class="spinner-border spinner-border-sm" role="status"></div>');
+    const bg = type === 'error' || type === 'login'? 'bg-red' : (type === 'success' ? 'bg-green' : 'bg-yellow');
+
+    let icon = '<div class="spinner-border spinner-border-sm" role="status"></div>';
+    switch(type) {
+      case 'error':
+        icon = feather.icons.x.toSvg();
+        break;
+      case 'success':
+        icon = feather.icons.check.toSvg();
+        break;
+      case 'login':
+        icon = feather.icons.user.toSvg();
+        break;
+    }
 
     let closeBtn = '';
     if(duration > 0) {
