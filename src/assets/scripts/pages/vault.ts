@@ -121,7 +121,7 @@ export default class PageVault {
         grid: {
           strokeDashArray: 4
         },
-        //colors: ["#206bc4", "#79a6dc", "#bfe399", "#e9ecf1"],
+        colors: ["#206bc4", "#79a6dc", "#bfe399", "#e9ecf1"],
         legend: { show: true },
         tooltip: { fillSeriesColor: false },
         yaxis: {
@@ -146,7 +146,7 @@ export default class PageVault {
       labels
     });
 
-    $('#chart-vault').parents('.dimmer').removeClass('active');
+    $('#chart-vault').removeClass('text-center').parents('.dimmer').removeClass('active');
   }
 
   private events() {

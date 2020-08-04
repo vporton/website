@@ -2,10 +2,10 @@
   .page-header: .row.align-items-center
     .col-auto
       .page-pretitle Dashboard
-      .page-title DAOName
+      .page-title
 
   .row
-    .col-md-6: .card: .card-body: .dimmer.active
+    .col-md-6: a.card(href="#/tokens"): .card-body: .dimmer.active
       .loader
       .dimmer-content.d-flex.align-items-center
         span.bg-blue.text-white.stamp.mr-3
@@ -13,12 +13,12 @@
         .mr-3.lh-sm
           .strong
             span.users
-            |  Community Members
+            |  Community members
           .text-muted
             span.users-vault
             |  with voting power
 
-    .col-md-6: .card: .card-body: .dimmer.active
+    .col-md-6: a.card(href="#/tokens"): .card-body: .dimmer.active
       .loader
       .dimmer-content.d-flex.align-items-center
         span.bg-green.text-white.stamp.stamp-lg.mr-3
@@ -27,12 +27,12 @@
           .strong
             span.minted
             span.ticker
-            |  Minted
+            |  minted
           .text-muted
             span.mint-waiting
             |  waiting in votes
 
-    .col-md-6: .card: .card-body: .dimmer.active
+    .col-md-6: a.card(href="#/vault"): .card-body: .dimmer.active
       .loader
       .dimmer-content.d-flex.align-items-center
         span.bg-dark.text-white.stamp.mr-3
@@ -41,12 +41,12 @@
           .strong
             span.vault
             span.ticker
-            |  Locked
+            |  locked
           .text-muted
             span.vault-waiting
             |  waiting in votes
 
-    .col-md-6: .card: .card-body: .dimmer.active
+    .col-md-6: a.card(href="#/votes"): .card-body: .dimmer.active
       .loader
       .dimmer-content.d-flex.align-items-center
         span.bg-yellow.text-white.stamp.mr-3
@@ -54,7 +54,7 @@
         .mr-3.lh-sm
           .strong
             span.votes 
-            |  Active Proposals
+            |  Active votes
           .text-muted
             span.votes-completed
             |  completed
