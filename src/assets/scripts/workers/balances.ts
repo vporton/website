@@ -18,16 +18,17 @@ const worker = {
     return {vaultUsers, vaultBalance};
   },
   getAddressBalance: (address: string, balances: BalancesInterface, vault: VaultInterface) => {
-    let balance = balances[address];
+    let unlocked = balances[address];
     
+    let locked = 0;
     const userVault = vault[address];
     if(userVault) {
       for(let i = 0, j = userVault.length; i < j; i++) {
-        balance += userVault[i].balance;
+        locked += userVault[i].balance;
       }
     }
 
-    return balance;
+    return {balance: (unlocked + locked), unlocked, vault: locked};
   }
 }
 

@@ -200,9 +200,6 @@ export default class DAOGarden {
    */
   public async setDAOTx(txId: string): Promise<void> {
     this.daoContract = txId;
-
-    // @ts-ignore
-    this.state = await readContract(this.arweave, this.daoContract);
   }
 
   /**
@@ -246,10 +243,35 @@ export default class DAOGarden {
    * 
    * @param target - Target Wallet Address
    * @param qty - Amount of the token to send
+   * @returns The transaction ID for this action
    */
   public async transfer(target: string, qty: number): Promise<string> {
     await this.chargeFee('transfer');
     const res = await this.interact({function: 'transfer', target, qty});
+
+    return res;
+  }
+
+  /**
+   * Lock your balances in a vault to earn voting weight.
+   * @param qty - Positive integer for the quantity to lock
+   * @param lockLength - Length of the lock, in blocks
+   * @returns The transaction ID for this action
+   */
+  public async lockBalance(qty: number, lockLength: number): Promise<string> {
+    await this.chargeFee('lockBalance');
+    const res = await this.interact({function: 'lock', qty, lockLength});
+
+    return res;
+  }
+
+  /**
+   * Unlock all your locked balances that are over the lock period.
+   * @returns The transaction ID for this action
+   */
+  public async unlockVault(): Promise<string> {
+    await this.chargeFee('unlockVault');
+    const res = await this.interact({function: 'unlock'});
 
     return res;
   }
@@ -317,7 +339,7 @@ export default class DAOGarden {
   private async interact(input: InputInterface): Promise<string> {
     // @ts-ignore
     const res = await interactWriteDryRun(this.arweave, this.wallet, this.daoContract, input);
-    if(res.type === 'error' || res.type === 'exception') {
+    if(res.type === 'error') { //  || res.type === 'exception'
       throw new Error(res.result);
     }
 

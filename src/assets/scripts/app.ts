@@ -38,7 +38,7 @@ class App {
     this.pageDashboard = new PageDashboard(this.daoGarden);
     this.pageTokens = new PageTokens(this.daoGarden, this.account, this.arweave);
     this.pageVotes = new PageVotes(this.daoGarden, this.account);
-    this.pageVault = new PageVault(this.daoGarden, this.account);
+    this.pageVault = new PageVault(this.daoGarden, this.account, this.arweave);
     this.pageSettings = new PageSettings(this.daoGarden);
 
     this.hashChanged(false);
@@ -48,6 +48,7 @@ class App {
     await this.account.init();
     $('body').show();
 
+    await this.updateLinks();
     await this.daoGarden.setDAOTx(this.hashes[0]);
     await this.pageChanged();
 
@@ -86,9 +87,6 @@ class App {
   }
 
   private async pageChanged() {
-    const state = await this.daoGarden.getState();
-    $('.page-header').find('.page-title').text(state.name);
-
     $('.dimmer').addClass('active');
 
     if(this.currentPage) {
@@ -108,8 +106,16 @@ class App {
       this.currentPage = this.pageSettings;
     }
 
+    await this.updateTxFee();
     await this.currentPage.open();
-    await this.updateLinks();
+    $('.page-header').find('.page-title').text((await this.daoGarden.getState()).name);
+  }
+
+  private async updateTxFee() {
+    const fee = await this.daoGarden.getActionCost(true, {formatted: true, decimals: 5, trim: true});
+    $('.tx-fee').text(fee);
+
+    setTimeout(() => this.updateTxFee(), 10000);
   }
 
   private async events() {

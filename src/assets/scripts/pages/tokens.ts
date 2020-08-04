@@ -47,10 +47,10 @@ export default class PageTokens {
   }
 
   async close() {
+    await this.removeEvents();
+
     $('.link-tokens').removeClass('active');
     $('.page-tokens').hide();
-
-    await this.removeEvents();
   }
 
   public async syncPageState() {
@@ -69,69 +69,10 @@ export default class PageTokens {
     this.createOrUpdateTable(holdersByBalance, state);
 
     const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
-    $('.user-unlocked-balance').text(Utils.formatMoney(bal, 0));
+    $('.user-unlocked-balance').text(Utils.formatMoney(bal.unlocked, 0));
 
     const transferFee = await this.daoGarden.getActionCost(true, {formatted: true, decimals: 5, trim: true});
     $('.tx-fee').text(` ${transferFee} `);
-  }
-
-  private async events() {
-    $('.btn-max-balance').on('click', async (e: any) => {
-      e.preventDefault();
-
-      $('.input-max-balance').val(await this.account.getUnlockedBalance());
-    });
-
-    $('.do-transfer-tokens').on('click', async (e: any) => {
-      e.preventDefault();
-
-      const $target = $('#transfer-target');
-      const $balance = $('#transfer-balance');
-      if($target.hasClass('is-invalid') || $balance.hasClass('is-invalid')) {
-        return;
-      }
-
-      const transferTarget = $target.val().trim();
-      const transferBalance = +$balance.val().trim();
-
-      if(isNaN(transferBalance) || transferBalance < 1) {
-        return;
-      }
-
-      $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
-
-      const toast = new Toast();
-      try {
-        const txid = await this.daoGarden.transfer(transferTarget, transferBalance);
-        toast.showTransaction('Transfer balance', txid, {target: transferTarget, amount: Utils.formatMoney(transferBalance, 0)}, this.arweave)
-          .then(() => {
-            app.getCurrentPage().syncPageState();
-          });
-
-      } catch (err) {
-        console.log(err.message);
-        const toast = new Toast();
-        toast.show('Transfer error', err.message, 'error', 3000);
-      }
-
-      $('#modal-transfer').modal('hide');
-      $(e.target).removeClass('disabled').text('Transfer tokens');
-    });
-
-    $('#transfer-target').on('input', async (e: any) => {
-      const $target = $(e.target);
-      const transferTarget = $target.val().trim();
-      if(!(await Utils.isArTx(transferTarget)) || transferTarget === (await this.account.getAddress())) {
-        $target.addClass('is-invalid');
-      } else {
-        $target.removeClass('is-invalid');
-      }
-    });
-  }
-
-  private async removeEvents() {
-    $('.btn-max-balance, .do-transfer-tokens').off('click');
-    $('#transfer-target').off('input');
   }
 
   private async createOrUpdateTable(holders: {
@@ -211,7 +152,7 @@ export default class PageTokens {
         grid: {
           strokeDashArray: 4
         },
-        //colors: ["#206bc4", "#79a6dc", "#bfe399", "#e9ecf1"],
+        colors: ["#206bc4", "#79a6dc", "#bfe399", "#e9ecf1"],
         legend: { show: false },
         tooltip: { fillSeriesColor: false },
         yaxis: {
@@ -223,16 +164,16 @@ export default class PageTokens {
       this.chart.render();
     }
 
-    const data: {x: string, y: number}[] = [];
     const labels: string[] = [];
     const series: number[] = [];
 
     const maxChartHolders = holders.length > 5? 5 : holders.length;
     for(let i = 0, j = maxChartHolders; i < j; i++) {
         labels.push(holders[i].address);
-        series.push(holders[i].balance / balance * 100);
+        series.push(Math.round(holders[i].balance / balance * 100));
     }
 
+    console.log(labels, series, holders);
 
     this.chart.updateSeries(series);
     this.chart.updateOptions({
@@ -240,5 +181,66 @@ export default class PageTokens {
     });
 
     $('#chart-total-tokens').parents('.dimmer').removeClass('active');
+  }
+
+  private async events() {
+    $('.btn-max-balance').on('click', async (e: any) => {
+      e.preventDefault();
+
+      const state = await this.daoGarden.getState();
+      const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
+
+      $('.input-max-balance').val(bal.unlocked);
+    });
+
+    $('.do-transfer-tokens').on('click', async (e: any) => {
+      e.preventDefault();
+
+      const $target = $('#transfer-target');
+      const $balance = $('#transfer-balance');
+      if($target.hasClass('is-invalid') || $balance.hasClass('is-invalid')) {
+        return;
+      }
+
+      const transferTarget = $target.val().trim();
+      const transferBalance = +$balance.val().trim();
+
+      if(isNaN(transferBalance) || transferBalance < 1) {
+        return;
+      }
+
+      $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+
+      const toast = new Toast();
+      try {
+        const txid = await this.daoGarden.transfer(transferTarget, transferBalance);
+        toast.showTransaction('Transfer balance', txid, {target: transferTarget, amount: Utils.formatMoney(transferBalance, 0)}, this.arweave)
+          .then(() => {
+            app.getCurrentPage().syncPageState();
+          });
+
+      } catch (err) {
+        console.log(err.message);
+        toast.show('Transfer error', err.message, 'error', 3000);
+      }
+
+      $('#modal-transfer').modal('hide');
+      $(e.target).removeClass('disabled').text('Transfer tokens');
+    });
+
+    $('#transfer-target').on('input', async (e: any) => {
+      const $target = $(e.target);
+      const transferTarget = $target.val().trim();
+      if(!(await Utils.isArTx(transferTarget)) || transferTarget === (await this.account.getAddress())) {
+        $target.addClass('is-invalid');
+      } else {
+        $target.removeClass('is-invalid');
+      }
+    });
+  }
+
+  private async removeEvents() {
+    $('.btn-max-balance, .do-transfer-tokens').off('click');
+    $('#transfer-target').off('input');
   }
 }

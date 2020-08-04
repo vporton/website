@@ -1,33 +1,233 @@
 import Arweave from 'arweave/web';
+import ApexCharts from 'apexcharts';
+import { ModuleThread, spawn } from 'threads';
+
+import Utils from '../utils/utils';
 import DaoGarden from '../daogarden-js/daogarden';
 import $ from '../libs/jquery';
 import Account from '../models/account';
+import { StateInterface } from '../daogarden-js/faces';
+import Toast from '../utils/toast';
+import { VaultWorker } from '../workers/vault';
+import { BalancesWorker } from '../workers/balances';
+import app from '../app';
 
 export default class PageVault {
   private daoGarden: DaoGarden;
   private account: Account;
+  private arweave: Arweave;
 
-  constructor(daoGarden: DaoGarden, account: Account) {
+  private chart: ApexCharts;
+
+  // workers
+  private firstCall = true;
+  private vaultWorker: ModuleThread<VaultWorker>;
+  private balancesWorker: ModuleThread<BalancesWorker>;
+
+  constructor(daoGarden: DaoGarden, account: Account, arweave: Arweave) {
     this.daoGarden = daoGarden;
     this.account = account;
+    this.arweave = arweave;
   }
 
   async open() {
+    if(this.firstCall) {
+      this.balancesWorker = await spawn<BalancesWorker>(new Worker('../workers/balances.ts'));
+      this.vaultWorker = await spawn<VaultWorker>(new Worker('../workers/vault.ts'));
+      this.firstCall = false;
+    }
+
     $('.link-vault').addClass('active');
     $('.page-vault').show();
     this.syncPageState();
+
+    this.events();
   }
 
   async close() {
+    await this.removeEvents();
+
     $('.link-vault').removeClass('active');
     $('.page-vault').hide();
   }
 
   public async syncPageState() {
     const state = await this.daoGarden.getState();
-    
-    // TODO: Update the page with state here
 
-    $('.dimmer').removeClass('active');
+    $('.ticker').text(state.ticker);
+    const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
+    $('.user-unlocked-balance').text(Utils.formatMoney(bal.unlocked, 0));
+
+    $('.min-lock-length').text(state.lockMinLength);
+    $('.max-lock-length').text(state.lockMaxLength);
+    
+    if(await this.account.isLoggedIn() && state.vault[(await this.account.getAddress())]) {
+      this.createOrUpdateTable(state);
+
+      const {me, others} = await this.vaultWorker.meVsOthersWeight(state.vault, await this.account.getAddress());
+      this.createOrUpdateCharts(me, others);
+    } else {
+      $('#chart-vault').addClass('text-center').text('Account doesn\'t have any locked balances.');
+      $('.dimmer').removeClass('active');
+    }
+  }
+
+  private async createOrUpdateTable(state: StateInterface): Promise<void> {
+    let html = '';
+
+    const vault = state.vault[await this.account.getAddress()];
+    for(let i = 0, j = vault.length; i < j; i++) {
+      const v = vault[i];
+
+      let voteWeight = v.balance * (v.end - v.start);
+      
+      html += `<tr data-holder='${JSON.stringify(v)}'>
+        <td class="text-muted" data-label="Vault">Vault #${(i+1)}</td>
+        <td class="text-muted" data-label="Balance">${Utils.formatMoney(v.balance, 0)}</td>
+        <td class="text-muted" data-label="Vote weight">${Utils.formatMoney(voteWeight, 0)}</td>
+        <td class="text-right">
+          <button class="btn btn-light align-text-top">Increase</button>
+        </td>
+      </tr>`;
+    }
+
+    $('.table-vault').find('tbody').html(html).parents('.dimmer').removeClass('active');
+  }
+
+  private async createOrUpdateCharts(me: number, others: number) {
+    if(!this.chart) {
+      this.chart = new ApexCharts(document.getElementById('chart-vault'), {
+        chart: {
+          type: 'donut',
+          fontFamily: 'inherit',
+          height: 175,
+          sparkline: {
+            enabled: true
+          },
+          animations: {
+            enabled: true
+          }
+        },
+        fill: { opacity: 1 },
+        title: {
+          text: 'Vote weight VS others'
+        },
+        labels: [],
+        series: [],
+        noData: { 
+          text: 'Loading...'
+        },
+        grid: {
+          strokeDashArray: 4
+        },
+        //colors: ["#206bc4", "#79a6dc", "#bfe399", "#e9ecf1"],
+        legend: { show: false },
+        tooltip: { fillSeriesColor: false },
+        yaxis: {
+          labels: {
+            formatter: (val) => `${val}%`
+          }
+        }
+      });
+      this.chart.render();
+    }
+
+    const labels: string[] = ['Me', 'Others'];
+
+    console.log(me, others);
+
+    const total = me + others;
+    let series = [0, 0];
+    if(total > 0) {
+      series = [Math.round(me / total * 100), Math.round(others / total * 100)];
+    }
+
+    this.chart.updateSeries(series);
+    this.chart.updateOptions({
+      labels
+    });
+
+    $('#chart-vault').parents('.dimmer').removeClass('active');
+  }
+
+  private events() {
+    $('.btn-max-balance').on('click', async (e: any) => {
+      e.preventDefault();
+
+      const state = await this.daoGarden.getState();
+      const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
+
+      $('.input-max-balance').val(bal.unlocked);
+    });
+
+    $('.btn-max-lock').on('click', async (e: any) => {
+      e.preventDefault();
+
+      const state = await this.daoGarden.getState();
+      $('.input-max-lock').val(state.lockMaxLength);
+    });
+
+    $('.do-lock-tokens').on('click', async (e: any) => {
+      e.preventDefault();
+      
+      const balance = +$('#lock-balance').val().trim();
+      const length = +$('#lock-length').val().trim();
+
+      if(balance < 0 || length < 1) {
+        return;
+      }
+
+      const state = await this.daoGarden.getState();
+      const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
+      if(balance > bal.unlocked) {
+        return;
+      }
+      if(length < state.lockMinLength || length > state.lockMaxLength) {
+        return;
+      }
+
+      $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+
+      const toast = new Toast();
+      try {
+        const txid = await this.daoGarden.lockBalance(balance, length);
+        toast.showTransaction('Lock balance', txid, {lockAmount: Utils.formatMoney(balance, 0), lockLength: Utils.formatMoney(length, 0)}, this.arweave)
+          .then(() => {
+            app.getCurrentPage().syncPageState();
+          });
+
+      } catch (err) {
+        console.log(err.message);
+        toast.show('Transfer error', err.message, 'error', 3000);
+      }
+
+      $('#modal-lock').modal('hide');
+      $(e.target).removeClass('disabled').text('Lock tokens');
+    });
+
+    $('.btn-unlock-vault').on('click', async (e: any) => {
+      e.preventDefault();
+
+      const prevHtml = $(e.target).html();
+      $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+      const toast = new Toast();
+      try {
+        const txid = await this.daoGarden.unlockVault();
+        toast.showTransaction('Unlock vault', txid, {}, this.arweave)
+          .then(() => {
+            app.getCurrentPage().syncPageState();
+          });
+
+      } catch (err) {
+        console.log(err.message);
+        toast.show('Transfer error', err.message, 'error', 3000);
+      }
+
+      $(e.target).removeClass('disabled').html(prevHtml);
+    });
+  }
+
+  private async removeEvents() {
+    $('.btn-max-balance, .btn-max-lock, .do-lock-tokens, .btn-unlock-vault').off('click');
   }
 }

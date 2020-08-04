@@ -2,7 +2,7 @@
   .page-header: .row.align-items-center
     .col-auto
       .page-pretitle Tokens
-      .page-title DAOName
+      .page-title 
 
     .col-auto.ml-auto.d-print-none
       a.btn.btn-primary.d-none.d-sm-inline-block(href="#", data-toggle="modal", data-target="#modal-transfer")
@@ -29,7 +29,7 @@
                 .minted.ml-auto 0
 
               .mb-3.d-flex.align-items-center
-                .strong My tokens
+                .strong My balance
                 .user-unlocked-balance.ml-auto 0
 
     .col-md-6
@@ -75,20 +75,16 @@
         input#transfer-target.form-control(type="text")
         .invalid-feedback Invalid target
 
-      .row.align-items-end
-        .col-lg-8
-          .mb-3
-            .form-label Transfer amount ( #[span.text-muted.user-unlocked-balance 0] #[span.text-muted.token] )
-            input#transfer-balance.input-max-balance.input-number.form-control(type="text")
-
-        .col-lg-4
-          .mb-3
-            a.btn-max-balance.btn.btn-success(href="#") MAX
+      .mb-3
+        .form-label Transfer amount ( #[span.text-muted.user-unlocked-balance 0] #[span.text-muted.ticker] )
+        .input-group
+          input#transfer-balance.input-max-balance.input-number.form-control(type="text")
+          a.btn-max-balance.btn.btn-success(href="#") MAX
 
     .modal-footer
       div
         span.strong Fee:
         span.text-muted 
-          span.tx-fee 0.25 
+          span.tx-fee
           | AR
       a.do-transfer-tokens.btn.btn-primary.ml-auto(href="#") Transfer tokens

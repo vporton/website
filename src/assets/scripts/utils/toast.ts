@@ -42,7 +42,7 @@ export default class Toast {
   async showTransaction(title: string, txid: string, data = {}, arweave: Arweave) {
     let message = `
     <div class="mb-2">
-      <div class="strong">Transaction</div>
+      <div class="strong">Transaction ID</div>
       <h5 class="text-muted">${txid}</h5>
     </div>
     `;

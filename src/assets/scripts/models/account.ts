@@ -9,6 +9,7 @@ export default class Account {
   private arweave: Arweave;
   private daoGarden: DaoGarden;
 
+  private loggedIn: boolean = false;
   private wallet: JWKInterface;
   private username: string = '';
   private avatar: string = '';
@@ -33,6 +34,10 @@ export default class Account {
 
   async getArweaveId(address: string = this.address) {
     return get(address, this.arweave);
+  }
+
+  async isLoggedIn(): Promise<boolean> {
+    return this.loggedIn;
   }
 
   async getAddress(): Promise<string> {
@@ -61,6 +66,7 @@ export default class Account {
     // Complete login
     $('.form-file-button').html('Browse');
     if(this.address.length && this.arBalance >= 0) {
+      this.loggedIn = true;
       $('#login-modal').modal('hide');
       $('.loggedin').show();
       $('.loggedout').hide();
@@ -95,6 +101,7 @@ export default class Account {
       $('.loggedin').hide();
       $('.loggedout').show();
 
+      this.loggedIn = false;
       this.wallet = null;
       this.username = '';
       this.avatar = '';
