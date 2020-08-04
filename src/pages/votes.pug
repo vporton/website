@@ -7,8 +7,8 @@
     .col-auto.ml-auto.d-print-none
       a.btn.btn-primary.d-none.d-sm-inline-block(href="#", data-toggle="modal", data-target="#modal-new-vote")
         i.icon(data-feather="plus") 
-        | New Vote
-      a.btn.btn-primary.d-sm-none.btn-icon(href="#", data-toggle="modal", data-target="#modal-new-vote", aria-label="New vote")
+        | New proposal
+      a.btn.btn-primary.d-sm-none.btn-icon(href="#", data-toggle="modal", data-target="#modal-new-vote", aria-label="New proposal")
         i.icon(data-feather="plus")
 
   .dimmer.active
@@ -223,3 +223,34 @@
                   .avatar-list.avatar-list-stacked
                     span.avatar(style="background-image: url(./static/avatars/000m.jpg)")
                     span.avatar +5    
+
+#modal-new-vote.modal.modal-blur.fade(role="dialog")
+  .modal-dialog(role="document"): .modal-content
+    .modal-header
+      h5.modal-title New Proposal
+      button.close(data-dismiss="modal" aria-label="Close")
+        i.icon(data-feather="x")
+
+    .modal-body
+      .mb-3
+        label.form-label Target wallet address
+        input#transfer-target.form-control(type="text")
+        .invalid-feedback Invalid target
+
+      .row.align-items-end
+        .col-lg-8
+          .mb-3
+            .form-label Transfer amount ( #[span.text-muted.user-unlocked-balance 0] #[span.text-muted.token] )
+            input#transfer-balance.input-max-balance.input-number.form-control(type="text")
+
+        .col-lg-4
+          .mb-3
+            a.btn-max-balance.btn.btn-success(href="#") MAX
+
+    .modal-footer
+      div
+        span.strong Fee:
+        span.text-muted 
+          span.tx-fee 0.25 
+          | AR
+      a.do-transfer-tokens.btn.btn-primary.ml-auto(href="#") Transfer tokens
