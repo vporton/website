@@ -16,7 +16,15 @@
         i.icon(data-feather="lock")
 
   .row
-    .col-md-6
+    .col-lg-6.order-lg-2
+      .card
+        .card-body
+          .dimmer.active
+            .loader
+            .dimmer-content
+              #chart-vault
+
+    .col-lg-6.order-lg-1
       .card
         .card-header
           .card-title My Vault
@@ -26,21 +34,42 @@
             .table-responsive: table.table-vault.table.table-mobile-md.table-vcenter.card-table
               thead
                 tr
-                  th Vault ID
                   th Balance
                   th Vote Weight
+                  th Lock ends on block
                   th.w-1
 
               tbody
                 tr
 
-    .col-md-6
-      .card
-        .card-body
-          .dimmer.active
-            .loader
-            .dimmer-content
-              #chart-vault
+#modal-increase-lock.modal.modal-blur.fade(role="dialog")
+  .modal-dialog(role="document"): .modal-content
+    .modal-header
+      h5.modal-title Increase lock
+      button.close(data-dismiss="modal" aria-label="close")
+        i.icon(data-feather="x")
+
+    .modal-body
+      .mb-3
+        .form-label Vault ID
+        .form-control-plaintext.vault-id
+        input#lock-vault-id.vault-id(type="hidden")
+
+      .mb-3
+        .form-label Lock length in blocks
+        .input-group
+          input#increase-lock-length.input-max-lock.input-number.form-control(type="text")
+          a.btn-max-lock.btn.btn-success(href="#") MAX
+
+        small.form-hint Minimum length is #[span.min-lock-length.strong] and maximum is #[span.max-lock-length.strong] blocks.
+       
+    .modal-footer
+      div
+        span.strong Fee:
+        span.text-muted 
+          span.tx-fee
+          | AR
+      a.do-increase-lock.btn.btn-primary.ml-auto(href="#") Increase lock
 
 #modal-lock.modal.modal-blur.fade(role="dialog")
   .modal-dialog(role="document"): .modal-content

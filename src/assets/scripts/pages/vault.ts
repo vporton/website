@@ -82,12 +82,12 @@ export default class PageVault {
 
       let voteWeight = v.balance * (v.end - v.start);
       
-      html += `<tr data-holder='${JSON.stringify(v)}'>
-        <td class="text-muted" data-label="Vault">Vault #${(i+1)}</td>
+      html += `<tr data-vault='${JSON.stringify(v)}'>
         <td class="text-muted" data-label="Balance">${Utils.formatMoney(v.balance, 0)}</td>
         <td class="text-muted" data-label="Vote weight">${Utils.formatMoney(voteWeight, 0)}</td>
+        <td class="text-muted" data-label="Lock ends on block">${Utils.formatMoney(v.end, 0)}</td>
         <td class="text-right">
-          <button class="btn btn-light align-text-top">Increase</button>
+          <button class="btn btn-light align-text-top btn-increase-lock">Increase</button>
         </td>
       </tr>`;
     }
@@ -122,7 +122,7 @@ export default class PageVault {
           strokeDashArray: 4
         },
         //colors: ["#206bc4", "#79a6dc", "#bfe399", "#e9ecf1"],
-        legend: { show: false },
+        legend: { show: true },
         tooltip: { fillSeriesColor: false },
         yaxis: {
           labels: {
@@ -202,7 +202,7 @@ export default class PageVault {
 
       } catch (err) {
         console.log(err.message);
-        toast.show('Transfer error', err.message, 'error', 3000);
+        toast.show('Lock balance error', err.message, 'error', 3000);
       }
 
       $('#modal-lock').modal('hide');
@@ -233,9 +233,60 @@ export default class PageVault {
 
       $(e.target).removeClass('disabled').html(prevHtml);
     });
+
+    $(document).on('click', '.btn-increase-lock', async (e: any) => {
+      e.preventDefault();
+
+      console.log(e.target);
+      const $tr = $(e.target).parents('tr');
+      $('.vault-id').text(`#${$tr.index()}`).val($tr.index());
+
+      $('#modal-increase-lock').modal('show');
+    });
+
+    $('.do-increase-lock').on('click', async (e: any) => {
+      e.preventDefault();
+      
+      if(!await this.account.isLoggedIn()) {
+        $('#modal-increase-lock').modal('hide');
+        return this.account.showLoginError();
+      }
+
+      const state = await this.daoGarden.getState();
+      const length = +$('#increase-lock-length').val().trim();
+      if(length < state.lockMinLength || length > state.lockMaxLength) {
+        return;
+      }
+
+      const vaultId = +$('#lock-vault-id').val().trim();
+      if(!state.vault[await this.account.getAddress()][vaultId]) {
+        $('#modal-increase-lock').modal('hide');
+        const toast = new Toast();
+        toast.show('Increase lock error', 'This vault ID isn\'t available.', 'error', 3000);
+        return;
+      }
+
+      $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+      const toast = new Toast();
+      try {
+        const txid = await this.daoGarden.increaseVault(vaultId, length);
+        toast.showTransaction('Increase lock', txid, {vaultId: Utils.formatMoney(vaultId, 0), lockLength: Utils.formatMoney(length, 0)}, this.arweave)
+          .then(() => {
+            app.getCurrentPage().syncPageState();
+          });
+
+      } catch (err) {
+        console.log(err.message);
+        toast.show('Transfer error', err.message, 'error', 3000);
+      }
+
+      $('#modal-increase-lock').modal('hide');
+      $(e.target).removeClass('disabled').text('Increase lock');
+    });
   }
 
   private async removeEvents() {
-    $('.btn-max-balance, .btn-max-lock, .do-lock-tokens, .btn-unlock-vault').off('click');
+    $('.btn-max-balance, .btn-max-lock, .do-lock-tokens, .btn-unlock-vault, .do-increase-lock').off('click');
+    $(document).off('click', '.btn-increase-lock');
   }
 }

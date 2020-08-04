@@ -247,9 +247,7 @@ export default class DAOGarden {
    */
   public async transfer(target: string, qty: number): Promise<string> {
     await this.chargeFee('transfer');
-    const res = await this.interact({function: 'transfer', target, qty});
-
-    return res;
+    return this.interact({function: 'transfer', target, qty});
   }
 
   /**
@@ -260,9 +258,7 @@ export default class DAOGarden {
    */
   public async lockBalance(qty: number, lockLength: number): Promise<string> {
     await this.chargeFee('lockBalance');
-    const res = await this.interact({function: 'lock', qty, lockLength});
-
-    return res;
+    return this.interact({function: 'lock', qty, lockLength});
   }
 
   /**
@@ -271,9 +267,16 @@ export default class DAOGarden {
    */
   public async unlockVault(): Promise<string> {
     await this.chargeFee('unlockVault');
-    const res = await this.interact({function: 'unlock'});
+    return this.interact({function: 'unlock'});
+  }
 
-    return res;
+  /**
+   * Increase the lock time (in blocks) of a vault.
+   * @param lockLength - Length of the lock, in blocks
+   */
+  public async increaseVault(vaultId: number, lockLength: number): Promise<string> {
+    await this.chargeFee('increaseVault');
+    return this.interact({function: 'increaseVault', id: vaultId, lockLength });
   }
 
   /**
