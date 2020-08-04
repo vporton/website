@@ -20,7 +20,7 @@ export default class PageSettings {
     $('.page-settings').hide();
   }
 
-  private async syncPageState() {
+  public async syncPageState() {
     const state = await this.daoGarden.getState();
     
     // TODO: Update the page with state here

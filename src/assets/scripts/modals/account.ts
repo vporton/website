@@ -35,6 +35,10 @@ export default class Account {
     return get(address, this.arweave);
   }
 
+  async getAddress(): Promise<string> {
+    return this.address;
+  }
+
   async getArBalance(cached = true): Promise<number> {
     if(cached && this.arBalance > -1) {
       return this.arBalance;

@@ -27,7 +27,7 @@ const worker = {
       holders.set(u, holder);
     });
 
-    const res = Array.from(holders).map(a => a[1]).sort((a, b) => a.balance - b.balance);
+    const res = Array.from(holders).map(a => a[1]).sort((a, b) => b.balance - a.balance);
     return res;
   }
 }

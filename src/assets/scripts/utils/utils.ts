@@ -1,4 +1,19 @@
 export default class Utils {
+
+  static async pause(timeout: number = 500) {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(), timeout);
+    });
+  }
+
+  static async capitalize(str: string) {
+    return str.replace(/[A-Z]/g, ' $1').replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  }
+
+  static async isArTx(str: string): Promise<boolean> {
+    return /^[a-z0-9-_]{43}$/i.test(str);
+  }
+
   static formatMoney(amount: number, decimalCount = 2, decimal = ".", thousands = ",") {
     try {
       decimalCount = Math.abs(decimalCount);
@@ -13,5 +28,5 @@ export default class Utils {
     } catch (e) {
       console.log(e)
     }
-  };
+  }
 }

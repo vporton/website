@@ -23,7 +23,7 @@ export default class PageVotes {
     $('.page-votes').hide();
   }
 
-  private async syncPageState() {
+  public async syncPageState() {
     const state = await this.daoGarden.getState();
     
     //await this.showProposals(null);

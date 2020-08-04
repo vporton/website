@@ -45,9 +45,10 @@ export default class DAOGarden {
    * @param cached - Wether to return the cached version or reload
    */
   public async getState(cached = true): Promise<StateInterface> {
-    if(!cached || ((new Date()).getTime() - this.lastStateCall) < this.cacheRefreshInterval) {
+    if(!cached || ((new Date()).getTime() - this.lastStateCall) > this.cacheRefreshInterval) {
       // @ts-ignore
       this.state = await readContract(this.arweave, this.daoContract);
+      this.lastStateCall = (new Date()).getTime();
     }
 
     return this.state;

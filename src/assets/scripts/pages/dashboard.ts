@@ -5,7 +5,7 @@ import DaoGarden from '../daogarden-js/daogarden';
 import $ from '../libs/jquery';
 import { BalancesWorker } from "../workers/balances";
 import { VotesWorker } from "../workers/votes";
-import Utils from "../utils";
+import Utils from "../utils/utils";
 
 export default class PageDashboard {
   private daoGarden: DaoGarden;
@@ -38,7 +38,7 @@ export default class PageDashboard {
     $('.page-dashboard').hide();
   }
 
-  private async syncPageState() {
+  public async syncPageState() {
     const state = await this.daoGarden.getState();
 
     const {users, balance} = await this.balancesWorker.usersAndBalance(state.balances);

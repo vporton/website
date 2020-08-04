@@ -72,13 +72,14 @@
     .modal-body
       .mb-3
         label.form-label Target wallet address
-        input.form-control(type="text")
+        input#transfer-target.form-control(type="text")
+        .invalid-feedback Invalid target
 
       .row.align-items-end
         .col-lg-8
           .mb-3
             .form-label Transfer amount ( #[span.text-muted.user-unlocked-balance 0] #[span.text-muted.token] )
-            input.input-max-balance.form-control(type="text")
+            input#transfer-balance.input-max-balance.input-number.form-control(type="text")
 
         .col-lg-4
           .mb-3
@@ -90,4 +91,4 @@
         span.text-muted 
           span.tx-fee 0.25 
           | AR
-      a.do-transfer-tokens.btn.btn-primary.ml-auto(data-dismiss="modal" href="#") Transfer tokens
+      a.do-transfer-tokens.btn.btn-primary.ml-auto(href="#") Transfer tokens

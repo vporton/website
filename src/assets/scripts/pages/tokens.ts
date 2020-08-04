@@ -8,12 +8,15 @@ import $ from '../libs/jquery';
 import { BalancesWorker } from '../workers/balances';
 import { TokensWorker } from '../workers/tokens';
 import { StateInterface } from '../daogarden-js/faces';
-import Utils from '../utils';
+import Utils from '../utils/utils';
 import Account from '../modals/account';
+import Toast from '../utils/toast';
+import app from '../app';
 
 export default class PageTokens {
   private daoGarden: DaoGarden;
   private account: Account;
+  private arweave: Arweave;
 
   private chart: ApexCharts;
 
@@ -22,9 +25,10 @@ export default class PageTokens {
   private balancesWorker: ModuleThread<BalancesWorker>;
   private tokensWorker: ModuleThread<TokensWorker>;
 
-  constructor(daoGarden: DaoGarden, account: Account) {
+  constructor(daoGarden: DaoGarden, account: Account, arweave: Arweave) {
     this.daoGarden = daoGarden;
     this.account = account;
+    this.arweave = arweave;
   }
 
   async open() {
@@ -49,7 +53,7 @@ export default class PageTokens {
     await this.removeEvents();
   }
 
-  private async syncPageState() {
+  public async syncPageState() {
     const state = await this.daoGarden.getState();
 
     const {balance} = await this.balancesWorker.usersAndBalance(state.balances);
@@ -81,12 +85,53 @@ export default class PageTokens {
     $('.do-transfer-tokens').on('click', async (e: any) => {
       e.preventDefault();
 
-      
+      const $target = $('#transfer-target');
+      const $balance = $('#transfer-balance');
+      if($target.hasClass('is-invalid') || $balance.hasClass('is-invalid')) {
+        return;
+      }
+
+      const transferTarget = $target.val().trim();
+      const transferBalance = +$balance.val().trim();
+
+      if(isNaN(transferBalance) || transferBalance < 1) {
+        return;
+      }
+
+      $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+
+      const toast = new Toast();
+      try {
+        const txid = await this.daoGarden.transfer(transferTarget, transferBalance);
+        toast.showTransaction('Transfer balance', txid, {target: transferTarget, amount: Utils.formatMoney(transferBalance, 0)}, this.arweave)
+          .then(() => {
+            app.getCurrentPage().syncPageState();
+          });
+
+      } catch (err) {
+        console.log(err.message);
+        const toast = new Toast();
+        toast.show('Transfer error', err.message, 'error', 3000);
+      }
+
+      $('#modal-transfer').modal('hide');
+      $(e.target).removeClass('disabled').text('Transfer tokens');
+    });
+
+    $('#transfer-target').on('input', async (e: any) => {
+      const $target = $(e.target);
+      const transferTarget = $target.val().trim();
+      if(!(await Utils.isArTx(transferTarget)) || transferTarget === (await this.account.getAddress())) {
+        $target.addClass('is-invalid');
+      } else {
+        $target.removeClass('is-invalid');
+      }
     });
   }
 
   private async removeEvents() {
     $('.btn-max-balance, .do-transfer-tokens').off('click');
+    $('#transfer-target').off('input');
   }
 
   private async createOrUpdateTable(holders: {

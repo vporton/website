@@ -36,7 +36,7 @@ class App {
     this.account = new Account(this.arweave, this.daoGarden);
 
     this.pageDashboard = new PageDashboard(this.daoGarden);
-    this.pageTokens = new PageTokens(this.daoGarden, this.account);
+    this.pageTokens = new PageTokens(this.daoGarden, this.account, this.arweave);
     this.pageVotes = new PageVotes(this.daoGarden, this.account);
     this.pageVault = new PageVault(this.daoGarden, this.account);
     this.pageSettings = new PageSettings(this.daoGarden);
@@ -54,7 +54,11 @@ class App {
     this.events();
   }
 
-  private async getCurrentPage(): Promise<string> {
+  public getCurrentPage() {
+    return this.currentPage;
+  }
+
+  private async getPageStr(): Promise<string> {
     return this.hashes[1] || 'home';
   }
 
@@ -91,7 +95,7 @@ class App {
       this.currentPage.close();
     }
 
-    const page = await this.getCurrentPage();
+    const page = await this.getPageStr();
     if(page === 'home') {
       this.currentPage = this.pageDashboard;
     } else if(page === 'tokens') {
@@ -112,10 +116,22 @@ class App {
     $(window).on('hashchange', () => {
       this.hashChanged();
     });
+
+    $(document).on('input', '.input-number', (e: any) => {
+      const $target = $(e.target);
+      const newVal = +$target.val().toString().replace(/[^0-9]/g, '');
+      $target.val(newVal);
+  
+      if($target.hasClass('percent') && newVal > 99) {
+        $target.val(99);
+      }
+    });
   }
 }
 
 const app = new App();
+export default app;
+
 $(document).ready(() => {
   app.init();
 });
