@@ -12,7 +12,7 @@ import PageTokens from "./pages/tokens";
 import PageVotes from "./pages/votes";
 import PageVault from "./pages/vault";
 import PageSettings from "./pages/settings";
-import Account from "./modals/account";
+import Account from "./models/account";
 
 class App {
   private hash: string;

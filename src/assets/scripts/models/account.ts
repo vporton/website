@@ -40,30 +40,8 @@ export default class Account {
   }
 
   async getArBalance(cached = true): Promise<number> {
-    if(cached && this.arBalance > -1) {
-      return this.arBalance;
-    }
-
     this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
     return this.arBalance;
-  }
-
-  async getUnlockedBalance(cached = true): Promise<number> {
-    if(cached && this.unlockedBalance > -1) {
-      return this.unlockedBalance;
-    }
-
-    this.unlockedBalance = await this.daoGarden.getUnlockedBalance();
-    return this.unlockedBalance;
-  }
-
-  async getVaultBalance(cached = true): Promise<number> {
-    if(cached && this.vaultBalance > -1) {
-      return this.vaultBalance;
-    }
-
-    this.vaultBalance = await this.daoGarden.getVaultBalance();
-    return this.vaultBalance;
   }
 
   // Setters

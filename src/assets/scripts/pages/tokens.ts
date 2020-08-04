@@ -9,7 +9,7 @@ import { BalancesWorker } from '../workers/balances';
 import { TokensWorker } from '../workers/tokens';
 import { StateInterface } from '../daogarden-js/faces';
 import Utils from '../utils/utils';
-import Account from '../modals/account';
+import Account from '../models/account';
 import Toast from '../utils/toast';
 import app from '../app';
 
@@ -68,7 +68,7 @@ export default class PageTokens {
     this.createOrUpdateCharts(holdersByBalance, state, balance);
     this.createOrUpdateTable(holdersByBalance, state);
 
-    const bal = await this.account.getUnlockedBalance(false);
+    const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
     $('.user-unlocked-balance').text(Utils.formatMoney(bal, 0));
 
     const transferFee = await this.daoGarden.getActionCost(true, {formatted: true, decimals: 5, trim: true});

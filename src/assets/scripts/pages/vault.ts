@@ -1,7 +1,7 @@
 import Arweave from 'arweave/web';
 import DaoGarden from '../daogarden-js/daogarden';
 import $ from '../libs/jquery';
-import Account from '../modals/account';
+import Account from '../models/account';
 
 export default class PageVault {
   private daoGarden: DaoGarden;

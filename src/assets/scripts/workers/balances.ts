@@ -16,6 +16,18 @@ const worker = {
     }
 
     return {vaultUsers, vaultBalance};
+  },
+  getAddressBalance: (address: string, balances: BalancesInterface, vault: VaultInterface) => {
+    let balance = balances[address];
+    
+    const userVault = vault[address];
+    if(userVault) {
+      for(let i = 0, j = userVault.length; i < j; i++) {
+        balance += userVault[i].balance;
+      }
+    }
+
+    return balance;
   }
 }
 
