@@ -42,7 +42,7 @@ export default class PageVotes {
     console.log(state.votes);
     if(state.votes.length) {
       for(let i = 0, j = state.votes.length; i < j; i++) {
-        const vote = new Vote(state.votes[i]);
+        const vote = new Vote(state.votes[i], i);
         await vote.show();
       }
     }
@@ -227,7 +227,6 @@ export default class PageVotes {
       $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
       const toast = new Toast();
       try {
-        console.log(voteParams);
         const txid = await this.daoGarden.proposeVote(voteParams);
         toast.showTransaction('Create vote', txid, voteParams, this.arweave)
           .then(() => {
@@ -236,7 +235,7 @@ export default class PageVotes {
 
       } catch (err) {
         console.log(err.message);
-        toast.show('Transfer error', err.message, 'error', 3000);
+        toast.show('Vote error', err.message, 'error', 3000);
       }
 
       $('#modal-new-vote').modal('hide');

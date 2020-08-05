@@ -73,6 +73,11 @@ export default class Toast {
       } else if(key === 'type' || key === 'key') {
         value = await Utils.capitalize(value);
       }
+
+      if(key === 'Qty') {
+        key = 'Quantity';
+      }
+
       message += `
       <div class="mb-2">
         <div class="strong">${await Utils.capitalize(key)}</div>

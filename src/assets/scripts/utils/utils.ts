@@ -29,4 +29,14 @@ export default class Utils {
       console.log(e)
     }
   }
+
+  static stripTags(str: any) {
+    if(typeof str === 'object') {
+      for(let key in str) {
+        str[this.stripTags(key)] = this.stripTags(str[key]);
+      }
+    }
+
+    return str;
+  }
 }

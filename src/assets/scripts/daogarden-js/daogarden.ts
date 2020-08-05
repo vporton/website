@@ -6,8 +6,8 @@ import { BalancesInterface, VaultInterface, VoteInterface, RoleInterface, StateI
 import Utils from './utils';
 
 export default class DAOGarden {
-  private readonly srcTxId: string = 'u8RRY_ljWnmORzHLnicpJaC8m7V_dKyQIj7a9TWI8UM';
-  private readonly mainContract: string = '2v5HlcU87YKTfOczFCJGF4tvWvTXDBBYHvFG-Xv1tOY';
+  private readonly contractSrc: string = 'lR_mz6oRdSWZ3jcjfJHFaJZGub91P_RWCj-HY_C8XIU';
+  private readonly mainContract: string = 'do9ABIDHoZmulTjymVF8tydHfrH5pZRVZuu4qm4aDV4';
   private readonly txFee: number = 400000000;
   private readonly createFee: number = 9500000000;
 
@@ -164,7 +164,7 @@ export default class DAOGarden {
     // Create the new DAO.
     await this.chargeFee('CreateDAO', this.createFee);
     // @ts-ignore
-    const daoID = await createContractFromTx(this.arweave, this.wallet, this.srcTxId, JSON.stringify(this.state));
+    const daoID = await createContractFromTx(this.arweave, this.wallet, this.contractSrc, JSON.stringify(this.state));
     this.daoContract = daoID;
 
     return daoID;
@@ -279,9 +279,11 @@ export default class DAOGarden {
     return this.interact({function: 'increaseVault', id: vaultId, lockLength });
   }
 
-  public async proposeVote(params: VoteInterface) {
-    await this.chargeFee('proposeVote');
-
+  /**
+   * Create a new vote
+   * @param params VoteInterface without the "function"
+   */
+  public async proposeVote(params: VoteInterface): Promise<string> {
     const pCopy: VoteInterface = JSON.parse(JSON.stringify(params));
 
     if(pCopy.type === 'set') {
@@ -305,9 +307,29 @@ export default class DAOGarden {
       }
     }
 
-    console.log(pCopy);
-    const input: InputInterface = {function: 'propose', ...pCopy};
+    await this.chargeFee('proposeVote');
+    const input: InputInterface = {...pCopy, function: 'propose'};
+
     return this.interact(input);
+  }
+
+  /**
+   * Cast a vote on an existing, and active, vote proposal.
+   * @param id - The vote ID, this is the index of the vote in votes
+   * @param cast - Cast your vote with 'yay' (for yes) or 'nay' (for no)
+   */
+  public async vote(id: number, cast: 'yay' | 'nay'): Promise<string> {
+    await this.chargeFee('vote');
+    return this.interact({function: 'vote', id, cast});
+  }
+
+  /**
+   * Finalize a vote, to run the desired vote details if approved, or reject it and close.
+   * @param id - The vote ID, this is the index of the vote in votes
+   */
+  public async finalize(id: number) {
+    await this.chargeFee('finalize');
+    return this.interact({function: 'finalize', id});
   }
 
   /**

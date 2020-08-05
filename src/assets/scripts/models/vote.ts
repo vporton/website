@@ -5,6 +5,7 @@ import $ from '../libs/jquery';
 import { VoteInterface, VoteStatus, VoteType } from "../daogarden-js/faces";
 import app from '../app';
 import Utils from '../utils/utils';
+import Toast from '../utils/toast';
 
 export default class Vote implements VoteInterface {
   status?: VoteStatus;
@@ -23,23 +24,46 @@ export default class Vote implements VoteInterface {
   start?: number;
   lockLength?: number;
 
+  voteId: number;
   $card: any;
   
-  constructor(params: VoteInterface = {}) {
+  constructor(params: VoteInterface = {}, voteId: number) {
     if(Object.keys(params).length) {
-      const tmp = document.createElement('div');
+      params = Utils.stripTags(params);
       for(let key in params) {
-        tmp.innerHTML = key;
-        const k = tmp.textContent || tmp.innerText || '';
-        tmp.innerHTML = params[key];
-        const v = tmp.textContent || tmp.innerText || '';
-
-        this[k] = v;
+        this[key] = params[key];
       }
     }
+
+    this.voteId = voteId;
   }
 
-  async sync() {}
+  async sync() {
+    const me = await app.getAccount().getAddress();
+    const state = await app.getDaoGarden().getState();
+    const ends = (+this.start) + state.voteLength;
+    const current = app.getCurrentBlock();
+    const endsIn = current < ends? ends-current : 0;
+
+    const $progress = this.$card.find('.blocks-progress');
+    if($progress.css('width') !== '100%') {
+      let percent = 100;
+      if(current < ends) {
+        percent = (current-this.start) / (ends-this.start) * 100;
+      }
+      $progress.css('width', `${percent}%`).parent().attr('title', `Vote ends in ${endsIn}`).attr('data-original-title', `Vote ends in ${endsIn}`).find('.sr-only').text(`Vote ends in ${endsIn}`);
+    }
+
+    /**
+     * <div class="progress progress-sm card-progress" data-toggle="tooltip" data-placement="top" title="Vote ends in ${endsIn} blocks" data-original-title="Vote ends in ${endsIn} blocks">
+          <div class="progress-bar" style="width: ${percent}%" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
+            <span class="sr-only">Vote ends in ${endsIn} blocks</span>
+          </div>
+        </div>
+     */
+
+     setTimeout(() => this.sync(), 60000);
+  }
 
   async show() {
     const me = await app.getAccount().getAddress();
@@ -50,7 +74,7 @@ export default class Vote implements VoteInterface {
 
     let percent = 100;
     if(current < ends) {
-      percent = Math.round((current-this.start) / (ends-this.start)) * 100;
+      percent = (current-this.start) / (ends-this.start) * 100;
     }
 
     const bgColor = this.type === 'mint'? 'lime' : (
@@ -118,9 +142,15 @@ export default class Vote implements VoteInterface {
     }
 
     let footerBtns = `
-    <a class="btn-vote-yes btn btn-danger" href="#">NO</a>
-    <a class="btn-vote-no btn btn-success ml-3" href="#">YES</a>`;
-    if(this.voted.length && (me in this.voted)) {
+    <a class="btn-vote-no btn btn-danger" href="#">NO</a>
+    <a class="btn-vote-yes btn btn-success ml-3" href="#">YES</a>`;
+    if(!endsIn) {
+      if(this.status === 'active') {
+        footerBtns = `<a href="#" class="btn-finalize btn btn-dark">Finalize</a>`;
+      } else {
+        footerBtns = await Utils.capitalize(this.status);
+      }
+    } else if(this.voted.length && this.voted.includes(me)) {
       footerBtns = `<a class="btn btn-light disabled" href="#">Already Voted</a>`;
     }
 
@@ -128,8 +158,8 @@ export default class Vote implements VoteInterface {
     if(this.voted.length) {
       const maxLength = this.voted.length > 5? 5 : this.voted.length;
       for(let i = 0, j = maxLength; i < j; i++) {
-        const arId = await get(this.recipient || this.target, app.getArweave());
-        const avatar = arId.avatarDataUri || getIdenticon(this.recipient || this.target);
+        const arId = await get(this.voted[i], app.getArweave());
+        const avatar = arId.avatarDataUri || getIdenticon(this.voted[i]);
         avatarList += `<span class="avatar" style="background-image: url(${avatar})"></span>`;
       }
 
@@ -138,10 +168,10 @@ export default class Vote implements VoteInterface {
       }
     }
 
-    this.$card = `<div class="col-md-6">
+    this.$card = $(`<div class="col-md-6">
       <div class="card">
         <div class="progress progress-sm card-progress" data-toggle="tooltip" data-placement="top" title="Vote ends in ${endsIn} blocks" data-original-title="Vote ends in ${endsIn} blocks">
-          <div class="progress-bar" style="width: ${percent}%" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar blocks-progress" style="width: ${percent}%" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
             <span class="sr-only">Vote ends in ${endsIn} blocks</span>
           </div>
         </div>
@@ -185,8 +215,84 @@ export default class Vote implements VoteInterface {
           </div>
         </div>
       </div>
-    </div>`;
+    </div>`);
 
     $('.proposals').prepend(this.$card);
+    this.setEvents();
+
+    setTimeout(() => this.sync(), 60000);
+  }
+
+  private setEvents() {
+    this.$card.on('click', '.btn-vote-yes', async (e: any) => {
+      e.preventDefault();
+
+      if(!await app.getAccount().isLoggedIn()) {
+        return await app.getAccount().showLoginError();
+      }
+
+      $(e.target).addClass('btn-loading disabled');
+
+      const toast = new Toast();
+      try {
+        const txid = await app.getDaoGarden().vote(this.voteId, 'yay');
+        toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'Yes'}, app.getArweave())
+          .then(() => {
+            this.sync();
+          });
+      } catch (err) {
+        console.log(err.message);
+        toast.show('Vote error', err.message, 'error', 3000);
+      }
+
+      $(e.target).removeClass('btn-loading disabled');
+    });
+
+    this.$card.on('click', '.btn-vote-no', async (e: any) => {
+      e.preventDefault();
+
+      if(!await app.getAccount().isLoggedIn()) {
+        return await app.getAccount().showLoginError();
+      }
+
+      $(e.target).addClass('btn-loading disabled');
+
+      const toast = new Toast();
+      try {
+        const txid = await app.getDaoGarden().vote(this.voteId, 'nay');
+        toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'No'}, app.getArweave())
+          .then(() => {
+            this.sync();
+          });
+      } catch (err) {
+        console.log(err.message);
+        toast.show('Vote error', err.message, 'error', 3000);
+      }
+
+      $(e.target).removeClass('btn-loading disabled');
+    });
+
+    this.$card.on('click', '.btn-finalize', async (e: any) => {
+      e.preventDefault();
+
+      if(!await app.getAccount().isLoggedIn()) {
+        return await app.getAccount().showLoginError();
+      }
+
+      $(e.target).addClass('btn-loading disabled');
+      const toast = new Toast();
+      try {
+        const txid = await app.getDaoGarden().finalize(this.voteId);
+        toast.showTransaction('Finalize vote', txid, {voteId: this.voteId}, app.getArweave())
+          .then(() => {
+            this.sync();
+          });
+      } catch (err) {
+        console.log(err.message);
+        toast.show('Vote error', err.message, 'error', 3000);
+      }
+
+      $(e.target).removeClass('btn-loading disabled');
+    });
   }
 }
