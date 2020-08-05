@@ -59,11 +59,24 @@ export default class Toast {
     </div>
     `;
 
+    const tmp = document.createElement('div');
     for(let key in data) {
+      tmp.innerHTML = key;
+      key = tmp.textContent || tmp.innerText || '';
+
+      let value = data[key];
+      tmp.innerHTML = value;
+      value = tmp.textContent || tmp.innerText || '';
+
+      if(typeof value === 'number') {
+        value = await Utils.formatMoney(value, 0);
+      } else if(key === 'type' || key === 'key') {
+        value = await Utils.capitalize(value);
+      }
       message += `
       <div class="mb-2">
         <div class="strong">${await Utils.capitalize(key)}</div>
-        <h5 class="text-muted">${data[key]}</h5>
+        <h5 class="text-muted">${value}</h5>
       </div>`;
     }
 

@@ -6,8 +6,8 @@ import { BalancesInterface, VaultInterface, VoteInterface, RoleInterface, StateI
 import Utils from './utils';
 
 export default class DAOGarden {
-  private readonly srcTxId: string = '3JnnzXKiWctcu4_5OJoUZ21fn21MTqbESwX6cixhpb4';
-  private readonly mainContract: string = 'BAfcKVhykkup_onxxgzj3T0fMhp33bY82OK23Rruy-Q';
+  private readonly srcTxId: string = 'u8RRY_ljWnmORzHLnicpJaC8m7V_dKyQIj7a9TWI8UM';
+  private readonly mainContract: string = '2v5HlcU87YKTfOczFCJGF4tvWvTXDBBYHvFG-Xv1tOY';
   private readonly txFee: number = 400000000;
   private readonly createFee: number = 9500000000;
 
@@ -282,7 +282,31 @@ export default class DAOGarden {
   public async proposeVote(params: VoteInterface) {
     await this.chargeFee('proposeVote');
 
-    const input: InputInterface = {function: 'propose', ...params};
+    const pCopy: VoteInterface = JSON.parse(JSON.stringify(params));
+
+    if(pCopy.type === 'set') {
+      if(pCopy.key === 'quorum' || pCopy.key === 'support' || pCopy.key === 'lockMinLength' || pCopy.key === 'lockMaxLength') {
+        pCopy.value = +pCopy.value;
+      }
+
+      if(pCopy.key === 'quorum' || pCopy.key === 'support') {
+        if(pCopy.value > 0 && pCopy.value < 100) {
+          pCopy.value = pCopy.value / 100;
+        } else if(pCopy.value <= 0 || pCopy.value >= 100) {
+          throw new Error('Invalid value.');
+        }
+      }
+
+      if(pCopy.key === 'lockMinLength' && (pCopy.value < 1 || pCopy.value > this.state.lockMaxLength)) {
+        throw new Error('Invalid minimum lock length.');
+      }
+      if(pCopy.key === 'lockMaxLength' && (pCopy.value < 1 || pCopy.value < this.state.lockMinLength)) {
+        throw new Error('Invalid maximum lock length.');
+      }
+    }
+
+    console.log(pCopy);
+    const input: InputInterface = {function: 'propose', ...pCopy};
     return this.interact(input);
   }
 

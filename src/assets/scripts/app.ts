@@ -20,6 +20,7 @@ class App {
   private arweave: Arweave;
   private daoGarden: DaoGarden;
   private account: Account;
+  private currentBlock: number = 0;
   
   // Pages
   private currentPage: PageDashboard | PageTokens | PageVotes | PageVault | PageSettings; // Add all possible page objects here
@@ -28,10 +29,9 @@ class App {
   private pageVotes: PageVotes;
   private pageVault: PageVault;
   private pageSettings: PageSettings;
-  
 
   constructor() {
-    this.arweave = Arweave.init({});
+    this.arweave = Arweave.init({timeout: 100000});
     this.daoGarden = new DaoGarden(this.arweave);
     this.account = new Account(this.arweave, this.daoGarden);
 
@@ -44,10 +44,27 @@ class App {
     this.hashChanged(false);
   }
 
+  getDaoGarden() {
+    return this.daoGarden;
+  }
+  getArweave() {
+    return this.arweave;
+  }
+  getAccount() {
+    return this.account;
+  }
+  getCurrentBlock() {
+    return this.currentBlock;
+  }
+  public getCurrentPage() {
+    return this.currentPage;
+  }
+
   async init() {
     await this.account.init();
     $('body').show();
 
+    await this.updateNetworkInfo();
     await this.updateLinks();
     await this.daoGarden.setDAOTx(this.hashes[0]);
     await this.pageChanged();
@@ -55,8 +72,10 @@ class App {
     this.events();
   }
 
-  public getCurrentPage() {
-    return this.currentPage;
+  private async updateNetworkInfo() {
+    this.currentBlock = (await this.arweave.network.getInfo()).height;
+
+    setTimeout(() => this.updateNetworkInfo(), 60000);
   }
 
   private async getPageStr(): Promise<string> {
@@ -115,7 +134,7 @@ class App {
     const fee = await this.daoGarden.getActionCost(true, {formatted: true, decimals: 5, trim: true});
     $('.tx-fee').text(fee);
 
-    setTimeout(() => this.updateTxFee(), 10000);
+    setTimeout(() => this.updateTxFee(), 60000);
   }
 
   private async events() {
