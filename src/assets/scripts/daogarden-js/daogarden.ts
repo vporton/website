@@ -1,4 +1,4 @@
-import Arweave from 'arweave/web';
+import Arweave from 'arweave';
 import { interactWrite, createContractFromTx, selectWeightedPstHolder, readContract, interactWriteDryRun, interactRead } from 'smartweave';
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import Transaction from 'arweave/web/lib/transaction';
@@ -54,7 +54,7 @@ export default class DAOGarden {
 
     if(!cached || ((new Date()).getTime() - this.lastStateCall) > this.cacheRefreshInterval) {
       this.stateCallInProgress = true;
-      // @ts-ignore
+      
       this.state = await readContract(this.arweave, this.daoContract);
       this.lastStateCall = (new Date()).getTime();
       
@@ -173,7 +173,7 @@ export default class DAOGarden {
   public async create(): Promise<string> {
     // Create the new DAO.
     await this.chargeFee('CreateDAO', this.createFee);
-    // @ts-ignore
+    
     const daoID = await createContractFromTx(this.arweave, this.wallet, this.contractSrc, JSON.stringify(this.state));
     this.daoContract = daoID;
 
@@ -218,7 +218,6 @@ export default class DAOGarden {
    * @returns ResultInterface
    */
   public async get(params: InputInterface = {function: 'balance'}): Promise<ResultInterface> {
-    // @ts-ignore
     return interactRead(this.arweave, this.wallet, this.daoContract, params);
   }
 
@@ -348,7 +347,6 @@ export default class DAOGarden {
    * @param fee - Fee to charge
    */
   private async chargeFee(action: string, bytes: number = this.txFee): Promise<void> {
-    // @ts-ignore
     const target = await readContract(this.arweave, this.mainContract).then((state: StateInterface) => {
         const balances = state.balances;
         for(let addy in state.vault) {
@@ -403,7 +401,6 @@ export default class DAOGarden {
   }
 
   private async interact(input: InputInterface): Promise<string> {
-    // @ts-ignore
     const res = await interactWriteDryRun(this.arweave, this.wallet, this.daoContract, input);
     if(res.type === 'error') { //  || res.type === 'exception'
       throw new Error(res.result);

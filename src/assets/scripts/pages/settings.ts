@@ -1,13 +1,10 @@
 import Arweave from 'arweave/web';
 import DaoGarden from '../daogarden-js/daogarden';
 import $ from '../libs/jquery';
+import app from '../app';
 
 export default class PageSettings {
-  private daoGarden: DaoGarden;
-
-  constructor(daoGarden: DaoGarden) {
-    this.daoGarden = daoGarden;
-  }
+  constructor() {}
 
   async open() {
     $('.link-settings').addClass('active');
@@ -21,7 +18,7 @@ export default class PageSettings {
   }
 
   public async syncPageState() {
-    const state = await this.daoGarden.getState();
+    const state = await app.getDaoGarden().getState();
     
     // TODO: Update the page with state here
 

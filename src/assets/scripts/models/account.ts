@@ -8,9 +8,6 @@ import app from "../app";
 import Toast from "../utils/toast";
 
 export default class Account {
-  private arweave: Arweave;
-  private daoGarden: DaoGarden;
-
   private loggedIn: boolean = false;
   private wallet: JWKInterface;
   private username: string = '';
@@ -21,10 +18,7 @@ export default class Account {
   private unlockedBalance: number = -1;
   private vaultBalance: number = -1;
 
-  constructor(arweave: Arweave, daoGarden: DaoGarden) {
-    this.arweave = arweave;
-    this.daoGarden = daoGarden;
-  }
+  constructor() {}
 
   async init() {
     if(window.sessionStorage.getItem('sesswall')) {
@@ -35,7 +29,7 @@ export default class Account {
   }
 
   async getArweaveId(address: string = this.address) {
-    return get(address, this.arweave);
+    return get(address, app.getArweave());
   }
 
   async isLoggedIn(): Promise<boolean> {
@@ -47,7 +41,7 @@ export default class Account {
   }
 
   async getArBalance(cached = true): Promise<number> {
-    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    this.arBalance = +app.getArweave().ar.winstonToAr((await app.getArweave().wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
     return this.arBalance;
   }
 
@@ -60,10 +54,10 @@ export default class Account {
   private async loadWallet(wallet: JWKInterface) {
     this.wallet = wallet;
 
-    this.address = await this.daoGarden.setWallet(wallet);
-    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    this.address = await app.getDaoGarden().setWallet(wallet);
+    this.arBalance = +app.getArweave().ar.winstonToAr((await app.getArweave().wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
 
-    const acc = await get(this.address, this.arweave);
+    const acc = await get(this.address, app.getArweave());
     this.username = acc.name;
     this.avatar = acc.avatarDataUri || getIdenticon(this.address);
 
@@ -119,7 +113,7 @@ export default class Account {
       app.getCurrentPage().syncPageState();
       window.sessionStorage.removeItem('sesswall');
 
-      await this.daoGarden.setWallet(null);
+      await app.getDaoGarden().setWallet(null);
     });
   }
 }

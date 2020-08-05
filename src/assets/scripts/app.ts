@@ -1,7 +1,7 @@
 import "../styles/board.scss";
 
 import "threads/register";
-import Arweave from 'arweave/web';
+import Arweave from 'arweave';
 import DaoGarden from './daogarden-js/daogarden';
 import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
@@ -33,13 +33,13 @@ class App {
   constructor() {
     this.arweave = Arweave.init({timeout: 100000});
     this.daoGarden = new DaoGarden(this.arweave);
-    this.account = new Account(this.arweave, this.daoGarden);
+    this.account = new Account();
 
-    this.pageDashboard = new PageDashboard(this.daoGarden);
-    this.pageTokens = new PageTokens(this.daoGarden, this.account, this.arweave);
-    this.pageVotes = new PageVotes(this.daoGarden, this.account, this.arweave);
-    this.pageVault = new PageVault(this.daoGarden, this.account, this.arweave);
-    this.pageSettings = new PageSettings(this.daoGarden);
+    this.pageDashboard = new PageDashboard();
+    this.pageTokens = new PageTokens();
+    this.pageVotes = new PageVotes();
+    this.pageVault = new PageVault();
+    this.pageSettings = new PageSettings();
 
     this.hashChanged(false);
   }

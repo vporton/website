@@ -39,7 +39,7 @@
   "dependencies": {
     "@mdi/font": "^5.4.55",
     "apexcharts": "^3.20.0",
-    "arweave": "^1.8.0",
+    "arweave": "^1.9.1",
     "arweave-id": "^2.0.7",
     "bootstrap": "twbs/bootstrap#4fc701f",
     "css.gg": "^2.0.0",

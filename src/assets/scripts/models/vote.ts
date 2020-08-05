@@ -277,7 +277,7 @@ export default class Vote implements VoteInterface {
       const toast = new Toast();
       try {
         const txid = await app.getDaoGarden().vote(this.voteId, 'yay');
-        toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'Yes'}, app.getArweave())
+        toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'Yes'})
           .then(() => {
             this.sync();
           });
@@ -304,7 +304,7 @@ export default class Vote implements VoteInterface {
       const toast = new Toast();
       try {
         const txid = await app.getDaoGarden().vote(this.voteId, 'nay');
-        toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'No'}, app.getArweave())
+        toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'No'})
           .then(() => {
             this.sync();
           });
@@ -334,7 +334,7 @@ export default class Vote implements VoteInterface {
       const toast = new Toast();
       try {
         const txid = await app.getDaoGarden().finalize(this.voteId);
-        toast.showTransaction('Finalize vote', txid, {voteId: this.voteId}, app.getArweave())
+        toast.showTransaction('Finalize vote', txid, {voteId: this.voteId})
           .then(() => {
             this.sync();
           });

@@ -6,18 +6,15 @@ import $ from '../libs/jquery';
 import { BalancesWorker } from "../workers/balances";
 import { VotesWorker } from "../workers/votes";
 import Utils from "../utils/utils";
+import app from "../app";
 
 export default class PageDashboard {
-  private daoGarden: DaoGarden;
-
   // workers
   private firstCall = true;
   private balancesWorker: ModuleThread<BalancesWorker>;
   private votesWorker: ModuleThread<VotesWorker>;
 
-  constructor(daoGarden: DaoGarden) {
-    this.daoGarden = daoGarden;
-  }
+  constructor() {}
 
   async open() {
     $('.page-dashboard').show();
@@ -39,7 +36,7 @@ export default class PageDashboard {
   }
 
   public async syncPageState() {
-    const state = await this.daoGarden.getState();
+    const state = await app.getDaoGarden().getState();
 
     const {users, balance} = await this.balancesWorker.usersAndBalance(state.balances);
     const {vaultUsers, vaultBalance} = await this.balancesWorker.vaultUsersAndBalance(state.vault);

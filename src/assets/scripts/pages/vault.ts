@@ -13,10 +13,6 @@ import { BalancesWorker } from '../workers/balances';
 import app from '../app';
 
 export default class PageVault {
-  private daoGarden: DaoGarden;
-  private account: Account;
-  private arweave: Arweave;
-
   private chart: ApexCharts;
 
   // workers
@@ -24,11 +20,7 @@ export default class PageVault {
   private vaultWorker: ModuleThread<VaultWorker>;
   private balancesWorker: ModuleThread<BalancesWorker>;
 
-  constructor(daoGarden: DaoGarden, account: Account, arweave: Arweave) {
-    this.daoGarden = daoGarden;
-    this.account = account;
-    this.arweave = arweave;
-  }
+  constructor() {}
 
   async open() {
     if(this.firstCall) {
@@ -52,19 +44,19 @@ export default class PageVault {
   }
 
   public async syncPageState() {
-    const state = await this.daoGarden.getState();
+    const state = await app.getDaoGarden().getState();
 
     $('.ticker').text(state.ticker);
-    const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
+    const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
     $('.user-unlocked-balance').text(Utils.formatMoney(bal.unlocked, 0));
 
     $('.min-lock-length').text(state.lockMinLength);
     $('.max-lock-length').text(state.lockMaxLength);
     
-    if(await this.account.isLoggedIn() && state.vault[(await this.account.getAddress())]) {
+    if(await app.getAccount().isLoggedIn() && state.vault[(await app.getAccount().getAddress())]) {
       this.createOrUpdateTable(state);
 
-      const {me, others} = await this.vaultWorker.meVsOthersWeight(state.vault, await this.account.getAddress());
+      const {me, others} = await this.vaultWorker.meVsOthersWeight(state.vault, await app.getAccount().getAddress());
       this.createOrUpdateCharts(me, others);
     } else {
       $('.table-vault').find('tbody').html('');
@@ -76,7 +68,7 @@ export default class PageVault {
   private async createOrUpdateTable(state: StateInterface): Promise<void> {
     let html = '';
 
-    const vault = state.vault[await this.account.getAddress()];
+    const vault = state.vault[await app.getAccount().getAddress()];
     for(let i = 0, j = vault.length; i < j; i++) {
       const v = vault[i];
 
@@ -157,8 +149,8 @@ export default class PageVault {
     $('.btn-max-balance').on('click', async (e: any) => {
       e.preventDefault();
 
-      const state = await this.daoGarden.getState();
-      const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
+      const state = await app.getDaoGarden().getState();
+      const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
 
       $('.input-max-balance').val(bal.unlocked);
     });
@@ -166,16 +158,16 @@ export default class PageVault {
     $('.btn-max-lock').on('click', async (e: any) => {
       e.preventDefault();
 
-      const state = await this.daoGarden.getState();
+      const state = await app.getDaoGarden().getState();
       $('.input-max-lock').val(state.lockMaxLength);
     });
 
     $('.do-lock-tokens').on('click', async (e: any) => {
       e.preventDefault();
 
-      if(!await this.account.isLoggedIn()) {
+      if(!await app.getAccount().isLoggedIn()) {
         $('#modal-lock').modal('hide');
-        return this.account.showLoginError();
+        return app.getAccount().showLoginError();
       }
       
       const balance = +$('#lock-balance').val().trim();
@@ -185,8 +177,8 @@ export default class PageVault {
         return;
       }
 
-      const state = await this.daoGarden.getState();
-      const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
+      const state = await app.getDaoGarden().getState();
+      const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
       if(balance > bal.unlocked) {
         return;
       }
@@ -198,8 +190,8 @@ export default class PageVault {
 
       const toast = new Toast();
       try {
-        const txid = await this.daoGarden.lockBalance(balance, length);
-        toast.showTransaction('Lock balance', txid, {lockAmount: Utils.formatMoney(balance, 0), lockLength: Utils.formatMoney(length, 0)}, this.arweave)
+        const txid = await app.getDaoGarden().lockBalance(balance, length);
+        toast.showTransaction('Lock balance', txid, {lockAmount: Utils.formatMoney(balance, 0), lockLength: Utils.formatMoney(length, 0)})
           .then(() => {
             app.getCurrentPage().syncPageState();
           });
@@ -216,16 +208,16 @@ export default class PageVault {
     $('.btn-unlock-vault').on('click', async (e: any) => {
       e.preventDefault();
 
-      if(!await this.account.isLoggedIn()) {
-        return this.account.showLoginError();
+      if(!await app.getAccount().isLoggedIn()) {
+        return app.getAccount().showLoginError();
       }
 
       const prevHtml = $(e.target).html();
       $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
       const toast = new Toast();
       try {
-        const txid = await this.daoGarden.unlockVault();
-        toast.showTransaction('Unlock vault', txid, {}, this.arweave)
+        const txid = await app.getDaoGarden().unlockVault();
+        toast.showTransaction('Unlock vault', txid, {})
           .then(() => {
             app.getCurrentPage().syncPageState();
           });
@@ -251,19 +243,19 @@ export default class PageVault {
     $('.do-increase-lock').on('click', async (e: any) => {
       e.preventDefault();
       
-      if(!await this.account.isLoggedIn()) {
+      if(!await app.getAccount().isLoggedIn()) {
         $('#modal-increase-lock').modal('hide');
-        return this.account.showLoginError();
+        return app.getAccount().showLoginError();
       }
 
-      const state = await this.daoGarden.getState();
+      const state = await app.getDaoGarden().getState();
       const length = +$('#increase-lock-length').val().trim();
       if(length < state.lockMinLength || length > state.lockMaxLength) {
         return;
       }
 
       const vaultId = +$('#lock-vault-id').val().trim();
-      if(!state.vault[await this.account.getAddress()][vaultId]) {
+      if(!state.vault[await app.getAccount().getAddress()][vaultId]) {
         $('#modal-increase-lock').modal('hide');
         const toast = new Toast();
         toast.show('Increase lock error', 'This vault ID isn\'t available.', 'error', 3000);
@@ -273,8 +265,8 @@ export default class PageVault {
       $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
       const toast = new Toast();
       try {
-        const txid = await this.daoGarden.increaseVault(vaultId, length);
-        toast.showTransaction('Increase lock', txid, {vaultId: Utils.formatMoney(vaultId, 0), lockLength: Utils.formatMoney(length, 0)}, this.arweave)
+        const txid = await app.getDaoGarden().increaseVault(vaultId, length);
+        toast.showTransaction('Increase lock', txid, {vaultId: Utils.formatMoney(vaultId, 0), lockLength: Utils.formatMoney(length, 0)})
           .then(() => {
             app.getCurrentPage().syncPageState();
           });

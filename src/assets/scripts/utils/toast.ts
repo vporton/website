@@ -3,6 +3,7 @@ import Arweave from 'arweave/web';
 
 import $ from '../libs/jquery';
 import Utils from './utils';
+import app from '../app';
 
 export default class Toast {
   private t: any;
@@ -51,7 +52,7 @@ export default class Toast {
     this.t.toast('show');
   }
 
-  async showTransaction(title: string, txid: string, data = {}, arweave: Arweave) {
+  async showTransaction(title: string, txid: string, data = {}) {
     let message = `
     <div class="mb-2">
       <div class="strong">Transaction ID</div>
@@ -86,15 +87,15 @@ export default class Toast {
     }
 
     this.show(title, message, 'none', 0);
-    await this.checkTransaction(txid, arweave);
+    await this.checkTransaction(txid);
   }
 
   hide() {
     this.t.toast('hide');
   }
 
-  private async checkTransaction(txid: string, arweave: Arweave): Promise<void> {
-    const res = await arweave.transactions.getStatus(txid);
+  private async checkTransaction(txid: string): Promise<void> {
+    const res = await app.getArweave().transactions.getStatus(txid);
     console.log(res);
 
     if (res.status !== 200 && res.status !== 202) {
@@ -106,7 +107,7 @@ export default class Toast {
     }
 
     await Utils.pause(15000);
-    return this.checkTransaction(txid, arweave);
+    return this.checkTransaction(txid);
   }
 
   private async showSuccessTx() {

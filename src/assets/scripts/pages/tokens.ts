@@ -14,10 +14,6 @@ import Toast from '../utils/toast';
 import app from '../app';
 
 export default class PageTokens {
-  private daoGarden: DaoGarden;
-  private account: Account;
-  private arweave: Arweave;
-
   private chart: ApexCharts;
 
   // workers
@@ -25,11 +21,7 @@ export default class PageTokens {
   private balancesWorker: ModuleThread<BalancesWorker>;
   private tokensWorker: ModuleThread<TokensWorker>;
 
-  constructor(daoGarden: DaoGarden, account: Account, arweave: Arweave) {
-    this.daoGarden = daoGarden;
-    this.account = account;
-    this.arweave = arweave;
-  }
+  constructor() {}
 
   async open() {
     if(this.firstCall) {
@@ -54,7 +46,7 @@ export default class PageTokens {
   }
 
   public async syncPageState() {
-    const state = await this.daoGarden.getState();
+    const state = await app.getDaoGarden().getState();
 
     const {balance} = await this.balancesWorker.usersAndBalance(state.balances);
     const {vaultBalance} = await this.balancesWorker.vaultUsersAndBalance(state.vault);
@@ -68,10 +60,10 @@ export default class PageTokens {
     this.createOrUpdateCharts(holdersByBalance, state, balance);
     this.createOrUpdateTable(holdersByBalance, state);
 
-    const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
+    const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
     $('.user-unlocked-balance').text(Utils.formatMoney(bal.unlocked, 0));
 
-    const transferFee = await this.daoGarden.getActionCost(true, {formatted: true, decimals: 5, trim: true});
+    const transferFee = await app.getDaoGarden().getActionCost(true, {formatted: true, decimals: 5, trim: true});
     $('.tx-fee').text(` ${transferFee} `);
   }
 
@@ -84,7 +76,7 @@ export default class PageTokens {
 
     for(let i = 0, j = holders.length; i < j; i++) {
       const holder = holders[i];
-      const arId = await this.account.getArweaveId(holder.address);
+      const arId = await app.getAccount().getArweaveId(holder.address);
       const avatar = arId.avatarDataUri || arweaveId.getIdenticon(holder.address);
       const balance = holder.balance > holder.vaultBalance? holder.balance-holder.vaultBalance : holder.vaultBalance-holder.balance;
 
@@ -185,8 +177,8 @@ export default class PageTokens {
     $('.btn-max-balance').on('click', async (e: any) => {
       e.preventDefault();
 
-      const state = await this.daoGarden.getState();
-      const bal = await this.balancesWorker.getAddressBalance((await this.account.getAddress()), state.balances, state.vault);
+      const state = await app.getDaoGarden().getState();
+      const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
 
       $('.input-max-balance').val(bal.unlocked);
     });
@@ -194,9 +186,9 @@ export default class PageTokens {
     $('.do-transfer-tokens').on('click', async (e: any) => {
       e.preventDefault();
 
-      if(!await this.account.isLoggedIn()) {
+      if(!await app.getAccount().isLoggedIn()) {
         $('#modal-transfer').modal('hide');
-        return this.account.showLoginError();
+        return app.getAccount().showLoginError();
       }
 
       const $target = $('#transfer-target');
@@ -216,8 +208,8 @@ export default class PageTokens {
 
       const toast = new Toast();
       try {
-        const txid = await this.daoGarden.transfer(transferTarget, transferBalance);
-        toast.showTransaction('Transfer balance', txid, {target: transferTarget, amount: Utils.formatMoney(transferBalance, 0)}, this.arweave)
+        const txid = await app.getDaoGarden().transfer(transferTarget, transferBalance);
+        toast.showTransaction('Transfer balance', txid, {target: transferTarget, amount: Utils.formatMoney(transferBalance, 0)})
           .then(() => {
             app.getCurrentPage().syncPageState();
           });
@@ -234,7 +226,7 @@ export default class PageTokens {
     $('#transfer-target').on('input', async (e: any) => {
       const $target = $(e.target);
       const transferTarget = $target.val().trim();
-      if(!(await Utils.isArTx(transferTarget)) || transferTarget === (await this.account.getAddress())) {
+      if(!(await Utils.isArTx(transferTarget)) || transferTarget === (await app.getAccount().getAddress())) {
         $target.addClass('is-invalid');
       } else {
         $target.removeClass('is-invalid');

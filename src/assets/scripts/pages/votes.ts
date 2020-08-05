@@ -9,17 +9,9 @@ import app from '../app';
 import Vote from '../models/vote';
 
 export default class PageVotes {
-  private daoGarden: DaoGarden;
-  private account: Account;
-  private arweave: Arweave;
-
   private votes: Vote[] = [];
 
-  constructor(daoGarden: DaoGarden, account: Account, arweave: Arweave) {
-    this.daoGarden = daoGarden;
-    this.account = account;
-    this.arweave = arweave;
-  }
+  constructor() {}
 
   async open() {
     $('.link-votes').addClass('active');
@@ -35,7 +27,7 @@ export default class PageVotes {
   }
 
   public async syncPageState() {
-    const state = await this.daoGarden.getState();
+    const state = await app.getDaoGarden().getState();
 
     $('.min-lock-length').text(state.lockMinLength);
     $('.max-lock-length').text(state.lockMaxLength);
@@ -55,7 +47,7 @@ export default class PageVotes {
   }
 
   private async setValidate() {
-    const state = await this.daoGarden.getState();
+    const state = await app.getDaoGarden().getState();
 
     const recipient = $('#vote-recipient').val().trim();
     const setKey = $('#vote-set-key').val();
@@ -161,7 +153,7 @@ export default class PageVotes {
     $('.btn-max-lock').on('click', async (e: any) => {
       e.preventDefault();
 
-      const state = await this.daoGarden.getState();
+      const state = await app.getDaoGarden().getState();
       $('.input-max-lock').val(state.lockMaxLength);
     });
 
@@ -171,7 +163,7 @@ export default class PageVotes {
 
     $('.do-vote').on('click', async (e: any) => {
       e.preventDefault();
-      const state = await this.daoGarden.getState();
+      const state = await app.getDaoGarden().getState();
 
       const voteType: VoteType = $('input[name="voteType"]:checked').val();
       const recipient = $('#vote-recipient').val().trim();
@@ -230,11 +222,11 @@ export default class PageVotes {
       $(e.target).addClass('btn-loading disabled');
       const toast = new Toast();
       try {
-        const txid = await this.daoGarden.proposeVote(voteParams);
-        toast.showTransaction('Create vote', txid, voteParams, this.arweave)
+        const txid = await app.getDaoGarden().proposeVote(voteParams);
+        toast.showTransaction('Create vote', txid, voteParams)
           .then(async () => {
             // Just create the new vote, do not sync the entire page.
-            const state = await this.daoGarden.getState();
+            const state = await app.getDaoGarden().getState();
 
             const voteId = state.votes.length - 1;
             if(this.votes.length < state.votes.length) {
