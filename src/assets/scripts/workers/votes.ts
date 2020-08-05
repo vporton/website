@@ -1,5 +1,5 @@
 import { expose } from "threads/worker";
-import { BalancesInterface, VaultInterface, VoteInterface } from "../daogarden-js/faces";
+import { BalancesInterface, VaultInterface, VoteInterface } from "../community-js/faces";
 
 const worker = {
   activeVotesByType: (votes) => {

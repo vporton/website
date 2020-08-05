@@ -2,7 +2,7 @@ import feather from 'feather-icons';
 import { get, getIdenticon } from 'arweave-id';
 
 import $ from '../libs/jquery';
-import { VoteInterface, VoteStatus, VoteType, StateInterface } from "../daogarden-js/faces";
+import { VoteInterface, VoteStatus, VoteType, StateInterface } from "../community-js/faces";
 import app from '../app';
 import Utils from '../utils/utils';
 import Toast from '../utils/toast';
@@ -40,7 +40,7 @@ export default class Vote implements VoteInterface {
 
   async sync() {
     // TODO: Continue
-    const state = await app.getDaoGarden().getState();
+    const state = await app.getCommunity().getState();
 
     let params = state.votes[this.voteId];
     if(Object.keys(params).length) {
@@ -62,7 +62,7 @@ export default class Vote implements VoteInterface {
   }
 
   async show() {
-    const state = await app.getDaoGarden().getState();
+    const state = await app.getCommunity().getState();
     const ends = (+this.start) + state.voteLength;
     const current = app.getCurrentBlock();
 
@@ -276,7 +276,7 @@ export default class Vote implements VoteInterface {
 
       const toast = new Toast();
       try {
-        const txid = await app.getDaoGarden().vote(this.voteId, 'yay');
+        const txid = await app.getCommunity().vote(this.voteId, 'yay');
         toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'Yes'})
           .then(() => {
             this.sync();
@@ -303,7 +303,7 @@ export default class Vote implements VoteInterface {
 
       const toast = new Toast();
       try {
-        const txid = await app.getDaoGarden().vote(this.voteId, 'nay');
+        const txid = await app.getCommunity().vote(this.voteId, 'nay');
         toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'No'})
           .then(() => {
             this.sync();
@@ -333,7 +333,7 @@ export default class Vote implements VoteInterface {
       $(e.target).addClass('btn-loading disabled');
       const toast = new Toast();
       try {
-        const txid = await app.getDaoGarden().finalize(this.voteId);
+        const txid = await app.getCommunity().finalize(this.voteId);
         toast.showTransaction('Finalize vote', txid, {voteId: this.voteId})
           .then(() => {
             this.sync();

@@ -5,7 +5,7 @@ html(lang="en")
   head
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    title DAO Garden
+    title Community
   body.antialised.border-top-wide.border-primary.d-flex.flex-column
     .flex-fill.d-flex.flex-column.justify-content-center
       .container-tight.py-6
@@ -14,16 +14,16 @@ html(lang="en")
 
         .mining(style="display: none")
           .card
-            .card-header: .card-title Creating DAO
+            .card-header: .card-title Creating Community
             .card-body
-              p Your DAO is under creation, please wait.
+              p Your Community is under creation, please wait.
               a.mining-btn.btn.btn-primary.disabled(href="#!")
                 .spinner-border.spinner-border-sm.mr-2(role="status")
-                | Mining your DAO
+                | Mining your Community
 
         .card.create-steps
           .card-header
-            .card-title Create a new DAO
+            .card-title Create a new Community
           
           .card-body
             .row
@@ -47,12 +47,12 @@ html(lang="en")
 
               .col-xs-12.step2
                 .mb-3
-                  label.form-label(for="daoname") DAO Name
+                  label.form-label(for="communityname") Community Name
                   .row.row-sm
                     .col
-                      input#daoname.form-control(type="text")
+                      input#communityname.form-control(type="text")
                     .col-auto.align-self-center
-                      span.form-help(data-toggle="popover", data-placement="top", data-content="What's your DAO organization's name.", data-html="false") ?
+                      span.form-help(data-toggle="popover", data-placement="top", data-content="What's your Community organization's name.", data-html="false") ?
                   
                 .mb-3
                   label.form-label(for="psttoken") PST Token Ticker
@@ -130,7 +130,7 @@ html(lang="en")
                       span.form-help(data-toggle="popover", data-placement="top", data-content="What is the maximum allowed lock time (in blocks) for each locked token.") ?
 
               .col-xs-12.step4
-                h4 Have a look at your settings and click Launch DAO when ready.
+                h4 Have a look at your settings and click Launch Community when ready.
 
                 .card
                   ul.nav.nav-tabs.nav-fill(data-toggle="tab")
@@ -145,8 +145,8 @@ html(lang="en")
                     .tab-content
                       #general.tab-pane.active.show
                         .mb-3
-                          .form-label DAO Name
-                          .form-control-plaintext.daoname
+                          .form-label Community Name
+                          .form-control-plaintext.communityname
                         .mb-3
                           .form-label Wallet Address
                           .form-control-plaintext.addy
@@ -156,7 +156,7 @@ html(lang="en")
                             span.bal
                             |  AR
                         .mb-3
-                          .form-label DAO Creation Cost
+                          .form-label Community Creation Cost
                           .form-control-plaintext
                             span.cost
                             |  AR
@@ -209,7 +209,7 @@ html(lang="en")
                 .mt-3
                   label.form-check
                     input#confirm.form-check-input(type="checkbox")
-                    span.form-check-label I reviewed my DAO and It's ready for deploy.
+                    span.form-check-label I reviewed my Community and It's ready for deploy.
 
                   label.form-check
                     input#aknowledge.form-check-input(type="checkbox")

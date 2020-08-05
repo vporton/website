@@ -2,7 +2,7 @@ import Arweave from "arweave/web";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { get, getIdenticon } from 'arweave-id';
 
-import DaoGarden from '../daogarden-js/daogarden';
+import Community from '../community-js/community';
 import $ from '../libs/jquery';
 import app from "../app";
 import Toast from "../utils/toast";
@@ -54,7 +54,7 @@ export default class Account {
   private async loadWallet(wallet: JWKInterface) {
     this.wallet = wallet;
 
-    this.address = await app.getDaoGarden().setWallet(wallet);
+    this.address = await app.getCommunity().setWallet(wallet);
     this.arBalance = +app.getArweave().ar.winstonToAr((await app.getArweave().wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
 
     const acc = await get(this.address, app.getArweave());
@@ -113,7 +113,7 @@ export default class Account {
       app.getCurrentPage().syncPageState();
       window.sessionStorage.removeItem('sesswall');
 
-      await app.getDaoGarden().setWallet(null);
+      await app.getCommunity().setWallet(null);
     });
   }
 }

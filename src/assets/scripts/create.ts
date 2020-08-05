@@ -1,7 +1,7 @@
 import "../styles/style.scss";
 
 import Arweave from 'arweave/web';
-import DaoGarden from './daogarden-js/daogarden';
+import Community from './community-js/community';
 import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
 
@@ -9,14 +9,14 @@ import './global';
 import { JWKInterface } from "arweave/web/lib/wallet";
 
 const arweave = Arweave.init({});
-const daoGarden = new DaoGarden(arweave);
+const community = new Community(arweave);
 
 let currentStep = 1;
 let wallet: JWKInterface;
 const create = {
   address: '',
   balance: 0,
-  daoName: '',
+  communityName: '',
   ticker: '',
   balances: {},
   support: 0,
@@ -26,19 +26,19 @@ const create = {
   lockMaxLength: 0
 }
 
-const createDAO = () => {
-  daoGarden.create().then(daoTx => {
-    $('.mining-btn').attr('href', `./#${daoTx}`);
+const createCommunity = () => {
+  community.create().then(communityTx => {
+    $('.mining-btn').attr('href', `./#${communityTx}`);
 
     const attempt = async () => {
-      const res = await arweave.transactions.getStatus(daoTx);
+      const res = await arweave.transactions.getStatus(communityTx);
       if (res.status !== 200 && res.status !== 202) {
         $('.mining-btn').removeClass('btn-primary').addClass('btn-danger').removeAttr('href').text('Transaction Rejected');
       }
 
       if(res.confirmed) {
         // TODO: Show confirmed transaction
-        $('.mining-btn').text(`DONE! VISIT YOUR DAO`).removeClass('disabled');
+        $('.mining-btn').text(`DONE! VISIT YOUR Community`).removeClass('disabled');
         return;
       }
 
@@ -52,7 +52,7 @@ const createDAO = () => {
 }
 
 const allowContinue = () => {
-  $('.continue').text(currentStep === 4? 'Launch DAO' : 'Continue');
+  $('.continue').text(currentStep === 4? 'Launch Community' : 'Continue');
   $('.continue').prop('disabled', false);
 }
 
@@ -67,7 +67,7 @@ const validate = async (e: any) => {
       const fileReader = new FileReader();
       fileReader.onload = async (ev: any) => {
         wallet = JSON.parse(ev.target.result);
-        create.address = await daoGarden.setWallet(wallet);
+        create.address = await community.setWallet(wallet);
         create.balance = +arweave.ar.winstonToAr((await arweave.wallets.getBalance(create.address)), { formatted: true, decimals: 5, trim: true });
 
         $('.addy').text(create.address);
@@ -82,10 +82,10 @@ const validate = async (e: any) => {
     }
 
   } else if(currentStep === 2) {
-    create.daoName = $('#daoname').val().trim();
+    create.communityName = $('#communityname').val().trim();
     create.ticker = $('#psttoken').val().trim().toUpperCase();
 
-    $('.daoname').text(create.daoName);
+    $('.communityname').text(create.communityName);
     $('.ticker').text(create.ticker);
 
     const $holders = $('.holder');
@@ -109,7 +109,7 @@ const validate = async (e: any) => {
       }
     }
 
-    if(create.daoName.length && create.ticker.length && Object.keys(create.balances).length) {
+    if(create.communityName.length && create.ticker.length && Object.keys(create.balances).length) {
       // add each holders and their balances
       let html = '';
       let i = 0;
@@ -156,8 +156,8 @@ const validate = async (e: any) => {
       allowContinue();
     }
   } else if(currentStep === 4) {
-    await daoGarden.setState(create.daoName, create.ticker, create.balances, create.quorum, create.support, create.voteLength, create.lockMinLength, create.lockMaxLength);
-    const cost = await daoGarden.getCreateCost();
+    await community.setState(create.communityName, create.ticker, create.balances, create.quorum, create.support, create.voteLength, create.lockMinLength, create.lockMaxLength);
+    const cost = await community.getCreateCost();
     const ar = +arweave.ar.winstonToAr(cost, {formatted: true, decimals: 5, trim: true});
     $('.cost').text(ar);
     if(create.balance < ar) {
@@ -190,7 +190,7 @@ $(document).ready(() => {
           $(e.target).attr('href', '#!');
         }
 
-        $('.continue').text(currentStep === 4? 'Launch DAO' : 'Continue');
+        $('.continue').text(currentStep === 4? 'Launch Community' : 'Continue');
         $('.continue').removeClass('btn-danger').addClass('btn-primary').prop('disabled', true);
         validate(e);
       });
@@ -207,7 +207,7 @@ $(document).ready(() => {
       if(currentStep === 5) {
         $('.create-steps').fadeOut(() => {
           $('.mining').fadeIn();
-          createDAO();
+          createCommunity();
         });
 
         return;

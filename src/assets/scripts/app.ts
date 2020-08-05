@@ -2,7 +2,7 @@ import "../styles/board.scss";
 
 import "threads/register";
 import Arweave from 'arweave';
-import DaoGarden from './daogarden-js/daogarden';
+import Community from './community-js/community';
 import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
 
@@ -18,7 +18,7 @@ class App {
   private hash: string;
   private hashes: string[];
   private arweave: Arweave;
-  private daoGarden: DaoGarden;
+  private community: Community;
   private account: Account;
   private currentBlock: number = 0;
   
@@ -32,7 +32,7 @@ class App {
 
   constructor() {
     this.arweave = Arweave.init({timeout: 100000});
-    this.daoGarden = new DaoGarden(this.arweave);
+    this.community = new Community(this.arweave);
     this.account = new Account();
 
     this.pageDashboard = new PageDashboard();
@@ -44,8 +44,8 @@ class App {
     this.hashChanged(false);
   }
 
-  getDaoGarden() {
-    return this.daoGarden;
+  getCommunity() {
+    return this.community;
   }
   getArweave() {
     return this.arweave;
@@ -66,7 +66,7 @@ class App {
 
     await this.updateNetworkInfo();
     await this.updateLinks();
-    await this.daoGarden.setDAOTx(this.hashes[0]);
+    await this.community.setCommunityTx(this.hashes[0]);
     await this.pageChanged();
 
     this.events();
@@ -95,7 +95,7 @@ class App {
     this.hash = location.hash.substr(1);
     this.hashes = this.hash.split('/');
     
-    // To be able to access the dashboard, you need to send a DAO txId.
+    // To be able to access the dashboard, you need to send a Community txId.
     if(!this.hashes.length || !(/^[a-z0-9-_]{43}$/i.test(this.hashes[0]))) {
       window.location.href = './create.html';
     }
@@ -127,11 +127,11 @@ class App {
 
     await this.updateTxFee();
     await this.currentPage.open();
-    $('.page-header').find('.page-title').text((await this.daoGarden.getState()).name);
+    $('.page-header').find('.page-title').text((await this.community.getState()).name);
   }
 
   private async updateTxFee() {
-    const fee = await this.daoGarden.getActionCost(true, {formatted: true, decimals: 5, trim: true});
+    const fee = await this.community.getActionCost(true, {formatted: true, decimals: 5, trim: true});
     $('.tx-fee').text(fee);
 
     setTimeout(() => this.updateTxFee(), 60000);

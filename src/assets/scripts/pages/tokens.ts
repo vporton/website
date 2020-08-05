@@ -3,11 +3,11 @@ import ApexCharts from 'apexcharts';
 import { ModuleThread, spawn } from 'threads';
 import * as arweaveId from 'arweave-id';
 
-import DaoGarden from '../daogarden-js/daogarden';
+import Community from '../community-js/community';
 import $ from '../libs/jquery';
 import { BalancesWorker } from '../workers/balances';
 import { TokensWorker } from '../workers/tokens';
-import { StateInterface } from '../daogarden-js/faces';
+import { StateInterface } from '../community-js/faces';
 import Utils from '../utils/utils';
 import Account from '../models/account';
 import Toast from '../utils/toast';
@@ -46,7 +46,7 @@ export default class PageTokens {
   }
 
   public async syncPageState() {
-    const state = await app.getDaoGarden().getState();
+    const state = await app.getCommunity().getState();
 
     const {balance} = await this.balancesWorker.usersAndBalance(state.balances);
     const {vaultBalance} = await this.balancesWorker.vaultUsersAndBalance(state.vault);
@@ -63,7 +63,7 @@ export default class PageTokens {
     const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
     $('.user-unlocked-balance').text(Utils.formatMoney(bal.unlocked, 0));
 
-    const transferFee = await app.getDaoGarden().getActionCost(true, {formatted: true, decimals: 5, trim: true});
+    const transferFee = await app.getCommunity().getActionCost(true, {formatted: true, decimals: 5, trim: true});
     $('.tx-fee').text(` ${transferFee} `);
   }
 
@@ -177,7 +177,7 @@ export default class PageTokens {
     $('.btn-max-balance').on('click', async (e: any) => {
       e.preventDefault();
 
-      const state = await app.getDaoGarden().getState();
+      const state = await app.getCommunity().getState();
       const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
 
       $('.input-max-balance').val(bal.unlocked);
@@ -208,7 +208,7 @@ export default class PageTokens {
 
       const toast = new Toast();
       try {
-        const txid = await app.getDaoGarden().transfer(transferTarget, transferBalance);
+        const txid = await app.getCommunity().transfer(transferTarget, transferBalance);
         toast.showTransaction('Transfer balance', txid, {target: transferTarget, amount: Utils.formatMoney(transferBalance, 0)})
           .then(() => {
             app.getCurrentPage().syncPageState();

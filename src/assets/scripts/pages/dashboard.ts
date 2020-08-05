@@ -1,7 +1,7 @@
 import { spawn, ModuleThread } from "threads";
 
 import Arweave from 'arweave/web';
-import DaoGarden from '../daogarden-js/daogarden';
+import Community from '../community-js/community';
 import $ from '../libs/jquery';
 import { BalancesWorker } from "../workers/balances";
 import { VotesWorker } from "../workers/votes";
@@ -36,7 +36,7 @@ export default class PageDashboard {
   }
 
   public async syncPageState() {
-    const state = await app.getDaoGarden().getState();
+    const state = await app.getCommunity().getState();
 
     const {users, balance} = await this.balancesWorker.usersAndBalance(state.balances);
     const {vaultUsers, vaultBalance} = await this.balancesWorker.vaultUsersAndBalance(state.vault);

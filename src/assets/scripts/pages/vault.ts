@@ -3,10 +3,10 @@ import ApexCharts from 'apexcharts';
 import { ModuleThread, spawn } from 'threads';
 
 import Utils from '../utils/utils';
-import DaoGarden from '../daogarden-js/daogarden';
+import Community from '../community-js/community';
 import $ from '../libs/jquery';
 import Account from '../models/account';
-import { StateInterface } from '../daogarden-js/faces';
+import { StateInterface } from '../community-js/faces';
 import Toast from '../utils/toast';
 import { VaultWorker } from '../workers/vault';
 import { BalancesWorker } from '../workers/balances';
@@ -44,7 +44,7 @@ export default class PageVault {
   }
 
   public async syncPageState() {
-    const state = await app.getDaoGarden().getState();
+    const state = await app.getCommunity().getState();
 
     $('.ticker').text(state.ticker);
     const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
@@ -149,7 +149,7 @@ export default class PageVault {
     $('.btn-max-balance').on('click', async (e: any) => {
       e.preventDefault();
 
-      const state = await app.getDaoGarden().getState();
+      const state = await app.getCommunity().getState();
       const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
 
       $('.input-max-balance').val(bal.unlocked);
@@ -158,7 +158,7 @@ export default class PageVault {
     $('.btn-max-lock').on('click', async (e: any) => {
       e.preventDefault();
 
-      const state = await app.getDaoGarden().getState();
+      const state = await app.getCommunity().getState();
       $('.input-max-lock').val(state.lockMaxLength);
     });
 
@@ -177,7 +177,7 @@ export default class PageVault {
         return;
       }
 
-      const state = await app.getDaoGarden().getState();
+      const state = await app.getCommunity().getState();
       const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
       if(balance > bal.unlocked) {
         return;
@@ -190,7 +190,7 @@ export default class PageVault {
 
       const toast = new Toast();
       try {
-        const txid = await app.getDaoGarden().lockBalance(balance, length);
+        const txid = await app.getCommunity().lockBalance(balance, length);
         toast.showTransaction('Lock balance', txid, {lockAmount: Utils.formatMoney(balance, 0), lockLength: Utils.formatMoney(length, 0)})
           .then(() => {
             app.getCurrentPage().syncPageState();
@@ -216,7 +216,7 @@ export default class PageVault {
       $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
       const toast = new Toast();
       try {
-        const txid = await app.getDaoGarden().unlockVault();
+        const txid = await app.getCommunity().unlockVault();
         toast.showTransaction('Unlock vault', txid, {})
           .then(() => {
             app.getCurrentPage().syncPageState();
@@ -248,7 +248,7 @@ export default class PageVault {
         return app.getAccount().showLoginError();
       }
 
-      const state = await app.getDaoGarden().getState();
+      const state = await app.getCommunity().getState();
       const length = +$('#increase-lock-length').val().trim();
       if(length < state.lockMinLength || length > state.lockMaxLength) {
         return;
@@ -265,7 +265,7 @@ export default class PageVault {
       $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
       const toast = new Toast();
       try {
-        const txid = await app.getDaoGarden().increaseVault(vaultId, length);
+        const txid = await app.getCommunity().increaseVault(vaultId, length);
         toast.showTransaction('Increase lock', txid, {vaultId: Utils.formatMoney(vaultId, 0), lockLength: Utils.formatMoney(length, 0)})
           .then(() => {
             app.getCurrentPage().syncPageState();

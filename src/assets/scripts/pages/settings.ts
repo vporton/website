@@ -1,5 +1,5 @@
 import Arweave from 'arweave/web';
-import DaoGarden from '../daogarden-js/daogarden';
+import Community from '../community-js/community';
 import $ from '../libs/jquery';
 import app from '../app';
 
@@ -18,7 +18,7 @@ export default class PageSettings {
   }
 
   public async syncPageState() {
-    const state = await app.getDaoGarden().getState();
+    const state = await app.getCommunity().getState();
     
     // TODO: Update the page with state here
 

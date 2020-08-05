@@ -1,5 +1,5 @@
 import { expose } from "threads/worker";
-import { VaultInterface } from "../daogarden-js/faces";
+import { VaultInterface } from "../community-js/faces";
 
 const worker = {
   meVsOthersBalances: (v: VaultInterface, address: string) => {
