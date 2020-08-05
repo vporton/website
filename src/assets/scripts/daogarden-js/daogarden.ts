@@ -20,6 +20,7 @@ export default class DAOGarden {
   private state!: StateInterface;
   private lastStateCall: number = 0;
   private cacheRefreshInterval: number = 1000 * 60 * 2; // 2 minutes
+  private stateCallInProgress: boolean = false;
 
   /**
    * Before interacting with DAOGarden you need to have at least Arweave initialized.
@@ -45,10 +46,19 @@ export default class DAOGarden {
    * @param cached - Wether to return the cached version or reload
    */
   public async getState(cached = true): Promise<StateInterface> {
+    // Only call the state from server once even if multiple calls at once.
+    if(this.stateCallInProgress) {
+      console.log('Waiting on state...');
+      return new Promise(resolve => setTimeout(() => resolve(this.getState(cached)), 1000));
+    }
+
     if(!cached || ((new Date()).getTime() - this.lastStateCall) > this.cacheRefreshInterval) {
+      this.stateCallInProgress = true;
       // @ts-ignore
       this.state = await readContract(this.arweave, this.daoContract);
       this.lastStateCall = (new Date()).getTime();
+      
+      this.stateCallInProgress = false;
     }
 
     return this.state;

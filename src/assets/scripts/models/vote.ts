@@ -2,7 +2,7 @@ import feather from 'feather-icons';
 import { get, getIdenticon } from 'arweave-id';
 
 import $ from '../libs/jquery';
-import { VoteInterface, VoteStatus, VoteType } from "../daogarden-js/faces";
+import { VoteInterface, VoteStatus, VoteType, StateInterface } from "../daogarden-js/faces";
 import app from '../app';
 import Utils from '../utils/utils';
 import Toast from '../utils/toast';
@@ -39,38 +39,32 @@ export default class Vote implements VoteInterface {
   }
 
   async sync() {
-    const me = await app.getAccount().getAddress();
+    // TODO: Continue
     const state = await app.getDaoGarden().getState();
-    const ends = (+this.start) + state.voteLength;
-    const current = app.getCurrentBlock();
-    const endsIn = current < ends? ends-current : 0;
 
-    const $progress = this.$card.find('.blocks-progress');
-    if($progress.css('width') !== '100%') {
-      let percent = 100;
-      if(current < ends) {
-        percent = (current-this.start) / (ends-this.start) * 100;
+    let params = state.votes[this.voteId];
+    if(Object.keys(params).length) {
+      params = Utils.stripTags(params);
+      for(let key in params) {
+        this[key] = params[key];
       }
-      $progress.css('width', `${percent}%`).parent().attr('title', `Vote ends in ${endsIn}`).attr('data-original-title', `Vote ends in ${endsIn}`).find('.sr-only').text(`Vote ends in ${endsIn}`);
     }
 
-    /**
-     * <div class="progress progress-sm card-progress" data-toggle="tooltip" data-placement="top" title="Vote ends in ${endsIn} blocks" data-original-title="Vote ends in ${endsIn} blocks">
-          <div class="progress-bar" style="width: ${percent}%" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
-            <span class="sr-only">Vote ends in ${endsIn} blocks</span>
-          </div>
-        </div>
-     */
+    this.syncYaysNays();
+    this.syncAvatarList(state);
 
-     setTimeout(() => this.sync(), 60000);
+    const endsIn = await this.syncBlocksProgress(state);
+    this.syncFooterButtons(state, endsIn);
+
+    if(endsIn > 0) {
+      setTimeout(() => this.sync(), 60000);
+    }
   }
 
   async show() {
-    const me = await app.getAccount().getAddress();
     const state = await app.getDaoGarden().getState();
     const ends = (+this.start) + state.voteLength;
     const current = app.getCurrentBlock();
-    const endsIn = current < ends? ends-current : 0;
 
     let percent = 100;
     if(current < ends) {
@@ -133,27 +127,82 @@ export default class Vote implements VoteInterface {
       </div>`;
     }
 
-    let yaysPercent = 0;
-    let naysPercent = 0;
-    const total = this.yays + this.nays;
-    if(total > 0) {
-      yaysPercent = Math.round(this.yays / total) * 100;
-      naysPercent = Math.round(this.nays / total) * 100;
-    }
+    this.$card = $(`<div class="col-md-6">
+      <div class="card vote-${this.voteId}">
+        <div class="progress progress-sm card-progress" data-toggle="tooltip" data-placement="top">
+          <div class="progress-bar blocks-progress" role="progressbar">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="float-right stamp bg-${bgColor} text-white">${icon}</div>
+          <div class="text-muted font-weight-normal mt-0 mb-3">#${this.voteId}. ${await Utils.capitalize(this.type)}</div>
+          ${details}
+          <div class="mb-3">
+            <h3 class="mb-0">Note</h3>
+            <p class="text-muted">${this.note}</p>
+          </div>
+          <div class="mb-3">
+            <div class="row align-items-center">
+              <div class="col text-muted">Yes</div>
+              <div class="txt-yays col-auto ml-auto text-muted"></div>
+            </div>
+            <div class="progress">
+              <div class="progress-bar progress-yays bg-green"></div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="row align-items-center">
+              <div class="col text-muted">No</div>
+              <div class="txt-nays col-auto ml-auto text-muted"></div>
+            </div>
+            <div class="progress">
+              <div class="progress-bar progress-nays bg-red"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="row align-items-center">
+            <div class="col footer-btns"></div>
+            <div class="col-auto ml-auto">
+              <div class="avatar-list avatar-list-stacked"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`);
 
-    let footerBtns = `
-    <a class="btn-vote-no btn btn-danger" href="#">NO</a>
-    <a class="btn-vote-yes btn btn-success ml-3" href="#">YES</a>`;
-    if(!endsIn) {
-      if(this.status === 'active') {
-        footerBtns = `<a href="#" class="btn-finalize btn btn-dark">Finalize</a>`;
+    $('.proposals').prepend(this.$card);
+    this.sync();
+  }
+
+  /**
+   * Status for the card
+   */
+  private async syncBlocksProgress(state: StateInterface): Promise<number> {
+    const ends = (+this.start) + state.voteLength;
+    const current = app.getCurrentBlock();
+    const endsIn = current < ends? ends-current : 0;
+
+    const endsInStr = Utils.formatMoney(endsIn, 0);
+
+    const $progress = this.$card.find('.blocks-progress');
+    if($progress.css('width') !== '100%') {
+      let percent = 100;
+      if(current < ends) {
+        percent = (current-this.start) / (ends-this.start) * 100;
       } else {
-        footerBtns = await Utils.capitalize(this.status);
+        $progress.addClass('bg-gray');
       }
-    } else if(this.voted.length && this.voted.includes(me)) {
-      footerBtns = `<a class="btn btn-light disabled" href="#">Already Voted</a>`;
+      $progress.css('width', `${percent}%`).parent()
+        .attr('title', `Vote ends in ${endsInStr} blocks`)
+        .attr('data-original-title', `Vote ends in ${endsIn} blocks`)
+        .find('.sr-only').text(`Vote ends in ${endsIn} blocks`);
     }
 
+    return endsIn;
+  }
+  private async syncAvatarList(state: StateInterface) {
     let avatarList = '';
     if(this.voted.length) {
       const maxLength = this.voted.length > 5? 5 : this.voted.length;
@@ -168,63 +217,53 @@ export default class Vote implements VoteInterface {
       }
     }
 
-    const endsInStr = Utils.formatMoney(endsIn);
-    this.$card = $(`<div class="col-md-6">
-      <div class="card">
-        <div class="progress progress-sm card-progress" data-toggle="tooltip" data-placement="top" title="Vote ends in ${endsInStr} blocks" data-original-title="Vote ends in ${endsIn} blocks">
-          <div class="progress-bar blocks-progress" style="width: ${percent}%" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
-            <span class="sr-only">Vote ends in ${endsInStr} blocks</span>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="float-right stamp bg-${bgColor} text-white">${icon}</div>
-          <div class="text-muted font-weight-normal mt-0 mb-3">#${this.voteId}. ${await Utils.capitalize(this.type)}</div>
-          ${details}
-          <div class="mb-3">
-            <h3 class="mb-0">Note</h3>
-            <p class="text-muted">${this.note}</p>
-          </div>
-          <div class="mb-3">
-            <div class="row align-items-center">
-              <div class="col text-muted">Yes</div>
-              <div class="col-auto ml-auto text-muted">${yaysPercent}%</div>
-            </div>
-            <div class="progress">
-              <div class="progress-bar bg-green" style="width: ${yaysPercent}%"></div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="row align-items-center">
-              <div class="col text-muted">No</div>
-              <div class="col-auto ml-auto text-muted">${naysPercent}%</div>
-            </div>
-            <div class="progress">
-              <div class="progress-bar bg-red" style="width: ${naysPercent}%"></div>
-            </div>
-          </div>
-        </div>
-        <div class="card-footer">
-          <div class="row align-items-center">
-            <div class="col">
-              ${footerBtns}
-            </div>
-            <div class="col-auto ml-auto">
-              <div class="avatar-list avatar-list-stacked">
-                ${avatarList}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>`);
+    this.$card.find('.avatar-list').html(avatarList);
+  }
+  private async syncYaysNays() {
+    let yaysPercent = 0;
+    let naysPercent = 0;
+    const total = this.yays + this.nays;
+    if(total > 0) {
+      yaysPercent = Math.round(this.yays / total) * 100;
+      naysPercent = Math.round(this.nays / total) * 100;
+    }
 
-    $('.proposals').prepend(this.$card);
-    this.setEvents();
+    this.$card.find('.txt-yays').text(`${yaysPercent}%`);
+    this.$card.find('.progress-yays').css('width', `${yaysPercent}%`);
+    this.$card.find('.txt-nays').text(`${naysPercent}%`);
+    this.$card.find('.progress-nays').css('width', `${naysPercent}%`);
+  }
+  private async syncFooterButtons(state: StateInterface, endsIn: number) {
+    const me = await app.getAccount().getAddress();
 
-    setTimeout(() => this.sync(), 60000);
+    this.btnYesNoEvents(true);
+    this.btnFinalizeEvents(true);
+
+    let footerBtns = `
+    <a class="btn-vote-no btn btn-danger" href="#">NO</a>
+    <a class="btn-vote-yes btn btn-success ml-3" href="#">YES</a>`;
+    if(!endsIn) {
+      if(this.status === 'active') {
+        footerBtns = `<a href="#" class="btn-finalize btn btn-dark">Finalize</a>`;
+        this.btnFinalizeEvents();
+      } else {
+        footerBtns = await Utils.capitalize(this.status);
+      }
+    } else if(this.voted.length && this.voted.includes(me)) {
+      footerBtns = `<a class="btn btn-light disabled" href="#">Already Voted</a>`;
+    } else {
+      this.btnYesNoEvents();
+    }
+
+    this.$card.find('.footer-btns').html(footerBtns);
   }
 
-  private setEvents() {
+  private btnYesNoEvents(off = false) {
+    if(off) {
+      this.$card.off('click', '.btn-vote-yes, .btn-vote-no');
+      return;
+    }
+
     this.$card.on('click', '.btn-vote-yes', async (e: any) => {
       e.preventDefault();
 
@@ -277,6 +316,12 @@ export default class Vote implements VoteInterface {
       }
 
     });
+  }
+  private btnFinalizeEvents(off = false) {
+    if(off) {
+      this.$card.off('click', '.btn-finalize');
+      return;
+    }
 
     this.$card.on('click', '.btn-finalize', async (e: any) => {
       e.preventDefault();

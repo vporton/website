@@ -13,6 +13,8 @@ export default class PageVotes {
   private account: Account;
   private arweave: Arweave;
 
+  private votes: Vote[] = [];
+
   constructor(daoGarden: DaoGarden, account: Account, arweave: Arweave) {
     this.daoGarden = daoGarden;
     this.account = account;
@@ -43,6 +45,7 @@ export default class PageVotes {
     if(state.votes.length) {
       for(let i = 0, j = state.votes.length; i < j; i++) {
         const vote = new Vote(state.votes[i], i);
+        this.votes.push(vote);
         await vote.show();
       }
     }
@@ -143,7 +146,7 @@ export default class PageVotes {
           $target.addClass('input-number percent');
           break;
       }
-    }).trigger('change');
+    });
 
     $('#vote-recipient, #vote-target').on('input', async (e: any) => {
       const $target = $(e.target);
@@ -229,9 +232,16 @@ export default class PageVotes {
       try {
         const txid = await this.daoGarden.proposeVote(voteParams);
         toast.showTransaction('Create vote', txid, voteParams, this.arweave)
-          .then(() => {
-            // TODO: Just create the new vote, do not sync the entire page.
-            app.getCurrentPage().syncPageState();
+          .then(async () => {
+            // Just create the new vote, do not sync the entire page.
+            const state = await this.daoGarden.getState();
+
+            const voteId = state.votes.length - 1;
+            if(this.votes.length < state.votes.length) {
+              const vote = new Vote(state.votes[this.votes.length], this.votes.length);
+              this.votes.push(vote);
+              await vote.show();
+            }
           });
 
       } catch (err) {

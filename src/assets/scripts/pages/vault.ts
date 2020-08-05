@@ -89,7 +89,7 @@ export default class PageVault {
       html += `<tr data-vault='${JSON.stringify(v)}'>
         <td class="text-muted" data-label="Balance">${Utils.formatMoney(v.balance, 0)}</td>
         <td class="text-muted" data-label="Vote weight">${Utils.formatMoney(voteWeight, 0)}</td>
-        <td class="text-muted" data-label="Ends on">${Utils.formatMoney(endsIn, 0)}</td>
+        <td class="text-muted" data-label="Ends on">${Utils.formatMoney(endsIn, 0)} blocks</td>
         <td class="text-right">
           <button class="btn btn-light align-text-top btn-increase-lock">Increase</button>
         </td>
