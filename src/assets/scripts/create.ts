@@ -62,7 +62,7 @@ const validate = async (e: any) => {
 
     if(e.target && e.target.files) {
       $('.form-file-text').text($(e.target).val().replace(/C:\\fakepath\\/i, ''));
-      $('.form-file-button').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+      $('.form-file-button').addClass('btn-loading disabled');
 
       const fileReader = new FileReader();
       fileReader.onload = async (ev: any) => {
@@ -73,7 +73,7 @@ const validate = async (e: any) => {
         $('.addy').text(create.address);
         $('.bal').text(create.balance);
 
-        $('.form-file-button').html('Browse');
+        $('.form-file-button').removeClass('btn-loading disabled');
         allowContinue();
       };
       fileReader.readAsText(e.target.files[0]);

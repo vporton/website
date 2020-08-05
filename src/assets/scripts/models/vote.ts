@@ -168,16 +168,17 @@ export default class Vote implements VoteInterface {
       }
     }
 
+    const endsInStr = Utils.formatMoney(endsIn);
     this.$card = $(`<div class="col-md-6">
       <div class="card">
-        <div class="progress progress-sm card-progress" data-toggle="tooltip" data-placement="top" title="Vote ends in ${endsIn} blocks" data-original-title="Vote ends in ${endsIn} blocks">
+        <div class="progress progress-sm card-progress" data-toggle="tooltip" data-placement="top" title="Vote ends in ${endsInStr} blocks" data-original-title="Vote ends in ${endsIn} blocks">
           <div class="progress-bar blocks-progress" style="width: ${percent}%" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
-            <span class="sr-only">Vote ends in ${endsIn} blocks</span>
+            <span class="sr-only">Vote ends in ${endsInStr} blocks</span>
           </div>
         </div>
         <div class="card-body">
           <div class="float-right stamp bg-${bgColor} text-white">${icon}</div>
-          <div class="text-muted font-weight-normal mt-0 mb-3">${await Utils.capitalize(this.type)}</div>
+          <div class="text-muted font-weight-normal mt-0 mb-3">#${this.voteId}. ${await Utils.capitalize(this.type)}</div>
           ${details}
           <div class="mb-3">
             <h3 class="mb-0">Note</h3>
@@ -232,6 +233,7 @@ export default class Vote implements VoteInterface {
       }
 
       $(e.target).addClass('btn-loading disabled');
+      this.$card.find('.btn-vote-no').addClass('disabled');
 
       const toast = new Toast();
       try {
@@ -240,12 +242,14 @@ export default class Vote implements VoteInterface {
           .then(() => {
             this.sync();
           });
+        $(e.target).removeClass('btn-loading');
       } catch (err) {
         console.log(err.message);
         toast.show('Vote error', err.message, 'error', 3000);
+        $(e.target).removeClass('btn-loading disabled');
       }
 
-      $(e.target).removeClass('btn-loading disabled');
+      
     });
 
     this.$card.on('click', '.btn-vote-no', async (e: any) => {
@@ -256,6 +260,7 @@ export default class Vote implements VoteInterface {
       }
 
       $(e.target).addClass('btn-loading disabled');
+      this.$card.find('.btn-vote-yes').addClass('disabled');
 
       const toast = new Toast();
       try {
@@ -264,12 +269,13 @@ export default class Vote implements VoteInterface {
           .then(() => {
             this.sync();
           });
+        $(e.target).removeClass('btn-loading');
       } catch (err) {
         console.log(err.message);
         toast.show('Vote error', err.message, 'error', 3000);
+        $(e.target).removeClass('btn-loading disabled');
       }
 
-      $(e.target).removeClass('btn-loading disabled');
     });
 
     this.$card.on('click', '.btn-finalize', async (e: any) => {
@@ -287,12 +293,13 @@ export default class Vote implements VoteInterface {
           .then(() => {
             this.sync();
           });
+        $(e.target).removeClass('btn-loading');
       } catch (err) {
         console.log(err.message);
         toast.show('Vote error', err.message, 'error', 3000);
+        $(e.target).removeClass('btn-loading disabled');
       }
 
-      $(e.target).removeClass('btn-loading disabled');
     });
   }
 }

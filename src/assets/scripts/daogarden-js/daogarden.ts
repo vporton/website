@@ -6,8 +6,8 @@ import { BalancesInterface, VaultInterface, VoteInterface, RoleInterface, StateI
 import Utils from './utils';
 
 export default class DAOGarden {
-  private readonly contractSrc: string = 'lR_mz6oRdSWZ3jcjfJHFaJZGub91P_RWCj-HY_C8XIU';
-  private readonly mainContract: string = 'do9ABIDHoZmulTjymVF8tydHfrH5pZRVZuu4qm4aDV4';
+  private readonly contractSrc: string = 'CR8a4s4VuhCV__tDAzzjc5d_UgL-dlgtVdWXp7L5Aic';
+  private readonly mainContract: string = 'dlKReXkvj7Af-mc_0DiY_2OQIVot_mUcc6YAzH9vo3s';
   private readonly txFee: number = 400000000;
   private readonly createFee: number = 9500000000;
 

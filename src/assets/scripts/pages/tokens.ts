@@ -212,7 +212,7 @@ export default class PageTokens {
         return;
       }
 
-      $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+      $(e.target).addClass('btn-loading disabled');
 
       const toast = new Toast();
       try {
@@ -228,7 +228,7 @@ export default class PageTokens {
       }
 
       $('#modal-transfer').modal('hide');
-      $(e.target).removeClass('disabled').text('Transfer tokens');
+      $(e.target).removeClass('btn-loading disabled');
     });
 
     $('#transfer-target').on('input', async (e: any) => {

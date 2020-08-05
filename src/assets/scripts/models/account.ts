@@ -71,7 +71,7 @@ export default class Account {
     $('.user-avatar').css('background-image', `url(${this.avatar})`);
 
     // Complete login
-    $('.form-file-button').html('Browse');
+    $('.form-file-button').removeClass('btn-loading disabled');
     if(this.address.length && this.arBalance >= 0) {
       this.loggedIn = true;
       $('#login-modal').modal('hide');
@@ -83,7 +83,7 @@ export default class Account {
   private login(e: any) {
     if(e.target && e.target.files) {
       $('.form-file-text').text($(e.target).val().replace(/C:\\fakepath\\/i, ''));
-      $('.form-file-button').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+      $('.form-file-button').addClass('btn-loading disabled');
 
       const fileReader = new FileReader();
       fileReader.onload = async (ev: any) => {

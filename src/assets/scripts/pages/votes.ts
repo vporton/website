@@ -39,7 +39,7 @@ export default class PageVotes {
     $('.max-lock-length').text(state.lockMaxLength);
 
     $('.proposals').html('');
-    console.log(state.votes);
+    console.log(state);
     if(state.votes.length) {
       for(let i = 0, j = state.votes.length; i < j; i++) {
         const vote = new Vote(state.votes[i], i);
@@ -224,12 +224,13 @@ export default class PageVotes {
       console.log(typeof note);
 
       // All validations passed
-      $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+      $(e.target).addClass('btn-loading disabled');
       const toast = new Toast();
       try {
         const txid = await this.daoGarden.proposeVote(voteParams);
         toast.showTransaction('Create vote', txid, voteParams, this.arweave)
           .then(() => {
+            // TODO: Just create the new vote, do not sync the entire page.
             app.getCurrentPage().syncPageState();
           });
 
@@ -239,7 +240,7 @@ export default class PageVotes {
       }
 
       $('#modal-new-vote').modal('hide');
-      $(e.target).removeClass('disabled').text('Transfer tokens');
+      $(e.target).removeClass('btn-loading disabled');
     });
   }
   private async removeEvents() {

@@ -81,11 +81,15 @@ export default class PageVault {
       const v = vault[i];
 
       let voteWeight = v.balance * (v.end - v.start);
+      let endsIn = v.end-app.getCurrentBlock();
+      if(endsIn < 0) {
+        endsIn = 0;
+      } 
       
       html += `<tr data-vault='${JSON.stringify(v)}'>
         <td class="text-muted" data-label="Balance">${Utils.formatMoney(v.balance, 0)}</td>
         <td class="text-muted" data-label="Vote weight">${Utils.formatMoney(voteWeight, 0)}</td>
-        <td class="text-muted" data-label="Lock ends on block">${Utils.formatMoney(v.end, 0)}</td>
+        <td class="text-muted" data-label="Ends on">${Utils.formatMoney(endsIn, 0)}</td>
         <td class="text-right">
           <button class="btn btn-light align-text-top btn-increase-lock">Increase</button>
         </td>
@@ -190,7 +194,7 @@ export default class PageVault {
         return;
       }
 
-      $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+      $(e.target).addClass('btn-loading disabled');
 
       const toast = new Toast();
       try {
@@ -206,7 +210,7 @@ export default class PageVault {
       }
 
       $('#modal-lock').modal('hide');
-      $(e.target).removeClass('disabled').text('Lock tokens');
+      $(e.target).removeClass('btn-loading disabled');
     });
 
     $('.btn-unlock-vault').on('click', async (e: any) => {
