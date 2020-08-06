@@ -8,7 +8,7 @@ import "bootstrap/dist/js/bootstrap.bundle";
 import './global';
 import { JWKInterface } from "arweave/web/lib/wallet";
 
-const arweave = Arweave.init({});
+let arweave = Arweave.init({});
 const community = new Community(arweave);
 
 let currentStep = 1;
@@ -175,10 +175,10 @@ const validate = async (e: any) => {
 
 $(document).ready(async () => {
   try {
-    this.currentBlock = (await this.arweave.network.getInfo()).height;
+    (await arweave.network.getInfo()).height;
   } catch(e) {
-    if(this.arweave.getConfig().api.host !== 'arweave.net') {
-      this.arweave = Arweave.init({
+    if(arweave.getConfig().api.host !== 'arweave.net') {
+      arweave = Arweave.init({
         host: 'arweave.net',
         port: 443,
         protocol: 'https',
