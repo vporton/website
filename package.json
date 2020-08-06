@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "parcel src/*.pug",
-    "build": "parcel build src/*.pug"
+    "build": "parcel build src/*.pug --no-source-maps"
   },
   "license": "UNLICENSED",
   "browserslist": "last 4 version",

@@ -61,10 +61,10 @@ class App {
   }
 
   async init() {
+    await this.updateNetworkInfo();
     await this.account.init();
     $('body').show();
 
-    await this.updateNetworkInfo();
     await this.updateLinks();
     await this.community.setCommunityTx(this.hashes[0]);
     await this.pageChanged();
@@ -73,7 +73,20 @@ class App {
   }
 
   private async updateNetworkInfo() {
-    this.currentBlock = (await this.arweave.network.getInfo()).height;
+    try {
+      this.currentBlock = (await this.arweave.network.getInfo()).height;
+    } catch(e) {
+      if(this.arweave.getConfig().api.host !== 'arweave.net') {
+        this.arweave = Arweave.init({
+          host: 'arweave.net',
+          port: 443,
+          protocol: 'https',
+          timeout: 100000
+        });
+
+        return this.updateNetworkInfo();
+      }
+    }
 
     setTimeout(() => this.updateNetworkInfo(), 60000);
   }
