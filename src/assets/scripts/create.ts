@@ -46,7 +46,7 @@ const createCommunity = () => {
 
       if(res.confirmed) {
         // TODO: Show confirmed transaction
-        $('.mining-btn').text(`DONE! VISIT YOUR Community`).removeClass('disabled');
+        $('.mining-btn').text(`DONE! VISIT YOUR COMMUNITY`).removeClass('disabled');
         return;
       }
 
@@ -169,7 +169,7 @@ const validate = async (e: any) => {
     const ar = +arweave.ar.winstonToAr(cost, {formatted: true, decimals: 5, trim: true});
     $('.cost').text(ar);
     if(create.balance < ar) {
-      $(e.target).removeClass('btn-primary, btn-outline-primary').addClass('btn-danger').text('Not enough balance');
+      $('.continue').removeClass('btn-primary').addClass('btn-danger').text('Not enough balance');
       return;
     }
 
@@ -188,7 +188,7 @@ $(document).ready(() => {
     e.preventDefault();
     $(e.target).blur();
 
-    if($(e.target).attr('href') === '#!' && currentStep > 1) {
+    if(!$(e.target).is('disabled') && currentStep > 1) {
       $(`.step${currentStep}`).fadeOut(() => {
         $(`.step${--currentStep}`).fadeIn();
 
@@ -269,16 +269,5 @@ $(document).ready(() => {
     if($target.hasClass('percent') && newVal > 99) {
       $target.val(99);
     }
-  });
-
-  $('.collapse').on('click', 'a', (e: any) => {
-    e.preventDefault();
-
-    $(e.target).parent().parent().find('.btn').removeClass('btn-primary').addClass('btn-outline-primary');
-    $(e.target).removeClass('btn-outline-primary').addClass('btn-primary');
-
-    $('.collapse-content:visible').slideUp(() => {
-      $($(e.target).attr('href')).slideDown();
-    });
   });
 });

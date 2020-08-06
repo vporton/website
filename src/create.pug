@@ -16,7 +16,7 @@ html(lang="en")
           .card
             .card-header: .card-title Creating Community
             .card-body
-              p Your Community is under creation, please wait.
+              p Your community is under creation, please wait.
               a.mining-btn.btn.btn-primary.disabled(href="#!")
                 .spinner-border.spinner-border-sm.mr-2(role="status")
                 | Mining your Community
@@ -47,7 +47,7 @@ html(lang="en")
 
               .col-xs-12.step2
                 .mb-3
-                  label.form-label(for="communityname") Community Name
+                  label.form-label(for="communityname") Community name
                   .row.row-sm
                     .col
                       input#communityname.form-control(type="text")
@@ -55,7 +55,7 @@ html(lang="en")
                       span.form-help(data-toggle="popover", data-placement="top", data-content="What's your Community organization's name.", data-html="false") ?
                   
                 .mb-3
-                  label.form-label(for="psttoken") PST Token Ticker
+                  label.form-label(for="psttoken") PST token ticker
                   .row.row-sm
                     .col
                       input#psttoken.form-control(type="text", style="text-transform: uppercase;")
@@ -63,15 +63,15 @@ html(lang="en")
                       span.form-help(data-toggle="popover", data-placement="top", data-content="<p>Token Symbol or ticker (in capital letters).</p> <p class=\"mb-0\">Example: GAR</p>", data-html="true") ?
 
                 .holders.mb-3
-                  .form-label Token Holders 
+                  .form-label Token holders 
                     a.add-holders(href="#!"): i.feather-16(data-feather="plus-circle")
                   .table-responsive
                     table.table.table-vcenter.table-mobile-md.card-table
                       thead: tr
-                        th Token Holder
+                        th Token holder
                         th Balance
                       tbody: tr
-                        td(data-label="Token Holder")
+                        td(data-label="Token holder")
                           input.holder.form-control(type="text")
                         td(data-label="Balance")
                           .input-group
@@ -209,7 +209,7 @@ html(lang="en")
                 .mt-3
                   label.form-check
                     input#confirm.form-check-input(type="checkbox")
-                    span.form-check-label I reviewed my Community and It's ready for deploy.
+                    span.form-check-label I reviewed my community and It's ready for deploy.
 
                   label.form-check
                     input#aknowledge.form-check-input(type="checkbox")
