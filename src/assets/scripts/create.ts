@@ -8,7 +8,15 @@ import "bootstrap/dist/js/bootstrap.bundle";
 import './global';
 import { JWKInterface } from "arweave/web/lib/wallet";
 
-let arweave = Arweave.init({});
+let arweave = Arweave.init({timeout: 100000});
+if(window.location.host === 'community.xyz') {
+  arweave = Arweave.init({
+    host: 'arweave.net',
+    protocol: 'https',
+    port: 443,
+    timeout: 100000
+  });
+}
 const community = new Community(arweave);
 
 let currentStep = 1;
@@ -173,20 +181,7 @@ const validate = async (e: any) => {
   }
 };
 
-$(document).ready(async () => {
-  try {
-    (await arweave.network.getInfo()).height;
-  } catch(e) {
-    if(arweave.getConfig().api.host !== 'arweave.net') {
-      arweave = Arweave.init({
-        host: 'arweave.net',
-        port: 443,
-        protocol: 'https',
-        timeout: 100000
-      });
-    }
-  }
-
+$(document).ready(() => {
   $('[data-toggle="tooltip"]').tooltip();
 
   $('.back').on('click', (e: any) => {

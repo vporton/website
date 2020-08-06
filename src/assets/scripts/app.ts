@@ -31,7 +31,16 @@ class App {
   private pageSettings: PageSettings;
 
   constructor() {
-    this.arweave = Arweave.init({timeout: 100000});
+    if(window.location.host === 'community.xyz') {
+      this.arweave = Arweave.init({
+        host: 'arweave.net',
+        protocol: 'https',
+        port: 443
+      });
+    } else {
+      this.arweave = Arweave.init({timeout: 100000});
+    }
+    
     this.community = new Community(this.arweave);
     this.account = new Account();
 
@@ -73,21 +82,7 @@ class App {
   }
 
   private async updateNetworkInfo() {
-    try {
-      this.currentBlock = (await this.arweave.network.getInfo()).height;
-    } catch(e) {
-      if(this.arweave.getConfig().api.host !== 'arweave.net') {
-        this.arweave = Arweave.init({
-          host: 'arweave.net',
-          port: 443,
-          protocol: 'https',
-          timeout: 100000
-        });
-        this.community = new Community(this.arweave);
-
-        return this.updateNetworkInfo();
-      }
-    }
+    this.currentBlock = (await this.arweave.network.getInfo()).height;
 
     setTimeout(() => this.updateNetworkInfo(), 60000);
   }
