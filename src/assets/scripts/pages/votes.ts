@@ -34,8 +34,8 @@ export default class PageVotes {
   public async syncPageState() {
     const state = await app.getCommunity().getState();
 
-    $('.min-lock-length').text(state.lockMinLength);
-    $('.max-lock-length').text(state.lockMaxLength);
+    $('.min-lock-length').text(state.settings.get('lockMinLength'));
+    $('.max-lock-length').text(state.settings.get('lockMaxLength'));
 
     $('.proposals').html('');
     console.log(state);
@@ -69,11 +69,11 @@ export default class PageVotes {
         return false;
       }
       
-      if(setKey === 'lockMinLength' && setValue > state.lockMaxLength) {
+      if(setKey === 'lockMinLength' && setValue > state.settings.get('lockMaxLength')) {
         $('.lock-set-value-invalid').text('Minimum lock length cannot be greater nor equal to the maximum lock length.');
         $('#vote-set-value').addClass('invalid');
         return false;
-      } else if(setKey === 'lockMaxLength' && setValue < state.lockMinLength) {
+      } else if(setKey === 'lockMaxLength' && setValue < state.settings.get('lockMinLength')) {
         $('.lock-set-value-invalid').text('Maximum lock length cannot be lower nor equal to the minimum lock length.');
         $('#vote-set-value').addClass('invalid');
         return false;
@@ -159,7 +159,7 @@ export default class PageVotes {
       e.preventDefault();
 
       const state = await app.getCommunity().getState();
-      $('.input-max-lock').val(state.lockMaxLength);
+      $('.input-max-lock').val(state.settings.get('lockMaxLength'));
     });
 
     $('#vote-set-value').on('input', async (e: any) => {
@@ -196,7 +196,7 @@ export default class PageVotes {
         voteParams['qty'] = qty;
 
         if(voteType === 'mintLocked') {
-          if(isNaN(length) || !Number.isInteger(length) || length < state.lockMinLength || length > state.lockMaxLength) {
+          if(isNaN(length) || !Number.isInteger(length) || length < state.settings.get('lockMinLength') || length > state.settings.get('lockMaxLength')) {
             return;
           }
           voteParams['lockLength'] = length;

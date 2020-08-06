@@ -71,7 +71,7 @@ export default class Vote implements VoteInterface {
 
   async show() {
     const state = await app.getCommunity().getState();
-    const ends = (+this.start) + state.voteLength;
+    const ends = (+this.start) + state.settings.get('voteLength');
     const current = app.getCurrentBlock();
 
     let percent = 100;
@@ -194,7 +194,7 @@ export default class Vote implements VoteInterface {
    * Status for the card
    */
   private async syncBlocksProgress(state: StateInterface): Promise<number> {
-    const ends = (+this.start) + state.voteLength;
+    const ends = (+this.start) + state.settings.get('voteLength');
     const current = app.getCurrentBlock();
     const endsIn = current < ends? ends-current : 0;
 
