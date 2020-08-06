@@ -64,7 +64,7 @@ export default class Vote implements VoteInterface {
     const endsIn = await this.syncBlocksProgress(state);
     this.syncFooterButtons(state, endsIn);
 
-    if(endsIn > 0 && recall && this.keepSync) {
+    if((endsIn > 0 && this.status !== 'active') && recall && this.keepSync) {
       setTimeout(() => this.sync(true, recall), 60000);
     }
   }

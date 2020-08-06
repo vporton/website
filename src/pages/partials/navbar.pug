@@ -7,13 +7,13 @@ header.navbar.navbar-expand-md.navbar-light
       img.navbar-brand-image(src="./assets/images/logo.png", alt="Community")
 
     .navbar-nav.flex-row.order-md-last
-      .nav-item.dropdown.d-none.d-md-flex.mr-3
-        a.nav-link.px-0(href="#", data-toggle="dropdown", tabindex="-1")
-          i(data-feather="bell")
-          span.badge.bg-red
-        .dropdown-menu.dropdown-menu-right.dropdown-menu-card.dropdown-menu-arrow
-          .card
-            .card-body Lorem ipsum bla bla bla
+      //- .nav-item.dropdown.d-none.d-md-flex.mr-3
+      //-   a.nav-link.px-0(href="#", data-toggle="dropdown", tabindex="-1")
+      //-     i(data-feather="bell")
+      //-     span.badge.bg-red
+      //-   .dropdown-menu.dropdown-menu-right.dropdown-menu-card.dropdown-menu-arrow
+      //-     .card
+      //-       .card-body Lorem ipsum bla bla bla
 
       .loggedin.nav-item.dropdown(style="display: none")
         a.nav-link.d-flex.lh-1.text-reset.p-0(href="#" data-toggle="dropdown")
@@ -62,12 +62,6 @@ header.navbar.navbar-expand-md.navbar-light
               span.nav-link-icon.d-md-none.d-lg-inline-block
                 i.icon(data-feather="lock")
               span.nav-link-title Vault
-
-          li.nav-item.link-settings
-            a.nav-link(href="#/settings")
-              span.nav-link-icon.d-md-none.d-lg-inline-block
-                i.icon(data-feather="settings")
-              span.nav-link-title Community
 
 #login-modal.modal.modal-blur.fade(role="dialog")
   .modal-dialog(role="document"): .modal-content

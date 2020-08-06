@@ -231,7 +231,7 @@ export default class PageVotes {
         toast.showTransaction('Create vote', txid, voteParams)
           .then(async () => {
             // Just create the new vote, do not sync the entire page.
-            const state = await app.getCommunity().getState();
+            const state = await app.getCommunity().getState(false);
 
             const voteId = state.votes.length - 1;
             if(this.votes.length < state.votes.length) {
