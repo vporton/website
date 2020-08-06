@@ -2294,11 +2294,6 @@ css-what@^3.2.1:
   resolved "https://registry.yarnpkg.com/css-what/-/css-what-3.3.0.tgz#10fec696a9ece2e591ac772d759aacabac38cd39"
   integrity sha512-pv9JPyatiPaQ6pf4OvD/dbfm0o5LviWmwxNWzblYf/1u9QZd0ihV+PMwy5jdQWQ3349kZmKEx9WXuSka2dM4cg==
 
-css.gg@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/css.gg/-/css.gg-2.0.0.tgz#1ba891092ceac58a2550540171c2d469a86b27b2"
-  integrity sha512-8qO59kSXLbewo7xaUM4eC8328MTdGmb8atpmw6PRzeDGsZrCkAVjJzKeFDIntagl1/aCee+NG1OQtIvWAjgG/A==
-
 cssdb@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/cssdb/-/cssdb-4.4.0.tgz#3bf2f2a68c10f5c6a08abd92378331ee803cddb0"
@@ -3134,14 +3129,6 @@ grapheme-breaker@^0.3.2:
   dependencies:
     brfs "^1.2.0"
     unicode-trie "^0.3.1"
-
-gridjs@^1.14.0:
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/gridjs/-/gridjs-1.14.0.tgz#563ae4005a7960aabd309a3d2c30147ae2a56716"
-  integrity sha512-0GJ3xrAICOZMb5f3I03P68Wre1t1YHDkqKuknnjQUZw3FefohYd0MeAGgRYzTTaD+gTMAFMLc63SAf/IKyjGZw==
-  dependencies:
-    preact "^10.4.4"
-    tslib "~2.0.0"
 
 har-schema@^2.0.0:
   version "2.0.0"
@@ -5291,11 +5278,6 @@ posthtml@^0.13.1:
     posthtml-parser "^0.4.2"
     posthtml-render "^1.2.2"
 
-preact@^10.4.4:
-  version "10.4.6"
-  resolved "https://registry.yarnpkg.com/preact/-/preact-10.4.6.tgz#86cc43396e4bdd755726a2b4b1f0529e78067cd3"
-  integrity sha512-80WJfXH53yyINig5Wza/8MD9n4lMg9G6aN00ws0ptsAaY/Fu/M7xW4zICf7OLfocVltxS30wvNQ8oIbUyZS1tw==
-
 prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
@@ -6401,11 +6383,6 @@ tr46@^1.0.1:
   integrity sha1-qLE/1r/SSJUZZ0zN5VujaTtwbQk=
   dependencies:
     punycode "^2.1.0"
-
-tslib@~2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.0.0.tgz#18d13fc2dce04051e20f074cc8387fd8089ce4f3"
-  integrity sha512-lTqkx847PI7xEDYJntxZH89L2/aXInsyF2luSafe/+0fHOMjlBNXdH6th7f70qxLDhul7KZK0zC8V5ZIyHl0/g==
 
 tty-browserify@0.0.0:
   version "0.0.0"
