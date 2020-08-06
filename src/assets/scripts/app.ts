@@ -83,6 +83,7 @@ class App {
           protocol: 'https',
           timeout: 100000
         });
+        this.community = new Community(this.arweave);
 
         return this.updateNetworkInfo();
       }
