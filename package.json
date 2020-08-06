@@ -7,7 +7,7 @@
     "dev": "parcel src/*.pug",
     "build": "parcel build src/*.pug --no-source-maps"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "browserslist": "last 4 version",
   "postcss": {
     "plugins": {
