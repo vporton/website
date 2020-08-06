@@ -21,6 +21,11 @@ export default class PageVotes {
   }
 
   async close() {
+    for(let i = 0, j = this.votes.length; i < j; i++) {
+      this.votes[i].hide();
+    }
+    this.votes = [];
+
     await this.removeEvents();
     $('.link-votes').removeClass('active');
     $('.page-votes').hide();

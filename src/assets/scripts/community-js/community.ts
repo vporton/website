@@ -6,8 +6,8 @@ import { BalancesInterface, VaultInterface, VoteInterface, RoleInterface, StateI
 import Utils from './utils';
 
 export default class Community {
-  private readonly contractSrc: string = 'CR8a4s4VuhCV__tDAzzjc5d_UgL-dlgtVdWXp7L5Aic';
-  private readonly mainContract: string = 'dlKReXkvj7Af-mc_0DiY_2OQIVot_mUcc6YAzH9vo3s';
+  private readonly contractSrc: string = '3mWXKTbV0bANr9mcYv4Iicy2clsHBfpgXWqQpnqrVYM';
+  private readonly mainContract: string = 'n_X3YTN7Wqxz5shER97Q6coFXGLdjFV1OVqhF_lIW78';
   private readonly txFee: number = 400000000;
   private readonly createFee: number = 9500000000;
 
@@ -18,7 +18,7 @@ export default class Community {
   // Community specific variables
   private communityContract = '';
   private state!: StateInterface;
-  private lastStateCall: number = 0;
+  private firstCall: boolean = true;
   private cacheRefreshInterval: number = 1000 * 60 * 2; // 2 minutes
   private stateCallInProgress: boolean = false;
 
@@ -44,22 +44,20 @@ export default class Community {
   /**
    * Get the current Community state.
    * @param cached - Wether to return the cached version or reload
+   * @returns - The current state and sync afterwards if needed.
    */
   public async getState(cached = true): Promise<StateInterface> {
-    // Only call the state from server once even if multiple calls at once.
-    if(this.stateCallInProgress) {
-      console.log('Waiting on state...');
-      return new Promise(resolve => setTimeout(() => resolve(this.getState(cached)), 1000));
+    if(!this.communityContract.length) {
+      throw new Error("No community set. Use setCommunityTx to get your current state.");
     }
 
-    if(!cached || ((new Date()).getTime() - this.lastStateCall) > this.cacheRefreshInterval) {
-      this.stateCallInProgress = true;
-      
-      // @ts-ignore
-      this.state = await readContract(this.arweave, this.communityContract);
-      this.lastStateCall = (new Date()).getTime();
-      
-      this.stateCallInProgress = false;
+    if(this.firstCall) {
+      this.firstCall = false;
+      return this.update(true);
+    }
+
+    if(!cached || !this.state) {
+      return this.update(false);
     }
 
     return this.state;
@@ -90,6 +88,8 @@ export default class Community {
    * @param vault - Vault object, optional
    * @param votes - Votes, optional
    * @param roles - Roles, optional
+   * 
+   * @returns - The created state
    */
   public async setState(name: string, ticker: string, balances: BalancesInterface, quorum: number = 50, support: number = 50, voteLength: number = 2000, lockMinLength: number = 720, lockMaxLength: number = 10000, vault: VaultInterface = {}, votes: VoteInterface[] = [], roles: RoleInterface = {}): Promise<StateInterface> {
     // Make sure the wallet exists.
@@ -169,7 +169,8 @@ export default class Community {
   }
 
   /**
-   * Create a new Community with the current, previously saved using `setState`, state.
+   * Create a new Community with the current, previously saved (with `setState`) state.
+   * @returns The created community transaction ID.
    */
   public async create(): Promise<string> {
     // Create the new Community.
@@ -183,7 +184,9 @@ export default class Community {
   }
 
   /**
-   * Returns the current create cost as a winston string.
+   * Get the current create cost of a community.
+   * @param inAr - Return in winston or AR
+   * @param options - If return inAr is set to true, these options are used to format the returned AR value.
    */
   public async getCreateCost(inAr = false, options?: {formatted: boolean, decimals: number, trim: boolean}): Promise<string> {
     const byteSize = new Blob([JSON.stringify(this.state)]).size;
@@ -196,6 +199,11 @@ export default class Community {
     return res.data;
   }
 
+  /**
+   * Get the current action (post interaction) cost of a community.
+   * @param inAr - Return in winston or AR
+   * @param options - If return inAr is set to true, these options are used to format the returned AR value.
+   */
   public async getActionCost(inAr = false, options?: {formatted: boolean, decimals: number, trim: boolean}): Promise<string> {
     const res = await this.arweave.api.get(`/price/${this.txFee}`);
 
@@ -211,6 +219,8 @@ export default class Community {
    * @param txId Community's Transaction ID
    */
   public async setCommunityTx(txId: string): Promise<void> {
+    // reset state
+    this.state = null;
     this.communityContract = txId;
   }
 
@@ -225,25 +235,40 @@ export default class Community {
   }
 
   /**
-   * Get the target or current wallet balance
-   * @param target 
-   * @returns - Current target token balance
+   * Get the target or current wallet token balance
+   * @param target The target wallet address
+   * @returns Current target token balance
    */
   public async getBalance(target: string = this.walletAddress): Promise<number> {
     const res = await this.get({ function: 'balance', target });
     return res.balance;
   }
 
+  /**
+   * Get the target or current wallet unlocked token balance
+   * @param target The target wallet address
+   * @returns Current target token balance
+   */
   public async getUnlockedBalance(target: string = this.walletAddress): Promise<number> {
     const res = await this.get({ function: 'unlockedBalance', target});
     return res.balance;
   }
 
+  /**
+   * Get the target or current wallet vault balance
+   * @param target The target wallet address
+   * @returns Current target token balance
+   */
   public async getVaultBalance(target: string = this.walletAddress): Promise<number> {
     const res = await this.get({ function: 'vaultBalance', target});
     return res.balance;
   }
 
+  /**
+   * Get the target or current wallet role
+   * @param target The target wallet address
+   * @returns Current target role
+   */
   public async getRole(target: string = this.walletAddress): Promise<string> {
     const res = await this.get({ function: 'role', target});
     return res.role;
@@ -284,7 +309,9 @@ export default class Community {
 
   /**
    * Increase the lock time (in blocks) of a vault.
+   * @param vaultId - The vault index position to increase
    * @param lockLength - Length of the lock, in blocks
+   * @returns The transaction ID for this action
    */
   public async increaseVault(vaultId: number, lockLength: number): Promise<string> {
     await this.chargeFee('increaseVault');
@@ -294,6 +321,7 @@ export default class Community {
   /**
    * Create a new vote
    * @param params VoteInterface without the "function"
+   * @returns The transaction ID for this action
    */
   public async proposeVote(params: VoteInterface): Promise<string> {
     const pCopy: VoteInterface = JSON.parse(JSON.stringify(params));
@@ -329,6 +357,7 @@ export default class Community {
    * Cast a vote on an existing, and active, vote proposal.
    * @param id - The vote ID, this is the index of the vote in votes
    * @param cast - Cast your vote with 'yay' (for yes) or 'nay' (for no)
+   * @returns The transaction ID for this action
    */
   public async vote(id: number, cast: 'yay' | 'nay'): Promise<string> {
     await this.chargeFee('vote');
@@ -338,16 +367,17 @@ export default class Community {
   /**
    * Finalize a vote, to run the desired vote details if approved, or reject it and close.
    * @param id - The vote ID, this is the index of the vote in votes
+   * @returns The transaction ID for this action
    */
-  public async finalize(id: number) {
+  public async finalize(id: number): Promise<string> {
     await this.chargeFee('finalize');
     return this.interact({function: 'finalize', id});
   }
 
   /**
    * Charge a fee for each Community's interactions.
-   * @param action - Current action name. Usually the same as the method name.
-   * @param fee - Fee to charge
+   * @param action - Current action name. Usually the same as the method name
+   * @param bytes - Bytes to get it's price to charge
    */
   private async chargeFee(action: string, bytes: number = this.txFee): Promise<void> {
     // @ts-ignore
@@ -391,6 +421,10 @@ export default class Community {
     }
   }
 
+  /**
+   * Set default tags to each transaction sent from CommunityJS.
+   * @param tx - Transaction to set the defaults.
+   */
   private async setDefaultTags(tx: Transaction): Promise<void> {
     tx.addTag('App-Name', 'Community');
     tx.addTag('App-Version', '0.0.1');
@@ -398,12 +432,48 @@ export default class Community {
     tx.addTag('Community-Ticker', this.state.ticker);
   }
 
+  /**
+   * Function used to check if the user is already logged in
+   */
   private async checkWallet(): Promise<void> {
     if (!this.wallet) {
       throw new Error('You first need to set the user wallet, you can do this while on new Community(..., wallet) or using setWallet(wallet).');
     }
   }
 
+  private async update(recall = false): Promise<StateInterface> {
+    if(!this.communityContract.length) {
+      setTimeout(() => this.update(), this.cacheRefreshInterval);
+      return;
+    }
+
+    if(this.stateCallInProgress) {
+      const getLastState = async (): Promise<StateInterface> => {
+        if(this.stateCallInProgress) {
+          return new Promise(resolve => setTimeout(() => resolve(getLastState()), 1000));
+        }
+
+        return this.state;
+      };
+      return getLastState();
+    }
+
+    this.stateCallInProgress = true;
+
+    // @ts-ignore
+    this.state = await readContract(this.arweave, this.communityContract);
+    this.stateCallInProgress = false;
+    
+    if(recall) {
+      setTimeout(() => this.update(true), this.cacheRefreshInterval);
+    }
+    return this.state;
+  }
+
+  /**
+   * The most important function, it writes to the contract.
+   * @param input - InputInterface
+   */
   private async interact(input: InputInterface): Promise<string> {
     // @ts-ignore
     const res = await interactWriteDryRun(this.arweave, this.wallet, this.communityContract, input);

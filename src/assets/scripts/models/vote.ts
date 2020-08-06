@@ -24,8 +24,9 @@ export default class Vote implements VoteInterface {
   start?: number;
   lockLength?: number;
 
-  voteId: number;
-  $card: any;
+  private voteId: number;
+  private $card: any;
+  private keepSync: boolean = true;
   
   constructor(params: VoteInterface = {}, voteId: number) {
     if(Object.keys(params).length) {
@@ -38,9 +39,16 @@ export default class Vote implements VoteInterface {
     this.voteId = voteId;
   }
 
-  async sync() {
+  public getVoteId(): number {
+    return this.voteId;
+  }
+  public getJQueryCard() {
+    return this.$card;
+  }
+
+  async sync(cached: boolean = true, recall = false) {
     // TODO: Continue
-    const state = await app.getCommunity().getState();
+    const state = await app.getCommunity().getState(cached);
 
     let params = state.votes[this.voteId];
     if(Object.keys(params).length) {
@@ -56,8 +64,8 @@ export default class Vote implements VoteInterface {
     const endsIn = await this.syncBlocksProgress(state);
     this.syncFooterButtons(state, endsIn);
 
-    if(endsIn > 0) {
-      setTimeout(() => this.sync(), 60000);
+    if(endsIn > 0 && recall && this.keepSync) {
+      setTimeout(() => this.sync(true, recall), 60000);
     }
   }
 
@@ -173,7 +181,13 @@ export default class Vote implements VoteInterface {
     </div>`);
 
     $('.proposals').prepend(this.$card);
-    this.sync();
+    this.sync(true, true);
+  }
+
+  async hide() {
+    this.keepSync = false;
+    this.btnYesNoEvents(true);
+    this.btnFinalizeEvents(true);
   }
 
   /**
@@ -223,9 +237,10 @@ export default class Vote implements VoteInterface {
     let yaysPercent = 0;
     let naysPercent = 0;
     const total = this.yays + this.nays;
+
     if(total > 0) {
-      yaysPercent = Math.round(this.yays / total) * 100;
-      naysPercent = Math.round(this.nays / total) * 100;
+      yaysPercent = this.yays / total * 100;
+      naysPercent = this.nays / total * 100;
     }
 
     this.$card.find('.txt-yays').text(`${yaysPercent}%`);
@@ -279,7 +294,7 @@ export default class Vote implements VoteInterface {
         const txid = await app.getCommunity().vote(this.voteId, 'yay');
         toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'Yes'})
           .then(() => {
-            this.sync();
+            this.sync(false);
           });
         $(e.target).removeClass('btn-loading');
       } catch (err) {
@@ -306,7 +321,7 @@ export default class Vote implements VoteInterface {
         const txid = await app.getCommunity().vote(this.voteId, 'nay');
         toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'No'})
           .then(() => {
-            this.sync();
+            this.sync(false);
           });
         $(e.target).removeClass('btn-loading');
       } catch (err) {
@@ -336,7 +351,7 @@ export default class Vote implements VoteInterface {
         const txid = await app.getCommunity().finalize(this.voteId);
         toast.showTransaction('Finalize vote', txid, {voteId: this.voteId})
           .then(() => {
-            this.sync();
+            this.sync(false);
           });
         $(e.target).removeClass('btn-loading');
       } catch (err) {

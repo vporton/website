@@ -1,6 +1,6 @@
 import "../styles/style.scss";
 
-import Arweave from 'arweave/web';
+import Arweave from 'arweave';
 import Community from './community-js/community';
 import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
@@ -33,7 +33,7 @@ const createCommunity = () => {
     const attempt = async () => {
       const res = await arweave.transactions.getStatus(communityTx);
       if (res.status !== 200 && res.status !== 202) {
-        $('.mining-btn').removeClass('btn-primary').addClass('btn-danger').removeAttr('href').text('Transaction Rejected');
+        $('.mining-btn').removeClass('btn-primary').addClass('btn-danger').addClass('disabled').text('Transaction Rejected');
       }
 
       if(res.confirmed) {
@@ -185,9 +185,9 @@ $(document).ready(() => {
         $(`.step${--currentStep}`).fadeIn();
 
         if(currentStep === 1) {
-          $(e.target).removeAttr('href');
+          $(e.target).addClass('disabled');
         } else {
-          $(e.target).attr('href', '#!');
+          $(e.target).removeClass('disabled');
         }
 
         $('.continue').text(currentStep === 4? 'Launch Community' : 'Continue');
@@ -217,7 +217,7 @@ $(document).ready(() => {
         $(`.step${currentStep}`).fadeIn();
 
         $(e.target).prop('disabled', true);
-        $('.back').attr('href', '#!');
+        $('.back').removeClass('disabled');
 
         validate(e);
       });
