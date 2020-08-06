@@ -6,7 +6,7 @@ import { BalancesInterface, VaultInterface, VoteInterface, RoleInterface, StateI
 import Utils from './utils';
 
 export default class Community {
-  private readonly contractSrc: string = '--Txpit8Fe6stOtJadut4RLZYZfu9HktQ8K1X5XnQOU';
+  private readonly contractSrc: string = 'GoFNTxfkOl5kSw2J0SbO4woSAX9GlrthaHTXDGN-K5c';
   private readonly mainContract: string = 'woRBlvRf3s1byHLLT0PUKGvsTpNTFfne_yARSECGHMQ';
   private readonly txFee: number = 400000000;
   private readonly createFee: number = 9500000000;
