@@ -173,7 +173,20 @@ const validate = async (e: any) => {
   }
 };
 
-$(document).ready(() => {
+$(document).ready(async () => {
+  try {
+    this.currentBlock = (await this.arweave.network.getInfo()).height;
+  } catch(e) {
+    if(this.arweave.getConfig().api.host !== 'arweave.net') {
+      this.arweave = Arweave.init({
+        host: 'arweave.net',
+        port: 443,
+        protocol: 'https',
+        timeout: 100000
+      });
+    }
+  }
+
   $('[data-toggle="tooltip"]').tooltip();
 
   $('.back').on('click', (e: any) => {
