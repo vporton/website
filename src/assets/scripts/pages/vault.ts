@@ -50,8 +50,8 @@ export default class PageVault {
     const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
     $('.user-unlocked-balance').text(Utils.formatMoney(bal.unlocked, 0));
 
-    $('.min-lock-length').text(state.lockMinLength);
-    $('.max-lock-length').text(state.lockMaxLength);
+    $('.min-lock-length').text(state.settings.get('lockMinLength'));
+    $('.max-lock-length').text(state.settings.get('lockMaxLength'));
     
     if(await app.getAccount().isLoggedIn() && state.vault[(await app.getAccount().getAddress())]) {
       this.createOrUpdateTable(state);
@@ -159,7 +159,7 @@ export default class PageVault {
       e.preventDefault();
 
       const state = await app.getCommunity().getState();
-      $('.input-max-lock').val(state.lockMaxLength);
+      $('.input-max-lock').val(state.settings.get('lockMaxLength'));
     });
 
     $('.do-lock-tokens').on('click', async (e: any) => {
@@ -182,7 +182,7 @@ export default class PageVault {
       if(balance > bal.unlocked) {
         return;
       }
-      if(length < state.lockMinLength || length > state.lockMaxLength) {
+      if(length < state.settings.get('lockMinLength') || length > state.settings.get('lockMaxLength')) {
         return;
       }
 
@@ -250,7 +250,7 @@ export default class PageVault {
 
       const state = await app.getCommunity().getState();
       const length = +$('#increase-lock-length').val().trim();
-      if(length < state.lockMinLength || length > state.lockMaxLength) {
+      if(length < state.settings.get('lockMinLength') || length > state.settings.get('lockMaxLength')) {
         return;
       }
 

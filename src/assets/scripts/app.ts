@@ -11,7 +11,6 @@ import PageDashboard from "./pages/dashboard";
 import PageTokens from "./pages/tokens";
 import PageVotes from "./pages/votes";
 import PageVault from "./pages/vault";
-import PageSettings from "./pages/settings";
 import Account from "./models/account";
 
 class App {
@@ -23,12 +22,11 @@ class App {
   private currentBlock: number = 0;
   
   // Pages
-  private currentPage: PageDashboard | PageTokens | PageVotes | PageVault | PageSettings; // Add all possible page objects here
+  private currentPage: PageDashboard | PageTokens | PageVotes | PageVault; // Add all possible page objects here
   private pageDashboard: PageDashboard;
   private pageTokens: PageTokens;
   private pageVotes: PageVotes;
   private pageVault: PageVault;
-  private pageSettings: PageSettings;
 
   constructor() {
     if(window.location.host === 'community.xyz') {
@@ -48,7 +46,6 @@ class App {
     this.pageTokens = new PageTokens();
     this.pageVotes = new PageVotes();
     this.pageVault = new PageVault();
-    this.pageSettings = new PageSettings();
 
     this.hashChanged(false);
   }
@@ -130,8 +127,6 @@ class App {
       this.currentPage = this.pageVotes;
     } else if(page === 'vault') {
       this.currentPage = this.pageVault;
-    } else if(page === 'settings') {
-      this.currentPage = this.pageSettings;
     }
 
     await this.updateTxFee();

@@ -210,7 +210,8 @@ export default class PageTokens {
       try {
         const txid = await app.getCommunity().transfer(transferTarget, transferBalance);
         toast.showTransaction('Transfer balance', txid, {target: transferTarget, amount: Utils.formatMoney(transferBalance, 0)})
-          .then(() => {
+          .then(async () => {
+            await app.getCommunity().getState(false);
             app.getCurrentPage().syncPageState();
           });
 
