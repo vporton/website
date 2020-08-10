@@ -123,7 +123,7 @@ const validate = async (e: any) => {
       let i = 0;
       for(let acc in create.balances) {
         html += `<tr>
-          <td data-label="Token Holder #${++i}">${acc}</td>
+          <td data-label="Wallet #${++i}">${acc}</td>
           <td data-label="Balance">${create.balances[acc]}</td>
         </tr>`;
       }
@@ -249,7 +249,7 @@ $(document).ready(() => {
     e.preventDefault();
 
     $('.holders').find('tbody').append(`<tr>
-      <td data-label="Token Holder">
+      <td data-label="Wallet address">
         <input class="holder form-control" type="text">
       </td>
       <td data-label="Balance">
