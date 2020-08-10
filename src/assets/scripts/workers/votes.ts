@@ -1,5 +1,5 @@
 import { expose } from "threads/worker";
-import { BalancesInterface, VaultInterface, VoteInterface } from "../community-js/faces";
+import { BalancesInterface, VaultInterface, VoteInterface } from "community-js/lib/faces";
 
 const worker = {
   activeVotesByType: (votes) => {

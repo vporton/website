@@ -2,7 +2,7 @@ import "../styles/board.scss";
 
 import "threads/register";
 import Arweave from 'arweave';
-import Community from './community-js/community';
+import Community from 'community-js';
 import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
 

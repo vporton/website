@@ -1,12 +1,12 @@
 import Arweave from 'arweave/web';
-import Community from '../community-js/community';
+import Community from 'community-js';
 import $ from '../libs/jquery';
 import Account from '../models/account';
 import Utils from '../utils/utils';
-import { VoteType, VoteInterface } from '../community-js/faces';
 import Toast from '../utils/toast';
 import app from '../app';
 import Vote from '../models/vote';
+import { VoteType, VoteInterface } from 'community-js/lib/faces';
 
 export default class PageVotes {
   private votes: Vote[] = [];

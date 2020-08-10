@@ -1,7 +1,7 @@
 import { spawn, ModuleThread } from "threads";
 
 import Arweave from 'arweave/web';
-import Community from '../community-js/community';
+import Community from 'community-js';
 import $ from '../libs/jquery';
 import { BalancesWorker } from "../workers/balances";
 import { VotesWorker } from "../workers/votes";

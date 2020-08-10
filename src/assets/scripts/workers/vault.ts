@@ -1,5 +1,5 @@
 import { expose } from "threads/worker";
-import { VaultInterface } from "../community-js/faces";
+import { VaultInterface } from "community-js/lib/faces";
 
 const worker = {
   meVsOthersBalances: (v: VaultInterface, address: string) => {

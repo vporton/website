@@ -1,5 +1,5 @@
 import { expose } from "threads/worker";
-import { BalancesInterface, VaultInterface } from "../community-js/faces";
+import { BalancesInterface, VaultInterface } from "community-js/lib/faces";
 
 const worker = {
   usersAndBalance: (bal: BalancesInterface) => {

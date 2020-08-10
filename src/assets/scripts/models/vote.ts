@@ -2,7 +2,7 @@ import feather from 'feather-icons';
 import { get, getIdenticon } from 'arweave-id';
 
 import $ from '../libs/jquery';
-import { VoteInterface, VoteStatus, VoteType, StateInterface } from "../community-js/faces";
+import { VoteInterface, VoteStatus, VoteType, StateInterface } from "community-js/lib/faces";
 import app from '../app';
 import Utils from '../utils/utils';
 import Toast from '../utils/toast';

@@ -2038,6 +2038,14 @@ commander@^5.0.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-5.1.0.tgz#46abbd1652f8e059bddaef99bbdcb2ad9cf179ae"
   integrity sha512-P0CysNDQ7rtVw4QIQtm+MRxV66vKFSvlsQvGYXZWR3qFU0jlMKHZZZgw8e+8DSah4UDKMqnknRDQz+xuQXQ/Zg==
 
+community-js@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.0.tgz#b5611b1a6b991285554a38ed1084898a3d8f278d"
+  integrity sha512-Zs2b/3Sx1EoHDdrs36meWmUopZLscZXkUGnSETg7URH0Y4wgYlR6HeN+gDiWQ06YfB5bVHYkWBDQBwPDJ1mt0Q==
+  dependencies:
+    arweave "^1.9.1"
+    smartweave "https://arweave.net/AM-u4X2po-3Tx7fma3lRonCfLwrjI42IALwDL_YFXBs"
+
 component-emitter@^1.2.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/component-emitter/-/component-emitter-1.3.0.tgz#16e4070fba8ae29b679f2215853ee181ab2eabc0"

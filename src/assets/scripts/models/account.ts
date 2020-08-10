@@ -2,7 +2,7 @@ import Arweave from "arweave/web";
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { get, getIdenticon } from 'arweave-id';
 
-import Community from '../community-js/community';
+import Community from 'community-js';
 import $ from '../libs/jquery';
 import app from "../app";
 import Toast from "../utils/toast";
