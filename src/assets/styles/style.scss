@@ -3,3 +3,14 @@
 .step2, .step3, .step4 {
   display: none;
 }
+
+object {
+  width: 100%;
+}
+
+.empty-icon {
+  object {
+    width: 100%;
+    max-width: 800px;
+  }
+}

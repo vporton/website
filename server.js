@@ -11,8 +11,16 @@ app.get('/create.html', (_, res) => {
   res.redirect('/create');
 });
 
+app.get('/home.html', (_, res) => {
+  res.redirect('/home');
+});
+
 app.get('/create', (_, res) => {
   res.sendFile(path.join(__dirname, 'dist/create.html'));
+});
+
+app.get('/home', (_, res) => {
+  res.sendFile(path.join(__dirname, 'dist/home.html'));
 });
 
 app.use(express.static('dist'));

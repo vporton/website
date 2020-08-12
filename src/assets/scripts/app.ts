@@ -99,11 +99,16 @@ class App {
 
   private async hashChanged(updatePage = true) {
     this.hash = location.hash.substr(1);
-    this.hashes = this.hash.split('/');
+    const hashes = this.hash.split('/');
+    if(this.hashes && this.hashes[0] !== hashes[0]) {
+      window.location.reload();
+    }
+
+    this.hashes = hashes;
     
     // To be able to access the dashboard, you need to send a Community txId.
     if(!this.hashes.length || !(/^[a-z0-9-_]{43}$/i.test(this.hashes[0]))) {
-      window.location.href = './create.html';
+      window.location.href = './home.html';
     }
 
     if(updatePage) {
