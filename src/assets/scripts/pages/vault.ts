@@ -1,11 +1,8 @@
-import Arweave from 'arweave/web';
 import ApexCharts from 'apexcharts';
 import { ModuleThread, spawn } from 'threads';
 
 import Utils from '../utils/utils';
-import Community from 'community-js';
 import $ from '../libs/jquery';
-import Account from '../models/account';
 import { StateInterface } from 'community-js/lib/faces';
 import Toast from '../utils/toast';
 import { VaultWorker } from '../workers/vault';

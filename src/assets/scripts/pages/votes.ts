@@ -1,7 +1,4 @@
-import Arweave from 'arweave/web';
-import Community from 'community-js';
 import $ from '../libs/jquery';
-import Account from '../models/account';
 import Utils from '../utils/utils';
 import Toast from '../utils/toast';
 import app from '../app';

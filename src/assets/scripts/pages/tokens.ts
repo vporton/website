@@ -1,15 +1,12 @@
-import Arweave from 'arweave/web';
 import ApexCharts from 'apexcharts';
 import { ModuleThread, spawn } from 'threads';
 import * as arweaveId from 'arweave-id';
 
-import Community from 'community-js';
 import $ from '../libs/jquery';
 import { BalancesWorker } from '../workers/balances';
 import { TokensWorker } from '../workers/tokens';
 import { StateInterface } from 'community-js/lib/faces';
 import Utils from '../utils/utils';
-import Account from '../models/account';
 import Toast from '../utils/toast';
 import app from '../app';
 
