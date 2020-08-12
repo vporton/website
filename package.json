@@ -1,11 +1,11 @@
 {
   "name": "frontend",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "./dist/index.html",
   "scripts": {
     "start": "node server.js",
     "dev": "parcel src/*.pug",
-    "build": "parcel build src/*.pug --no-source-maps"
+    "build": "parcel build src/*.pug --public-url ./ --no-source-maps"
   },
   "license": "MIT",
   "repository": {
