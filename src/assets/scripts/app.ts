@@ -62,8 +62,20 @@ class App {
   getCurrentBlock() {
     return this.currentBlock;
   }
-  public getCurrentPage() {
+  getCurrentPage() {
     return this.currentPage;
+  }
+  getPageDashboard() {
+    return this.pageDashboard;
+  }
+  getPageTokens() {
+    return this.pageTokens;
+  }
+  getPageVotes() {
+    return this.pageVotes;
+  }
+  getPageVault() {
+    return this.pageVault;
   }
 
   async init() {

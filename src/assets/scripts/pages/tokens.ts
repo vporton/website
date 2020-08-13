@@ -101,11 +101,11 @@ export default class PageTokens {
         <td class="text-right">
           <span class="dropdown ml-1">
             <button class="btn btn-light dropdown-toggle align-text-top" data-boundary="viewport" data-toggle="dropdown">Actions</button>
-            <div class="dropdown-menu dropdown-menu-right">
-              <a class="dropdown-item" href="#">Transfer</a>
-              <a class="dropdown-item" href="#">Mint</a>
-              <a class="dropdown-item" href="#">Mint Locked</a>
-              <a class="dropdown-item" href="#">Burn</a>
+            <div data-addy="${holder.address}" class="dropdown-menu dropdown-menu-right">
+              <a class="transfer-user dropdown-item" href="#">Transfer</a>
+              <a class="mint-user dropdown-item" href="#">Mint</a>
+              <a class="mint-locked-user dropdown-item" href="#">Mint Locked</a>
+              <a class="burn-vault-user dropdown-item" href="#">Burn</a>
             </div>
           </span>
         </td>
@@ -230,10 +230,42 @@ export default class PageTokens {
         $target.removeClass('is-invalid');
       }
     });
+
+    $(document).on('click', '.transfer-user', (e: any) => {
+      e.preventDefault();
+
+      const addy = $(e.target).parent().attr('data-addy');
+      $('#transfer-target').val(addy.trim());
+      $('#transfer-balance').val(0);
+      $('#modal-transfer').modal('show');
+    });
+
+    $(document).on('click', '.mint-user, .mint-locked-user, .burn-vault-user', (e: any) => {
+      e.preventDefault();
+
+      const addy = $(e.target).parent().attr('data-addy').trim();
+      
+      if($(e.target).hasClass('mint-user')) {
+        $('input[name="voteType"][value="mint"]').trigger('click');
+        $('#vote-recipient').val(addy);
+      } else if($(e.target).hasClass('mint-locked-user')) {
+        $('input[name="voteType"][value="mintLocked"]').trigger('click');
+        $('#vote-recipient').val(addy);
+      } else if($(e.target).hasClass('burn-vault-user')) {
+        $('input[name="voteType"][value="burnVault"]').trigger('click');
+        $('#vote-target').val(addy);
+      }
+      $('#modal-new-vote').modal('show');
+    });
+
+    await app.getPageVotes().events();
   }
 
   private async removeEvents() {
     $('.btn-max-balance, .do-transfer-tokens').off('click');
     $('#transfer-target').off('input');
+    $(document).off('click', '.transfer-user, .mint-user, .mint-locked-user, .burn-vault-user');
+
+    await app.getPageVotes().removeEvents();
   }
 }
