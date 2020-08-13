@@ -7,7 +7,7 @@ Starting from version 1.0.2 there's also permaweb versions stored forever on the
 Versions will be updated here as soon as a new one is created, by default it will be pointing to arweave.net but you can use any other gateway available for Arweave.
 
 ```
-v1.0.4 - https://arweave.net/KN8oNZe7d-vT70laVDkVCt9PqvY2O8xIRVo-NCXa6_g
+v1.0.4 - https://arweave.net/LS2Y7bPvGfRjn9LIt2twYD_6Wu5Le71u9OHxJGN3P6M
 - Changed wording on landing page
 
 v1.0.3 - https://arweave.net/z1pAkQOJFxmzZ_nNLFR3upHa2Iw0UCZUFBYGp_q-oSI
