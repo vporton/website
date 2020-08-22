@@ -6,4 +6,5 @@ import './global';
 
 $(document).ready(() => {
   $('a.create').attr('href', './create.html');
+  $('a.opp').attr('href', './opportunity.html');
 });
