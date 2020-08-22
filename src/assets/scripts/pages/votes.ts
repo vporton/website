@@ -51,9 +51,9 @@ export default class PageVotes {
   private async setValidate() {
     const state = await app.getCommunity().getState();
 
-    const recipient = $('#vote-recipient').val().trim();
+    const recipient = $('#vote-recipient').val().toString().trim();
     const setKey = $('#vote-set-key').val();
-    let setValue = $('#vote-set-value').val().trim();
+    let setValue: string | number = $('#vote-set-value').val().toString().trim();
 
     if(setKey === 'quorum' || setKey === 'support') {
       setValue = +setValue;
@@ -144,7 +144,7 @@ export default class PageVotes {
 
     $('#vote-recipient, #vote-target').on('input', async (e: any) => {
       const $target = $(e.target);
-      const value = $target.val().trim();
+      const value = $target.val().toString().trim();
       if(!await Utils.isArTx(value)) {
         $target.addClass('is-invalid');
       } else {
@@ -167,14 +167,15 @@ export default class PageVotes {
       e.preventDefault();
       const state = await app.getCommunity().getState();
 
-      const voteType: VoteType = $('input[name="voteType"]:checked').val();
-      const recipient = $('#vote-recipient').val().trim();
-      const qty = +$('#vote-qty').val().trim();
-      const length = +$('#vote-lock-length').val().trim();
-      const target = $('#vote-target').val().trim();
+      // @ts-ignore
+      const voteType: VoteType = $('input[name="voteType"]:checked').val().toString();
+      const recipient = $('#vote-recipient').val().toString().trim();
+      const qty = +$('#vote-qty').val().toString().trim();
+      const length = +$('#vote-lock-length').val().toString().trim();
+      const target = $('#vote-target').val().toString().trim();
       const setKey = $('#vote-set-key').val();
-      let setValue = $('#vote-set-value').val().trim();
-      const note = $('#vote-note').val().trim();
+      let setValue = $('#vote-set-value').val().toString().trim();
+      const note = $('#vote-note').val().toString().trim();
 
       let voteParams: VoteInterface = {
         type: voteType
@@ -209,6 +210,7 @@ export default class PageVotes {
           return;
         }
         
+        // @ts-ignore
         voteParams['key'] = setKey;
         voteParams['value'] = setValue;
       }
@@ -222,7 +224,7 @@ export default class PageVotes {
 
       // All validations passed
       $(e.target).addClass('btn-loading disabled');
-      const toast = new Toast();
+      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().proposeVote(voteParams);
         toast.showTransaction('Create vote', txid, voteParams)

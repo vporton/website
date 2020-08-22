@@ -39,4 +39,12 @@ export default class Utils {
 
     return str;
   }
+
+  static stripHTML(str: string) {
+    return str.replace(/<\/?[^>]*>/gi, '');
+  }
+
+  static escapeScriptStyles(str: string) {
+    return str.replace(/<(\/?(script|style|iframe))[^>]*>/gi, '&lt;$1$2&gt;');
+  }
 }

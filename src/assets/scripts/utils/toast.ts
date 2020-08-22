@@ -1,12 +1,17 @@
 import feather from 'feather-icons';
-import Arweave from 'arweave/web';
+import Arweave from 'arweave';
 
 import $ from '../libs/jquery';
 import Utils from './utils';
-import app from '../app';
+import { TransactionStatusResponse } from 'arweave/node/transactions';
 
 export default class Toast {
+  private arweave: Arweave;
   private t: any;
+
+  constructor(arweave: Arweave) {
+    this.arweave = arweave;
+  }
 
   show(title: string, message: string, type: 'error' | 'success' | 'none' | 'login', duration: number = 500) {
     const autohide: boolean = duration > 0;
@@ -60,30 +65,32 @@ export default class Toast {
     </div>
     `;
 
-    const tmp = document.createElement('div');
-    for(let key in data) {
-      tmp.innerHTML = key;
-      key = tmp.textContent || tmp.innerText || '';
-
-      let value = data[key];
-      tmp.innerHTML = value;
-      value = tmp.textContent || tmp.innerText || '';
-
-      if(typeof value === 'number') {
-        value = await Utils.formatMoney(value, 0);
-      } else if(key === 'type' || key === 'key') {
-        value = await Utils.capitalize(value);
+    if(Object.keys(data).length) {
+      const tmp = document.createElement('div');
+      for(let key in data) {
+        tmp.innerHTML = key;
+        key = tmp.textContent || tmp.innerText || '';
+  
+        let value = data[key];
+        tmp.innerHTML = value;
+        value = tmp.textContent || tmp.innerText || '';
+  
+        if(typeof value === 'number') {
+          value = await Utils.formatMoney(value, 0);
+        } else if(key === 'type' || key === 'key') {
+          value = await Utils.capitalize(value);
+        }
+  
+        if(key === 'Qty') {
+          key = 'Quantity';
+        }
+  
+        message += `
+        <div class="mb-2">
+          <div class="strong">${await Utils.capitalize(key)}</div>
+          <h5 class="text-muted">${value}</h5>
+        </div>`;
       }
-
-      if(key === 'Qty') {
-        key = 'Quantity';
-      }
-
-      message += `
-      <div class="mb-2">
-        <div class="strong">${await Utils.capitalize(key)}</div>
-        <h5 class="text-muted">${value}</h5>
-      </div>`;
     }
 
     this.show(title, message, 'none', 0);
@@ -95,11 +102,11 @@ export default class Toast {
   }
 
   private async checkTransaction(txid: string): Promise<void> {
-    const res = await app.getArweave().transactions.getStatus(txid);
+    const res = await this.arweave.transactions.getStatus(txid);
     console.log(res);
 
     if (res.status !== 200 && res.status !== 202) {
-      this.showFailTx();
+      this.showFailTx(res);
       return;
     } else if(res.confirmed) {
       this.showSuccessTx();
@@ -115,7 +122,9 @@ export default class Toast {
     this.t.find('.avatar').removeClass('bg-yellow').addClass('bg-green').html(feather.icons.check.toSvg());
   }
 
-  private async showFailTx() {
+  private async showFailTx(res: TransactionStatusResponse) {
+    console.log(res);
+    
     this.showCloseBtn();
     this.t.find('.avatar').removeClass('bg-yellow').addClass('bg-red').html(feather.icons.x.toSvg());
   }

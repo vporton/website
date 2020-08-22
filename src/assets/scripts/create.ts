@@ -69,7 +69,7 @@ const validate = async (e: any) => {
     if($('.form-file-button').text() !== 'Browse') return;
 
     if(e.target && e.target.files) {
-      $('.form-file-text').text($(e.target).val().replace(/C:\\fakepath\\/i, ''));
+      $('.form-file-text').text($(e.target).val().toString().replace(/C:\\fakepath\\/i, ''));
       $('.form-file-button').addClass('btn-loading disabled');
 
       const fileReader = new FileReader();
@@ -90,8 +90,8 @@ const validate = async (e: any) => {
     }
 
   } else if(currentStep === 2) {
-    create.communityName = $('#communityname').val().trim();
-    create.ticker = $('#psttoken').val().trim().toUpperCase();
+    create.communityName = $('#communityname').val().toString().trim();
+    create.ticker = $('#psttoken').val().toString().trim().toUpperCase();
 
     $('.communityname').text(create.communityName);
     $('.ticker').text(create.ticker);
@@ -101,8 +101,8 @@ const validate = async (e: any) => {
     
     for(let i = 0, j = $holders.length; i < j; i++) {
       const $holder = $($holders[i]);
-      const holder = $holder.val().trim();
-      const bal = +$($holdersBalance[i]).val().trim();
+      const holder = $holder.val().toString().trim();
+      const bal = +$($holdersBalance[i]).val().toString().trim();
 
       
       if(!/^[a-z0-9-_]{43}$/i.test(holder)) {
@@ -132,11 +132,11 @@ const validate = async (e: any) => {
       allowContinue();
     }
   } else if(currentStep === 3) {
-    const support = +$('#support').val().trim();
-    const quorum = +$('#quorum').val().trim();
-    const voteLength = +$('#voteLength').val().trim();
-    const lockMinLength = +$('#lockMinLength').val().trim();
-    const lockMaxLength = +$('#lockMaxLength').val().trim();
+    const support = +$('#support').val().toString().trim();
+    const quorum = +$('#quorum').val().toString().trim();
+    const voteLength = +$('#voteLength').val().toString().trim();
+    const lockMinLength = +$('#lockMinLength').val().toString().trim();
+    const lockMaxLength = +$('#lockMaxLength').val().toString().trim();
 
     if(!isNaN(support) && Number.isInteger(support) && support < 100) {
       create.support = support;
@@ -263,7 +263,7 @@ $(document).ready(() => {
   });
   $(document).on('input', '.input-number', (e: any) => {
     const $target = $(e.target);
-    const newVal = +$target.val().replace(/[^0-9]/g, '');
+    const newVal = +$target.val().toString().replace(/[^0-9]/g, '');
     $target.val(newVal);
 
     if($target.hasClass('percent') && newVal > 99) {

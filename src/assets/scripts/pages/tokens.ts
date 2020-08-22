@@ -194,8 +194,8 @@ export default class PageTokens {
         return;
       }
 
-      const transferTarget = $target.val().trim();
-      const transferBalance = +$balance.val().trim();
+      const transferTarget = $target.val().toString().trim();
+      const transferBalance = +$balance.val().toString().trim();
 
       if(isNaN(transferBalance) || transferBalance < 1 || !Number.isInteger(transferBalance)) {
         return;
@@ -203,7 +203,7 @@ export default class PageTokens {
 
       $(e.target).addClass('btn-loading disabled');
 
-      const toast = new Toast();
+      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().transfer(transferTarget, transferBalance);
         toast.showTransaction('Transfer balance', txid, {target: transferTarget, amount: Utils.formatMoney(transferBalance, 0)})
@@ -223,7 +223,7 @@ export default class PageTokens {
 
     $('#transfer-target').on('input', async (e: any) => {
       const $target = $(e.target);
-      const transferTarget = $target.val().trim();
+      const transferTarget = $target.val().toString().trim();
       if(!(await Utils.isArTx(transferTarget)) || transferTarget === (await app.getAccount().getAddress())) {
         $target.addClass('is-invalid');
       } else {

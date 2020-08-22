@@ -20,8 +20,10 @@ class App {
   private community: Community;
   private account: Account;
   private currentBlock: number = 0;
+
+  private firstCall = true;
   
-  // Pages
+  // Pages`
   private currentPage: PageDashboard | PageTokens | PageVotes | PageVault; // Add all possible page objects here
   private pageDashboard: PageDashboard;
   private pageTokens: PageTokens;
@@ -40,7 +42,7 @@ class App {
     }
     
     this.community = new Community(this.arweave);
-    this.account = new Account();
+    this.account = new Account(this.arweave, this.community);
 
     this.pageDashboard = new PageDashboard();
     this.pageTokens = new PageTokens();
@@ -79,6 +81,11 @@ class App {
   }
 
   async init() {
+    if(!this.firstCall) {
+      return;
+    }
+    this.firstCall = false;
+
     await this.updateNetworkInfo();
     await this.account.init();
     $('body').show();
@@ -145,6 +152,8 @@ class App {
     } else if(page === 'vault') {
       this.currentPage = this.pageVault;
     }
+
+    this.account.updatePageStateFunc(this.currentPage.syncPageState);
 
     await this.updateTxFee();
     await this.currentPage.open();

@@ -1,0 +1,111 @@
+.container-xl.jobboard-job(style="display: none")
+  .page-header: .row.align-items-center
+    .col-auto
+      .page-title Opportunity
+    .col-auto.ml-auto: a.btn.btn-light(href="#")
+      i.icon(data-feather="arrow-left")
+      | Go back
+
+  
+  .row
+    .col-lg-3.mb-3.order-lg-last
+      .dropdown
+        a.btn-opp-status.d-flex.btn.btn-square.btn-success.mb-3(href="#", data-toggle="dropdown") Active
+        .dropdown-menu.change-status
+          a.dropdown-item(href="#") Active
+          a.dropdown-item(href="#") In progress
+          a.dropdown-item(href="#") Finished
+          a.dropdown-item(href="#") Closed
+
+      .card
+        .card-body
+          .row.mb-3
+            .col-12.mb-3
+              h5.subheader Creator
+              .align-items-center
+                .float-left.mr-3.mt-1
+                  span.creator-avatar.avatar(style="background-image: url()")
+                .lh-sm
+                  .strong.text-truncate.creator-addy(data-toggle="tooltip" data-placement="top" title="Tooltip on top")
+                  .opp-community.text-muted.text-truncate Community Name
+            .col-12.mb-3.is-not-owner
+              a.btn-contact-creator.d-flex.btn.btn-light(href="#", target="_blank") Contact on WeveMail
+          .row
+            .col-auto
+              h5.subheader Payout
+              h3 #[span.opp-payout] #[span.opp-community-ticker]
+            .col-auto
+              h5.subheader Project type
+              h3.opp-project
+            .col-auto
+              h5.subheader Experience level
+              h3.opp-experience
+            .col-auto
+              h5.subheader Time commitment
+              h3.opp-commitment
+            .col-auto
+              h5.subheader Bounty type
+              h3.opp-type
+
+
+    .col-lg-9.order-lg-first
+      .card.mb-5.dimmer.active
+        .loader
+        .dimmer-content
+          .card-header: .card-title.opp-title
+          .card-body.opp-description
+          
+
+  .row.align-items-center.mb-3
+    .col-auto
+      h3.m-0 Applications
+      .total-applications.text-muted.text-h5 0 applicants
+    .col-auto.ml-auto.is-not-ended
+      a.btn-apply.is-not-owner.btn.btn-primary.btn-square.mb-3(href="#") Apply
+  .dimmer.active
+    .loader
+    .opp-applicants.dimmer-content
+      .card
+        .card-body
+          .row.row-sm
+            .col-auto
+              span.avatar.avatar-lg(style="background-image: url()")
+            .col
+              h4.card-title.m-0 Username
+              div.mb-3
+                a.btn.btn-sm.btn-light.mr-2(href="#") Contact on WeveMail
+              .small.mt-1 lkhasdkjfhl hskaljdfh lkjashdlkfh asdkljhflkashdl kfhalksdhf lkhsadlkfh lkasdh flkahsdlk fhaslkdhf lkahsdlkfhalsdkhf lkahsdkf jsa;d'lkf ';lkasd;f ka;sldjf lkasdhlfkj hasdokughf okjusagdofkh aosdiyfuio asyhd fkb aslkncbkjh oiudfwshaoiuahsdf 
+
+#modal-apply.modal.modal-blur.fade(role="dialog")
+  .modal-dialog(role="document"): .modal-content
+    .modal-header
+      h5.modal-title Apply
+      button.close(data-dismiss="modal")
+        i.icon(data-feather="x")
+  
+    .modal-body
+      .mb-3 You're about to apply for the opportunity "#[strong.opp-title ]".
+        br
+        | Please fill in the following details.
+      
+      //- .mb-2
+      //-   label.form-label Twitter username
+      //-   .input-group
+      //-     span.input-group-text @
+      //-     input#apply-twitter.form-control(type="text")
+      
+      //- .mb-3
+      //-   label.form-label GitHub repo
+      //-   input#apply-github.form-control(type="text", placeholder="https://github.com/...")
+      
+      .mb-3
+        label.form-label Message #[strong.text-danger *]
+        textarea#apply-message.form-control
+
+    .modal-footer
+      div
+        span.strong Fee:
+        span.text-muted 
+          span.tx-fee 0
+          | AR
+      a.do-apply.btn.btn-primary.ml-auto(href="#") Apply

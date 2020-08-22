@@ -1,22 +1,31 @@
 import { JWKInterface } from "arweave/web/lib/wallet";
 import { get, getIdenticon } from 'arweave-id';
+import Arweave from "arweave";
 
 import $ from '../libs/jquery';
-import app from "../app";
-import Toast from "../utils/toast";
+import Toast from '../utils/toast';
+import Community from "community-js";
 
 export default class Account {
+  private arweave: Arweave;
+  private community: Community;
+  private syncPageState: any;
+
   private loggedIn: boolean = false;
   private wallet: JWKInterface;
   private username: string = '';
   private avatar: string = '';
   private address: string = '';
   private arBalance: number = -1;
-  private balance: number = -1;
-  private unlockedBalance: number = -1;
-  private vaultBalance: number = -1;
 
-  constructor() {}
+  constructor(arweave: Arweave, community: Community) {
+    this.arweave = arweave;
+    this.community = community;
+  }
+
+  async updatePageStateFunc(syncPageStateFunction: any) {
+    this.syncPageState = syncPageStateFunction;
+  }
 
   async init() {
     if(window.sessionStorage.getItem('sesswall')) {
@@ -27,24 +36,25 @@ export default class Account {
   }
 
   async getArweaveId(address: string = this.address) {
-    return get(address, app.getArweave());
+    return get(address, this.arweave);
   }
-
   async isLoggedIn(): Promise<boolean> {
     return this.loggedIn;
   }
-
+  async getWallet(): Promise<JWKInterface> {
+    return this.wallet;
+  }
   async getAddress(): Promise<string> {
     return this.address;
   }
 
   async getArBalance(cached = true): Promise<number> {
-    this.arBalance = +app.getArweave().ar.winstonToAr((await app.getArweave().wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
     return this.arBalance;
   }
 
   async showLoginError() {
-    const toast = new Toast();
+    const toast = new Toast(this.arweave);
     toast.show('Login first', 'Before being able to do this action you need to login.', 'login', 10000);
   }
 
@@ -52,10 +62,10 @@ export default class Account {
   private async loadWallet(wallet: JWKInterface) {
     this.wallet = wallet;
 
-    this.address = await app.getCommunity().setWallet(wallet);
-    this.arBalance = +app.getArweave().ar.winstonToAr((await app.getArweave().wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    this.address = await this.community.setWallet(wallet);
+    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
 
-    const acc = await get(this.address, app.getArweave());
+    const acc = await get(this.address, this.arweave);
     this.username = acc.name;
     this.avatar = acc.avatarDataUri || getIdenticon(this.address);
 
@@ -74,13 +84,13 @@ export default class Account {
 
   private login(e: any) {
     if(e.target && e.target.files) {
-      $('.form-file-text').text($(e.target).val().replace(/C:\\fakepath\\/i, ''));
+      $('.form-file-text').text($(e.target).val().toString().replace(/C:\\fakepath\\/i, ''));
       $('.form-file-button').addClass('btn-loading disabled');
 
       const fileReader = new FileReader();
       fileReader.onload = async (ev: any) => {
         await this.loadWallet(JSON.parse(ev.target.result));
-        app.getCurrentPage().syncPageState();
+        this.syncPageState();
         
         if(this.address.length && this.arBalance >= 0) {
           window.sessionStorage.setItem('sesswall', btoa(ev.target.result));
@@ -108,10 +118,11 @@ export default class Account {
       this.address = '';
       this.arBalance = 0;
 
-      app.getCurrentPage().syncPageState();
+      this.syncPageState();
       window.sessionStorage.removeItem('sesswall');
 
-      await app.getCommunity().setWallet(null);
+      // Set a dummy wallet address
+      this.community.setWallet(await this.arweave.wallets.generate());
     });
   }
 }
