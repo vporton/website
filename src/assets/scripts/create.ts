@@ -99,6 +99,7 @@ const validate = async (e: any) => {
     const $holders = $('.holder');
     const $holdersBalance = $('.holder-balance');
     
+    create.balances = {};
     for(let i = 0, j = $holders.length; i < j; i++) {
       const $holder = $($holders[i]);
       const holder = $holder.val().toString().trim();
