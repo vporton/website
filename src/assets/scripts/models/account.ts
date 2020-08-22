@@ -33,6 +33,9 @@ export default class Account {
   async getArweaveId(address: string = this.address) {
     return get(address, this.arweave);
   }
+  async getIdenticon(address: string = this.address): Promise<string> {
+    return getIdenticon(address);
+  }
   async isLoggedIn(): Promise<boolean> {
     return this.loggedIn;
   }

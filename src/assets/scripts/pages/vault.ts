@@ -47,8 +47,9 @@ export default class PageVault {
     $('.min-lock-length').text(state.settings.get('lockMinLength'));
     $('.max-lock-length').text(state.settings.get('lockMaxLength'));
     
+    this.createOrUpdateTable(state);
     if(await app.getAccount().isLoggedIn() && state.vault[(await app.getAccount().getAddress())]) {
-      this.createOrUpdateTable(state);
+      this.createOrUpdateMyTable(state);
 
       const {me, others} = await this.vaultWorker.meVsOthersWeight(state.vault, await app.getAccount().getAddress());
       this.createOrUpdateCharts(me, others);
@@ -59,7 +60,7 @@ export default class PageVault {
     }
   }
 
-  private async createOrUpdateTable(state: StateInterface): Promise<void> {
+  private async createOrUpdateMyTable(state: StateInterface): Promise<void> {
     let html = '';
 
     const vault = state.vault[await app.getAccount().getAddress()];
@@ -79,6 +80,41 @@ export default class PageVault {
         <td class="text-right">
           <button class="btn btn-light align-text-top btn-increase-lock">Increase</button>
         </td>
+      </tr>`;
+    }
+
+    $('.table-my-vault').find('tbody').html(html).parents('.dimmer').removeClass('active');
+  }
+
+  private async createOrUpdateTable(state: StateInterface): Promise<void> {
+    let html = '';
+
+    console.log(state.vault);
+
+    const usersAndBalances = await this.vaultWorker.totalVaults(state.vault, app.getCurrentBlock());
+    console.log(usersAndBalances);
+
+    const users = Object.keys(usersAndBalances);
+    for(let i = 0, j = users.length; i < j; i++) {
+      const v = usersAndBalances[users[i]];
+
+      const arId = await app.getAccount().getArweaveId(users[i]);
+      const avatar = arId.avatarDataUri || await app.getAccount().getIdenticon(users[i]);
+      
+      
+      html += `
+      <tr>
+        <td data-label="Token Holder">
+          <div class="d-flex lh-sm py-1 align-items-center">
+            <span class="avatar mr-2" style="background-image: url(${avatar})"></span>
+            <div class="flex-fill">
+              <div class="strong">${arId.name || users[i]}</div>
+              <div class="text-muted text-h5">${users[i]}</div>
+            </div>
+          </div>
+        </td>
+        <td class="text-muted" data-label="Balance">${Utils.formatMoney(v.balance, 0)}</td>
+        <td class="text-muted" data-label="Vote weight">${Utils.formatMoney(v.weight, 0)}</td>
       </tr>`;
     }
 
