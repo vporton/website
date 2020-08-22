@@ -131,7 +131,7 @@ export default class Vote implements VoteInterface {
       </div>
       <div class="mb-3">
         <h3 class="mb-0">Value</h3>
-        <p class="text-muted">${await Utils.capitalize(val)}</p>
+        <p class="text-muted">${val}</p>
       </div>`;
     }
 
@@ -289,7 +289,7 @@ export default class Vote implements VoteInterface {
       $(e.target).addClass('btn-loading disabled');
       this.$card.find('.btn-vote-no').addClass('disabled');
 
-      const toast = new Toast();
+      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().vote(this.voteId, 'yay');
         toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'Yes'})
@@ -316,7 +316,7 @@ export default class Vote implements VoteInterface {
       $(e.target).addClass('btn-loading disabled');
       this.$card.find('.btn-vote-yes').addClass('disabled');
 
-      const toast = new Toast();
+      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().vote(this.voteId, 'nay');
         toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'No'})
@@ -346,7 +346,7 @@ export default class Vote implements VoteInterface {
       }
 
       $(e.target).addClass('btn-loading disabled');
-      const toast = new Toast();
+      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().finalize(this.voteId);
         toast.showTransaction('Finalize vote', txid, {voteId: this.voteId})

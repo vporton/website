@@ -7,7 +7,11 @@ export default class Utils {
   }
 
   static async capitalize(str: string) {
-    return str.replace(/([A-Z])/g, ' $1').replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    try {
+      str = str.replace(/([A-Z])/g, ' $1').replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}); 
+    } catch (e) {}
+
+    return str;
   }
 
   static async isArTx(str: string): Promise<boolean> {

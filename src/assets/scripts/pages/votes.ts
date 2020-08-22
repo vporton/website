@@ -37,6 +37,7 @@ export default class PageVotes {
     $('.proposals').html('');
     console.log(state);
     if(state.votes.length) {
+      this.votes = [];
       for(let i = 0, j = state.votes.length; i < j; i++) {
         const vote = new Vote(state.votes[i], i);
         this.votes.push(vote);
