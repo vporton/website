@@ -81,9 +81,9 @@ class JobBoard {
 
     await this.updateFee();
     await this.account.init();
+    $('body').fadeIn();
     
     await this.pageChanged();
-    $('body').fadeIn();
     this.events();
   }
 

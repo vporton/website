@@ -3,7 +3,7 @@ import ApplicantInterface from "../interfaces/applicant";
 import { GQLNodeInterface, GQLTransactionsResultInterface } from "../interfaces/gqlResult";
 import Arweave from "arweave";
 import { get, getIdenticon } from "arweave-id";
-import jobboard from "../opportunities/jobboard";
+import jobboard from "../opportunity/jobboard";
 
 export default class Applicant implements ApplicantInterface {
   id: string;

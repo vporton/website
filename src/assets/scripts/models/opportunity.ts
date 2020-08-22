@@ -4,7 +4,7 @@ import { GQLTransactionsResultInterface, GQLEdgeInterface, GQLNodeInterface } fr
 import Arweave from "arweave";
 import Transaction from "arweave/node/lib/transaction";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import jobboard from "../opportunities/jobboard";
+import jobboard from "../opportunity/jobboard";
 import Toast from "../utils/toast";
 
 export default class Opportunity implements OpportunityInterface {
