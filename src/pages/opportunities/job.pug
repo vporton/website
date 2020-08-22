@@ -1,4 +1,4 @@
-.container-xl.jobboard-job(style="display: none")
+.jobboard-job(style="display: none")
   .page-header: .row.align-items-center
     .col-auto
       .page-title Opportunity
@@ -9,47 +9,49 @@
   
   .row
     .col-lg-3.mb-3.order-lg-last
-      .dropdown
-        a.btn-opp-status.d-flex.btn.btn-square.btn-success.mb-3(href="#", data-toggle="dropdown") Active
-        .dropdown-menu.change-status
-          a.dropdown-item(href="#") Active
-          a.dropdown-item(href="#") In progress
-          a.dropdown-item(href="#") Finished
-          a.dropdown-item(href="#") Closed
+      .sidebar.dimmer.active
+        .loader
+        .dimmer-content
+          .dropdown
+            a.btn-opp-status.d-flex.btn.btn-square.btn-success.mb-3(href="#", data-toggle="dropdown") Active
+            .dropdown-menu.change-status
+              a.dropdown-item(href="#") Active
+              a.dropdown-item(href="#") In progress
+              a.dropdown-item(href="#") Finished
+              a.dropdown-item(href="#") Closed
 
-      .card
-        .card-body
-          .row.mb-3
-            .col-12.mb-3
-              h5.subheader Creator
-              .align-items-center
-                .float-left.mr-3.mt-1
-                  span.creator-avatar.avatar(style="background-image: url()")
-                .lh-sm
-                  .strong.text-truncate.creator-addy(data-toggle="tooltip" data-placement="top" title="Tooltip on top")
-                  a.opp-community.text-truncate(target="_blank") Community Name
-            .col-12.mb-3.is-not-owner
-              a.btn-contact-creator.d-flex.btn.btn-light(href="#", target="_blank") Contact on WeveMail
-          .row
-            .col-auto
-              h5.subheader Payout
-              h3 #[span.opp-payout] #[span.opp-community-ticker]
-            .col-auto
-              h5.subheader Project type
-              h3.opp-project
-            .col-auto
-              h5.subheader Experience level
-              h3.opp-experience
-            .col-auto
-              h5.subheader Time commitment
-              h3.opp-commitment
-            .col-auto
-              h5.subheader Bounty type
-              h3.opp-type
-            .col-auto
-              h5.subheader Published
-              h3.opp-timestamp
-
+          .card
+            .card-body
+              .row.mb-3
+                .col-12.mb-3
+                  h5.subheader Creator
+                  .align-items-center
+                    .float-left.mr-3.mt-1
+                      span.creator-avatar.avatar(style="background-image: url()")
+                    .lh-sm
+                      .creator-addy.d-inline.strong.text-truncate(data-toggle="tooltip" data-placement="top")
+                      a.opp-community.text-truncate.d-block(target="_blank") Community Name
+                .col-12.mb-3.is-not-owner
+                  a.btn-contact-creator.d-flex.btn.btn-light(href="#", target="_blank") Contact on WeveMail
+              .row
+                .col-auto
+                  h5.subheader Payout
+                  h3 #[span.opp-payout] #[span.opp-community-ticker]
+                .col-auto
+                  h5.subheader Project type
+                  h3.opp-project
+                .col-auto
+                  h5.subheader Experience level
+                  h3.opp-experience
+                .col-auto
+                  h5.subheader Time commitment
+                  h3.opp-commitment
+                .col-auto
+                  h5.subheader Bounty type
+                  h3.opp-type
+                .col-auto
+                  h5.subheader Published
+                  h3.opp-timestamp
 
     .col-lg-9.order-lg-first
       .card.mb-5.dimmer.active

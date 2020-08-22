@@ -14,6 +14,8 @@ export default class PageJob {
   }
 
   async open() {
+    $('.jobboard-job').show();
+
     const oppId = jobboard.getHashes()[0];
     this.opportunity = await Opportunity.getOpportunity(oppId, jobboard.getArweave());
 
@@ -23,7 +25,6 @@ export default class PageJob {
 
     await this.show();
     this.events();
-    $('.jobboard-job').show();
   }
   async close() {
     this.opportunity = null;
@@ -74,14 +75,12 @@ export default class PageJob {
     $('.opp-timestamp').text(moment(this.opportunity.timestamp).fromNow());
     $('.btn-contact-creator').attr('href', `https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${this.opportunity.author}`);
     
+    $('.sidebar').removeClass('active');
+
     this.showApplicants();
 
     get(this.opportunity.author, jobboard.getArweave()).then(author => {
-      $('.creator-addy')
-        .attr('title', this.opportunity.author)
-        .attr('data-original-title', this.opportunity.author)
-        .text(author.name || this.opportunity.author);
-
+      $('.creator-addy').attr('data-original-title', this.opportunity.author).text(author.name || this.opportunity.author);
       $('[data-toggle="tooltip"]').tooltip();
 
       const avatar = author.avatarDataUri || getIdenticon(this.opportunity.author);
@@ -103,15 +102,15 @@ export default class PageJob {
     for(let i = 0, j = applicants.length; i < j; i++) {
       const applicant = applicants[i];
       html += `
-        <div class="card">
+        <div class="card" data-applicant-id="${applicant.id}">
           <div class="card-body">
             <div class="row row-sm">
               <div class="col-auto">
                 <span class="avatar avatar-md" style="background-image: url(${applicant.avatar})"></span>
               </div>
               <div class="col">
-                <h4 class="card-title m-0">${applicant.username}</h4>
-                <div class="mb-3">
+                <h4 class="card-title m-0 d-inline" data-toggle="tooltip" data-original-title="${applicant.address}">${applicant.username}</h4>
+                <div class="mb-2">
                   <a class="btn btn-sm btn-light mr-2" href="https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${applicant.address}" target="_blank">Contact on WeveMail</a>
                 </div>
                 <div class="small mt-1">${applicant.message}</div>
@@ -121,7 +120,17 @@ export default class PageJob {
         </div>`;
     }
 
+    if(!applicants.length) {
+      html = `
+      <div class="card">
+        <div class="card-body">
+          This opportunity doesn't have any applications. <a class="btn-apply" href="#">Be the first to apply.</a>
+        </div>
+      </div>`;
+    }
+
     $('.opp-applicants').html(html).parents('.dimmer').removeClass('active');
+    $('[data-toggle="tooltip"]').tooltip();
   }
 
   private async events() {
@@ -134,7 +143,7 @@ export default class PageJob {
       await this.opportunity.update({ status });
     });
 
-    $('.btn-apply').on('click', async e => {
+    $('body').on('click', '.btn-apply', async e => {
       e.preventDefault();
 
       if(!await jobboard.getAccount().isLoggedIn() || await jobboard.getAccount().getAddress() === this.opportunity.author) {
@@ -145,20 +154,20 @@ export default class PageJob {
       $('#modal-apply').modal('show');
     });
 
-    $('#apply-twitter').on('input', e => {
-      if($(e.target).val().toString().includes('/')) {
-        $(e.target).addClass('is-invalid');
-      } else {
-        $(e.target).removeClass('is-invalid');
-      }
-    });
-    $('#apply-github').on('input', e => {
-      if(!$(e.target).val().toString().startsWith('https://github.com/')) {
-        $(e.target).addClass('is-invalid');
-      } else {
-        $(e.target).removeClass('is-invalid');
-      }
-    });
+    // $('#apply-twitter').on('input', e => {
+    //   if($(e.target).val().toString().includes('/')) {
+    //     $(e.target).addClass('is-invalid');
+    //   } else {
+    //     $(e.target).removeClass('is-invalid');
+    //   }
+    // });
+    // $('#apply-github').on('input', e => {
+    //   if(!$(e.target).val().toString().startsWith('https://github.com/')) {
+    //     $(e.target).addClass('is-invalid');
+    //   } else {
+    //     $(e.target).removeClass('is-invalid');
+    //   }
+    // });
 
     $('.do-apply').on('click', async e => {
       e.preventDefault();
@@ -200,7 +209,7 @@ export default class PageJob {
   }
 
   private async removeEvents() {
-    $('.change-status, .do-apply').off('click');
+    $('.change-status, .do-apply, body').off('click');
     $('#apply-twitter, #apply-github').off('input');
   }
 }

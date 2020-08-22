@@ -84,7 +84,7 @@ export default class PageJobs {
             </ul>
           </small>
         </div>
-        <span class="list-item-actions show" href="#">${Utils.formatMoney(+opp.payout, 0)}&nbsp;${opp.community.ticker}</span>
+        <span class="list-item-actions text-dark show">${Utils.formatMoney(+opp.payout, 0)}&nbsp;${opp.community.ticker}</span>
       </a>`;
     }
 
