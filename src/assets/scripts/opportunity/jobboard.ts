@@ -148,7 +148,8 @@ class JobBoard {
       this.currentPage = this.pageJob;
     }
 
-    this.account.updatePageStateFunc(this.currentPage.syncPageState);
+    // @ts-ignore
+    window.currentPage = this.currentPage;
 
     await this.updateTxFee();
     await this.currentPage.open();

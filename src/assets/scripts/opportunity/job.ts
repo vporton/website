@@ -35,7 +35,7 @@ export default class PageJob {
 
   async syncPageState() {
     // @ts-ignore
-    if(await jobboard.getAccount().isLoggedIn() && jobboard.getCurrentPage().getOpportunity().author === await jobboard.getAccount().getAddress()) {
+    if(await jobboard.getAccount().isLoggedIn() && this.opportunity.author === await jobboard.getAccount().getAddress()) {
       $('.is-owner').show();
       $('.is-not-owner').hide();
       $('.btn-opp-status').removeClass('disabled');

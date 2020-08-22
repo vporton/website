@@ -9,7 +9,6 @@ import Community from "community-js";
 export default class Account {
   private arweave: Arweave;
   private community: Community;
-  private syncPageState: any;
 
   private loggedIn: boolean = false;
   private wallet: JWKInterface;
@@ -21,10 +20,6 @@ export default class Account {
   constructor(arweave: Arweave, community: Community) {
     this.arweave = arweave;
     this.community = community;
-  }
-
-  async updatePageStateFunc(syncPageStateFunction: any) {
-    this.syncPageState = syncPageStateFunction;
   }
 
   async init() {
@@ -90,7 +85,8 @@ export default class Account {
       const fileReader = new FileReader();
       fileReader.onload = async (ev: any) => {
         await this.loadWallet(JSON.parse(ev.target.result));
-        this.syncPageState();
+        // @ts-ignore
+        window.currentPage.syncPageState();
         
         if(this.address.length && this.arBalance >= 0) {
           window.sessionStorage.setItem('sesswall', btoa(ev.target.result));
@@ -118,7 +114,8 @@ export default class Account {
       this.address = '';
       this.arBalance = 0;
 
-      this.syncPageState();
+      //@ts-ignore
+      window.currentPage.syncPageState();
       window.sessionStorage.removeItem('sesswall');
 
       // Set a dummy wallet address

@@ -13,17 +13,13 @@ export default class PageVault {
   private chart: ApexCharts;
 
   // workers
-  private firstCall = true;
   private vaultWorker: ModuleThread<VaultWorker>;
   private balancesWorker: ModuleThread<BalancesWorker>;
 
-  constructor() {}
-
   async open() {
-    if(this.firstCall) {
+    if(!this.balancesWorker) {
       this.balancesWorker = await spawn<BalancesWorker>(new Worker('../workers/balances.ts'));
       this.vaultWorker = await spawn<VaultWorker>(new Worker('../workers/vault.ts'));
-      this.firstCall = false;
     }
 
     $('.link-vault').addClass('active');
@@ -44,6 +40,7 @@ export default class PageVault {
     const state = await app.getCommunity().getState();
 
     $('.ticker').text(state.ticker);
+    
     const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
     $('.user-unlocked-balance').text(Utils.formatMoney(bal.unlocked, 0));
 
