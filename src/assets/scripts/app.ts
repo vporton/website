@@ -87,6 +87,7 @@ class App {
     this.firstCall = false;
 
     await this.updateNetworkInfo();
+    this.checkVersion();
     await this.account.init();
     $('body').show();
 
@@ -101,6 +102,65 @@ class App {
     this.currentBlock = (await this.arweave.network.getInfo()).height;
 
     setTimeout(() => this.updateNetworkInfo(), 60000);
+  }
+
+  private async checkVersion() {
+    const mainId = await this.community.getMainContractId();
+    const communityId = this.hashes[0];
+
+    const query = {
+      query: `
+      query{
+        main: transaction(
+          id: "${mainId}"
+        ){
+          tags {
+            name,
+            value
+          }
+        }
+        community: transaction(
+          id: "${communityId}"
+        ){
+          tags {
+            name,
+            value
+          }
+        }
+      }
+      `
+    };
+
+    const res = await this.arweave.api.request().post('https://arweave.dev/graphql', query);
+    if(!res.data || !res.data.data) {
+      return;
+    }
+
+    let contracts = [];
+    const communityTags = res.data.data.community.tags;
+    const mainTags = res.data.data.main.tags;
+    
+    for(let i = 0; i < communityTags.length; i++) {
+      if(communityTags[i].name === 'Contract-Src') {
+        contracts.push(communityTags[i].value);
+        break;
+      }
+    }
+
+    for(let i = 0; i < mainTags.length; i++) {
+      if(mainTags[i].name === 'Contract-Src') {
+        contracts.push(mainTags[i].value);
+        break;
+      }
+    }
+
+    console.log(contracts);
+    if(contracts[0] === contracts[1]) {
+      return;
+    }
+
+    // TODO: Show the alert
+    $('.alert-version').removeClass('d-none');
   }
 
   private async getPageStr(): Promise<string> {
