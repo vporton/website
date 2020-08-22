@@ -4,6 +4,7 @@ import Utils from "../utils/utils";
 import { get, getIdenticon } from "arweave-id";
 import Applicant from "../models/applicant";
 import Toast from "../utils/toast";
+import moment from "moment";
 
 export default class PageJob {
   private opportunity: Opportunity;
@@ -70,6 +71,7 @@ export default class PageJob {
     $('.opp-payout').text(Utils.formatMoney(+this.opportunity.payout, 0));
     $('.opp-community').text(this.opportunity.community.name).attr('href', `./index.html#${this.opportunity.community.id}`);
     $('.opp-community-ticker').text(this.opportunity.community.ticker);
+    $('.opp-timestamp').text(moment(this.opportunity.timestamp).fromNow());
     $('.btn-contact-creator').attr('href', `https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${this.opportunity.author}`);
     
     this.showApplicants();

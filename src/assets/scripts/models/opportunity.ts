@@ -21,7 +21,7 @@ export default class Opportunity implements OpportunityInterface {
   author: string;
   status: OpportunityStatus;
   updateTx: Transaction;
-
+  timestamp: number;
   
   constructor(params: OpportunityInterface) {
     if(Object.keys(params).length) {
@@ -269,7 +269,8 @@ export default class Opportunity implements OpportunityInterface {
       commitment: objParams.commitment,
       project: objParams.project,
       permission: objParams.permission,
-      author: node.owner.address
+      author: node.owner.address,
+      timestamp: node.block.timestamp * 1000
     });
 
     await opp.update();

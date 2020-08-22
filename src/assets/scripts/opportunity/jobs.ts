@@ -1,8 +1,9 @@
 import "quill/dist/quill.snow.css";
+
+import moment from "moment";
 import jobboard from "./jobboard";
 import Opportunity from "../models/opportunity";
 import { get, getIdenticon } from "arweave-id";
-import { GQLTransactionsResultInterface } from "../interfaces/gqlResult";
 import Applicant from "../models/applicant";
 import Utils from "../utils/utils";
 
@@ -71,14 +72,15 @@ export default class PageJobs {
       html += `
       <a data-author="${opp.author}" class="jobs-job list-item" href="#${opp.id}">
         <span class="avatar"></span>
-        <div class="text-truncate">
+        <div>
           <span class="text-body d-block">${opp.title}</span>
-          <small class="d-block text-muted text-truncate mt-n1"> 
-            <ul class="list-inline md-list list-inline-dots mb-0">
+          <small class="d-block text-muted mt-n1"> 
+            <ul class="list-inline list-inline-dots list-md-block mb-0">
               <li class="list-inline-item text-dark">${opp.community.name}</li>
               <li class="list-inline-item">${opp.type}</li>
               <li class="list-inline-item">${opp.experience}</li>
-              <li class="list-inline-item">${applicants} ${applicants === 1? 'applicant': 'applicants'}</li>
+              <li class="list-inline-item">${moment(opp.timestamp).fromNow()}</li>
+              <li class="list-inline-item">${applicants}&nbsp;${applicants === 1? 'applicant': 'applicants'}</li>
             </ul>
           </small>
         </div>

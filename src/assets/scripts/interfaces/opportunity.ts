@@ -16,6 +16,7 @@ export default interface OpportunityInterface {
   project: OpportunityProjectType;
   permission: OpportunityPermission;
   author: string;
+  timestamp: number;
 }
 
 export type OpportunityType = 'Bug' | 'Feature' | 'Improvement' | 'Security' | 'Documentation' | 'Design' | 'Code review' | 'Other';
