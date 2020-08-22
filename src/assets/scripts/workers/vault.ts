@@ -40,11 +40,15 @@ const worker = {
 
       for(let k = 0, l = vaultUsers[i].length; k < l; k++) {
         const vault = v[vaultUsers[i]][k];
-        if(!vault || vault.end < currentHeight) {
+        if(!vault) {
+          continue;
+        }
+        
+        balance += vault.balance;
+        if(vault.end < currentHeight) {
           continue;
         }
 
-        balance += vault.balance;
         weight += (vault.end - vault.start) * vault.balance;
       }
 

@@ -89,8 +89,6 @@ export default class PageVault {
   private async createOrUpdateTable(state: StateInterface): Promise<void> {
     let html = '';
 
-    console.log(state.vault);
-
     const usersAndBalances = await this.vaultWorker.totalVaults(state.vault, app.getCurrentBlock());
     console.log(usersAndBalances);
 
