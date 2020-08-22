@@ -136,8 +136,18 @@ export default class PageJobs {
 
       $('.filters').toggleClass('d-none');
     });
+
+    $('.btn-create-opp').on('click', async e => {
+      if(!await jobboard.getAccount().isLoggedIn()) {
+        e.preventDefault();
+
+        alert('Please login first.');
+
+        return false;
+      }
+    });
   }
   private async removeEvents() {
-    $('.bounty-type, .exp-level, .btn-filters').off('click');
+    $('.bounty-type, .exp-level, .btn-filters, .btn-create-opp').off('click');
   }
 }

@@ -137,7 +137,7 @@ class JobBoard {
     
     let page = await this.getPageStr();
     if(page === 'create' && !await this.account.isLoggedIn()) {
-      window.location.href = './opportunities.html';
+      window.location.hash = '';
     }
 
     if(page === 'home') {

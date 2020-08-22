@@ -68,7 +68,7 @@ export default class PageJob {
     $('.opp-commitment').text(this.opportunity.commitment);
     $('.opp-type').text(this.opportunity.type);
     $('.opp-payout').text(this.opportunity.payout);
-    $('.opp-community').text(this.opportunity.community.name);
+    $('.opp-community').text(this.opportunity.community.name).attr('href', `./index.html#${this.opportunity.community.id}`);
     $('.opp-community-ticker').text(this.opportunity.community.ticker);
     $('.btn-contact-creator').attr('href', `https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${this.opportunity.author}`);
     
