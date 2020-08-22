@@ -131,7 +131,7 @@ export default class PageCreateJob {
     this.tx.addTag('communityName', this.community.name);
     this.tx.addTag('communityTicker', this.community.ticker);
 
-    let cost = await jobboard.getArweave().transactions.getPrice(new Blob([description]).size);
+    let cost = await jobboard.getArweave().transactions.getPrice(+this.tx.data_size);
     cost = jobboard.getArweave().ar.winstonToAr(cost, {formatted: true, decimals: 5, trim: true});
 
     $('.fee').text((+cost) + (+jobboard.getFee()));
