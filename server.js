@@ -15,6 +15,10 @@ app.get('/home.html', (_, res) => {
   res.redirect('/home');
 });
 
+app.get('/opportunity.html', (_, res) => {
+  res.redirect('/opportunity');
+});
+
 app.get('/opportunity', (_, res) => {
   res.sendFile(path.join(__dirname, 'dist/opportunity.html'));
 });
