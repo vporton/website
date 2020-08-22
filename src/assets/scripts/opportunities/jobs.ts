@@ -4,6 +4,7 @@ import Opportunity from "../models/opportunity";
 import { get, getIdenticon } from "arweave-id";
 import { GQLTransactionsResultInterface } from "../interfaces/gqlResult";
 import Applicant from "../models/applicant";
+import Utils from "../utils/utils";
 
 export default class PageJobs {
   private opportunities: Opportunity[] = [];
@@ -81,7 +82,7 @@ export default class PageJobs {
             </ul>
           </small>
         </div>
-        <span class="list-item-actions show" href="#">${opp.payout || 0}&nbsp;${opp.community.ticker}</span>
+        <span class="list-item-actions show" href="#">${Utils.formatMoney(+opp.payout, 0)}&nbsp;${opp.community.ticker}</span>
       </a>`;
     }
 

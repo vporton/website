@@ -67,7 +67,7 @@ export default class PageJob {
     $('.opp-experience').text(this.opportunity.experience);
     $('.opp-commitment').text(this.opportunity.commitment);
     $('.opp-type').text(this.opportunity.type);
-    $('.opp-payout').text(this.opportunity.payout);
+    $('.opp-payout').text(Utils.formatMoney(+this.opportunity.payout, 0));
     $('.opp-community').text(this.opportunity.community.name).attr('href', `./index.html#${this.opportunity.community.id}`);
     $('.opp-community-ticker').text(this.opportunity.community.ticker);
     $('.btn-contact-creator').attr('href', `https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${this.opportunity.author}`);
@@ -105,7 +105,7 @@ export default class PageJob {
           <div class="card-body">
             <div class="row row-sm">
               <div class="col-auto">
-                <span class="avatar avatar-lg" style="background-image: url(${applicant.avatar})"></span>
+                <span class="avatar avatar-md" style="background-image: url(${applicant.avatar})"></span>
               </div>
               <div class="col">
                 <h4 class="card-title m-0">${applicant.username}</h4>
