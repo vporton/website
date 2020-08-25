@@ -23,13 +23,10 @@ export default class PageCreateJob {
     if(!this.quill) {
       const toolbarOptions = [
         ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-        ['blockquote', 'code-block', 'link'],
-      
+        ['blockquote', 'code-block', 'image', 'link'],
         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
         [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-      
         [{ 'size': [false, 'large', 'huge'] }],
-      
         ['clean']                                         // remove formatting button
       ];
 
