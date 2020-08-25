@@ -258,7 +258,7 @@ export default class PageTokens {
       $('#modal-new-vote').modal('show');
     });
 
-    await app.getPageVotes().events();
+    await app.getPageVotes().validateVotes();
   }
 
   private async removeEvents() {
@@ -266,6 +266,6 @@ export default class PageTokens {
     $('#transfer-target').off('input');
     $(document).off('click', '.transfer-user, .mint-user, .mint-locked-user, .burn-vault-user');
 
-    await app.getPageVotes().removeEvents();
+    await app.getPageVotes().removeValidateVotes();
   }
 }

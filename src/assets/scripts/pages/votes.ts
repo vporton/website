@@ -94,7 +94,7 @@ export default class PageVotes {
     return true;
   }
 
-  async events() {
+  async validateVotes() {
     $('input[name="voteType"]').on('change', (e: any) => {
       const voteType = $('input[name="voteType"]:checked').val();
 
@@ -250,9 +250,16 @@ export default class PageVotes {
       $(e.target).removeClass('btn-loading disabled');
     });
   }
-  async removeEvents() {
+  async removeValidateVotes() {
     $('input[name="voteType"], #vote-set-key').off('change');
     $('#vote-recipient, #vote-target, #vote-set-value').off('input');
     $('.btn-max-lock, .do-vote').off('click');
+  }
+
+  private async events() {
+    await this.validateVotes();
+  }
+  private async removeEvents() {
+   await this.removeValidateVotes();
   }
 }
