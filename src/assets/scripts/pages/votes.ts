@@ -59,21 +59,31 @@ export default class PageVotes {
     if(setKey === 'quorum' || setKey === 'support') {
       setValue = +setValue;
       if(isNaN(setValue) || setValue < 1 || setValue > 99 || !Number.isInteger(setValue)) {
+        $('#vote-set-value').addClass('is-invalid');
         return false;
+      } else {
+        $('#vote-set-value').removeClass('is-invalid');
       }
     } else if(setKey === 'lockMinLength' || setKey === 'lockMaxLength') {
       setValue = +setValue;
       if(isNaN(setValue) || setValue < 1 || !Number.isInteger(setValue)) {
+        if(setKey === 'lockMinLength') {
+          $('.lock-set-value-invalid').text('Minimum lock length cannot be greater nor equal to the maximum lock length.');
+          $('#vote-set-value').addClass('is-invalid');
+        } else if(setKey === 'lockMaxLength') {
+          $('.lock-set-value-invalid').text('Maximum lock length cannot be lower nor equal to the minimum lock length.');
+          $('#vote-set-value').addClass('is-invalid');
+        }
         return false;
       }
       
       if(setKey === 'lockMinLength' && setValue > state.settings.get('lockMaxLength')) {
         $('.lock-set-value-invalid').text('Minimum lock length cannot be greater nor equal to the maximum lock length.');
-        $('#vote-set-value').addClass('invalid');
+        $('#vote-set-value').addClass('is-invalid');
         return false;
       } else if(setKey === 'lockMaxLength' && setValue < state.settings.get('lockMinLength')) {
         $('.lock-set-value-invalid').text('Maximum lock length cannot be lower nor equal to the minimum lock length.');
-        $('#vote-set-value').addClass('invalid');
+        $('#vote-set-value').addClass('is-invalid');
         return false;
       }
     } else if(setKey === 'role') {
@@ -83,19 +93,19 @@ export default class PageVotes {
       }
       if(!setValue.length) {
         $('.lock-set-value-invalid').text('Need to type a role.');
-        $('#vote-set-value').addClass('invalid');
+        $('#vote-set-value').addClass('is-invalid');
         return false;
       }
     } else {
       return false;
     }
 
-    $('#vote-set-value').removeClass('invalid');
+    $('#vote-set-value').removeClass('is-invalid');
     return true;
   }
 
   async validateVotes() {
-    $('input[name="voteType"]').on('change', (e: any) => {
+    $('input[name="voteType"]').on('change', e => {
       const voteType = $('input[name="voteType"]:checked').val();
 
       switch (voteType) {
@@ -122,7 +132,7 @@ export default class PageVotes {
       }
     }).trigger('change');
 
-    $('#vote-set-key').on('change', (e: any) => {
+    $('#vote-set-key').on('change', e => {
       const setKey = $(e.target).val();
       const $target = $('#vote-set-value').val('');
 
@@ -143,7 +153,7 @@ export default class PageVotes {
       }
     });
 
-    $('#vote-recipient, #vote-target').on('input', async (e: any) => {
+    $('#vote-recipient, #vote-target').on('input', async e => {
       const $target = $(e.target);
       const value = $target.val().toString().trim();
       if(!await Utils.isArTx(value)) {
@@ -153,18 +163,57 @@ export default class PageVotes {
       }
     });
 
-    $('.btn-max-lock').on('click', async (e: any) => {
+    $('.btn-max-lock').on('click', async e => {
       e.preventDefault();
 
       const state = await app.getCommunity().getState();
       $('.input-max-lock').val(state.settings.get('lockMaxLength'));
     });
 
-    $('#vote-set-value').on('input', async (e: any) => {
+    $('#vote-set-value').on('input', async e => {
       await this.setValidate();
     });
 
-    $('.do-vote').on('click', async (e: any) => {
+    $('#vote-qty').on('input', async e => {
+      const qty = +$('#vote-qty').val().toString().trim();
+
+      if(qty < 1 || !Number.isInteger(qty)) {
+        $('#vote-qty').addClass('is-invalid');
+      } else {
+        $('#vote-qty').removeClass('is-invalid');
+      }
+    });
+
+    $('#vote-lock-length').on('input', async e => {
+      const length = +$('#vote-lock-length').val().toString().trim();
+      const state = await app.getCommunity().getState();
+
+      if(isNaN(length) || !Number.isInteger(length) || length < state.settings.get('lockMinLength') || length > state.settings.get('lockMaxLength')) {
+        $('#vote-lock-length').addClass('is-invalid');
+      } else {
+        $('#vote-lock-length').removeClass('is-invalid');
+      }
+    });
+
+    $('#vote-target').on('input', async e => {
+      const target = $('#vote-target').val().toString().trim();
+      if(!await Utils.isArTx(target)) {
+        $('#vote-target').addClass('is-invalid');
+      } else {
+        $('#vote-target').removeClass('is-invalid');
+      }
+    });
+
+    $('#vote-note').on('input', e => {
+      const note = $('#vote-note').val().toString().trim();
+      if(!note.length) {
+        $('#vote-note').addClass('is-invalid');
+      } else {
+        $('#vote-note').removeClass('is-invalid');
+      }
+    });
+
+    $('.do-vote').on('click', async e => {
       e.preventDefault();
       const state = await app.getCommunity().getState();
 
@@ -188,6 +237,7 @@ export default class PageVotes {
           return;
         }
         if(qty < 1 || !Number.isInteger(qty)) {
+          $('#vote-qty').addClass('is-invalid');
           return;
         }
 
@@ -196,12 +246,13 @@ export default class PageVotes {
 
         if(voteType === 'mintLocked') {
           if(isNaN(length) || !Number.isInteger(length) || length < state.settings.get('lockMinLength') || length > state.settings.get('lockMaxLength')) {
+            $('#vote-lock-length').addClass('is-invalid');
             return;
           }
           voteParams['lockLength'] = length;
         }
       } else if(voteType === 'burnVault') {
-        if(!Utils.isArTx(target)) {
+        if(!await Utils.isArTx(target)) {
           $('#vote-target').addClass('is-invalid');
           return;
         }
@@ -227,7 +278,8 @@ export default class PageVotes {
       $(e.target).addClass('btn-loading disabled');
       const toast = new Toast(app.getArweave());
       try {
-        const txid = await app.getCommunity().proposeVote(voteParams);
+        const txid = '0';
+        //const txid = await app.getCommunity().proposeVote(voteParams);
         toast.showTransaction('Create vote', txid, voteParams)
           .then(async () => {
             // Just create the new vote, do not sync the entire page.

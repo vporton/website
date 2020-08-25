@@ -1,0 +1,93 @@
+#modal-new-vote.modal.modal-blur.fade(role="dialog")
+  .modal-dialog(role="document"): .modal-content
+    .modal-header
+      h5.modal-title New vote
+      button.close(data-dismiss="modal" aria-label="Close")
+        i.icon(data-feather="x")
+
+    .modal-body
+      .mb-3
+        .form-label Vote type
+        .form-selectgroup
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="mint", checked)
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="users")
+              | Mint
+
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="mintLocked")
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="lock") 
+              | Mint Locked
+
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="burnVault")
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="delete")
+              | Burn Vault
+
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="set")
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="settings")
+              | Set
+
+          label.form-selectgroup-item
+            input.form-selectgroup-input(type="radio", name="voteType", value="indicative")
+            span.form-selectgroup-label
+              i.icon.mr-1(data-feather="help-circle")
+              | Indicative
+
+      .vote-recipient.mb-3
+          label.form-label Recipient
+          input#vote-recipient.form-control(type="text")
+          .invalid-feedback Invalid recipient
+
+      .vote-qty.mb-3
+        label.form-label Quantity
+        input#vote-qty.form-control.input-number(type="text")
+        .invalid-feedback Quantity must be greater than 0.
+
+      .vote-lock-length.mb-3(style="display: none")
+        .form-label Lock length in blocks
+        .input-group
+          input#vote-lock-length.input-max-lock.input-number.form-control(type="text")
+          a.btn-max-lock.btn.btn-success(href="#") MAX
+
+        small.form-hint Minimum length is #[span.min-lock-length.strong] and maximum is #[span.max-lock-length.strong] blocks.
+        
+      .vote-fields.vote-burn-vault.mb-3(style="display: none")
+        label.form-label Target
+        input#vote-target.form-control(type="text")
+        .invalid-feedback Invalid target
+
+      .vote-fields.vote-set(style="display: none")
+        .mb-3
+          label.form-label Key
+          select#vote-set-key.form-select
+            option(value="quorum") Quorum
+            option(value="support") Support
+            option(value="lockMinLength") Minimum lock length
+            option(value="lockMaxLength") Maximum lock length
+            option(value="role") Role
+
+        //- This one changes depending on what the user has selected for his form-label, 
+        //- also could add .input-number to input
+        .mb-3
+          label.vote-set-key.form-label Value
+          input#vote-set-value.form-control(type="text")
+          .lock-set-value-invalid.invalid-feedback  
+
+      .mb-3
+        label.form-label Note
+        textarea#vote-note.form-control
+        .invalid-feedback Explain why are you creating this vote.
+
+    .modal-footer
+      div
+        span.strong Fee:
+        span.text-muted 
+          span.tx-fee 0.25 
+          | AR
+      a.do-vote.btn.btn-primary.ml-auto(href="#") Create vote
