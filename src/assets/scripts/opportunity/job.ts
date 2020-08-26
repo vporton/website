@@ -88,7 +88,8 @@ export default class PageJob {
     });
 
     jobboard.getArweave().api.get(`/${this.opportunity.id}`).then(res => {
-      $('.opp-description').html(Utils.escapeScriptStyles(res.data)).parents('.dimmer').removeClass('active');
+      const $editor = $('<div class="ql-editor"></div>').html(Utils.escapeScriptStyles(res.data));
+      $('.opp-description').html('').append($editor).parents('.dimmer').removeClass('active');
     });
   }
 
