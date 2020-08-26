@@ -49,6 +49,7 @@ export default class Utils {
   }
 
   static escapeScriptStyles(str: string) {
+    str = str.replace(/onload="?[^>]+/gi, '');
     return str.replace(/<(\/?(script|style|iframe))[^>]*>/gi, '&lt;$1$2&gt;');
   }
 }
