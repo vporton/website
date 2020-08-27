@@ -5,6 +5,8 @@ import Utils from "../utils/utils";
 import { OpportunityCommunityInterface } from '../interfaces/opportunity';
 import Transaction from "arweave/node/lib/transaction";
 import Toast from "../utils/toast";
+import { StateInterface } from "community-js/lib/faces";
+import Community from "community-js";
 
 export default class PageCreateJob {
   private isCurrentPage: boolean = false;
@@ -16,6 +18,7 @@ export default class PageCreateJob {
     name: '',
     ticker: ''
   };
+  private transferFee: number = 0;
 
   async open() {
     this.isCurrentPage = true;
@@ -60,15 +63,13 @@ export default class PageCreateJob {
     $target.prop('disabled', true).siblings('.input-icon-addon').show();
     this.community.id = val;
 
+    let state: StateInterface;
     try {
-      await jobboard.getCommunity().setCommunityTx(val);
-      const state = await jobboard.getCommunity().getState();
+      await jobboard.setCommunityTx(val);
+      state = await jobboard.getCommunity().getState();
 
       this.community.name = state.name;
       this.community.ticker = state.ticker;
-  
-      $('.community-name').text(state.name);
-      $('.ticker').text(state.ticker);
     } catch (err) {
       // @ts-ignore
       this.community = {};
@@ -79,6 +80,13 @@ export default class PageCreateJob {
     }
 
     $target.prop('disabled', false).siblings('.input-icon-addon').hide();
+
+    if(!state || !this.community.name) {
+      return;
+    }
+
+    $('.community-name').text(state.name);
+    $('.ticker').text(state.ticker);
   }
 
   private async submit() {
@@ -131,7 +139,10 @@ export default class PageCreateJob {
     let cost = await jobboard.getArweave().transactions.getPrice(+this.tx.data_size);
     cost = jobboard.getArweave().ar.winstonToAr(cost, {formatted: true, decimals: 5, trim: true});
 
+    this.transferFee = Math.round((amount * 2.5) / 100);
+
     $('.fee').text((+cost) + (+jobboard.getFee()));
+    $('.comm-fee').text(`${this.transferFee} ${this.community.ticker}`);
     $('#confirm-modal').modal('show');
 
   }
@@ -160,22 +171,62 @@ export default class PageCreateJob {
     $('.confirm-tx').on('click', async (e: any) => {
       e.preventDefault();
 
+      $(e.target).addClass('btn-loading');
+
       const arweave = jobboard.getArweave();
-      await arweave.transactions.sign(this.tx, await jobboard.getAccount().getWallet());
+      const community = jobboard.getCommunity();
+      const account = jobboard.getAccount();
+      const addy = await account.getAddress();
+
+      await arweave.transactions.sign(this.tx, await account.getWallet());
       const txid = this.tx.id;
 
-      await jobboard.chargeFee('addOpportunity');
+      const state = await community.getState();
+      if(!state.balances || !state.balances[addy] || state.balances[addy] < this.transferFee) {
+        $(e.target).removeClass('btn-loading');
+        alert('You don\'t have enough Community balance for this transaction.');
+        return;
+      }
+
+      if(await account.getArBalance() < +$('.fee').text()) {
+        $(e.target).removeClass('btn-loading');
+        alert('You don\'t have enough balance for this transaction.');
+        return;
+      }
+
+      if(!await jobboard.chargeFee('addOpportunity')) {
+        $(e.target).removeClass('btn-loading');
+        alert('Error while trying to charge the fee for this transaction.');
+        return;
+      }
+
+      const mainComm = new Community(arweave);
+      const mainCommTx = await mainComm.getMainContractId();
+      await mainComm.setCommunityTx(mainCommTx);
+
+      const target = await mainComm.selectWeightedHolder();
+      if(target !== addy) {
+        await jobboard.getCommunity().transfer(target, this.transferFee);
+      }
 
       $('#confirm-modal').modal('hide');
 
       const res = await arweave.transactions.post(this.tx);
       if (res.status !== 200 && res.status !== 202) {
         console.log(res);
+        $(e.target).removeClass('btn-loading');
         return alert('Error while submiting the transaction.');
       }
 
-      $('#job-title').val('')
-      $('#job-amount').val('')
+      this.community = { id: '', name: '', ticker: '' };
+      $(e.target).removeClass('btn-loading');
+      $('#job-title').val('');
+      $('#job-amount').val('');
+      $('[name="job-type"]').first().click();
+      $('[name="job-exp"]').first().click();
+      $('[name="job-commitment"]').first().click();
+      $('[name="job-project"]').first().click();
+      $('[name="permission"]').first().click();
       this.quill.root.innerHTML = '';
       window.location.hash = '';
       

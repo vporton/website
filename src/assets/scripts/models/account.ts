@@ -46,7 +46,7 @@ export default class Account {
     return this.address;
   }
 
-  async getArBalance(cached = true): Promise<number> {
+  async getArBalance(): Promise<number> {
     this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
     return this.arBalance;
   }

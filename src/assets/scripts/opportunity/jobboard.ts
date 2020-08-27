@@ -87,6 +87,11 @@ class JobBoard {
     this.events();
   }
 
+  async setCommunityTx(txid: string) {
+    this.community = new Community(this.arweave);
+    return this.community.setCommunityTx(txid);
+  }
+
   async chargeFee(action: string): Promise<boolean> {
     await this.community.setCommunityTx(await this.community.getMainContractId());
     const target = await this.community.selectWeightedHolder();

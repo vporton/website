@@ -12,6 +12,7 @@
     .mb-3
       label.form-label Title
       input#job-title.form-control(type="text")
+      .invalid-feedback The title doesn't explain what is this opportunity.
 
     .row
       .col-md-8.mb-3
@@ -20,16 +21,19 @@
           input#job-community.form-control(type="text")
           span.input-icon-addon(style="display: none")
             .spinner-border.spinner-border-sm(role="status")
+        .invalid-feedback Community not defined.
 
       .col-md-4.mb-3
         label.form-label Amount to be paid
         .input-group
           input#job-amount.input-number.form-control(type="text")
           span.input-group-text.ticker
+        .invalid-feedback Payout must be higher than 0.
 
     .mb-5
       label.form-label Description
       #quill-editor
+      .invalid-feedback The description is required.
 
     .mb-5
       label.form-label Opportunity type
@@ -116,7 +120,9 @@
     .modal-content
       .modal-body
         .modal-title Confirm transactions
-        .modal-message Before approving, make sure the details are right. This transaction will cost #[span.fee] AR.
+        .modal-message Before approving, make sure the details are right. 
+          p This transaction will cost #[span.fee] AR + #[span.comm-fee].
+          p Make sure you have enough AR and #[span.ticker] for this transaction to be approved.
 
       .modal-footer
         a.btn.btn-link.link-secondary.mr-auto(data-dismiss="modal", href="#") Cancel
