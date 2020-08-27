@@ -278,8 +278,7 @@ export default class PageVotes {
       $(e.target).addClass('btn-loading disabled');
       const toast = new Toast(app.getArweave());
       try {
-        const txid = '0';
-        //const txid = await app.getCommunity().proposeVote(voteParams);
+        const txid = await app.getCommunity().proposeVote(voteParams);
         toast.showTransaction('Create vote', txid, voteParams)
           .then(async () => {
             // Just create the new vote, do not sync the entire page.
