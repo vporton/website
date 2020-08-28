@@ -1144,11 +1144,6 @@
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
 
-"@types/debug@4.1.5":
-  version "4.1.5"
-  resolved "https://registry.yarnpkg.com/@types/debug/-/debug-4.1.5.tgz#b14efa8852b7768d898906613c23f688713e02cd"
-  integrity sha512-Q1y515GcOdTHgagaVFhHnIFQ38ygs/kmxdNpvpou+raI9UO3YZcHDngBSYKQklcKlvA7iuQlmIKbzvmxcOE9CQ==
-
 "@types/feather-icons@^4.7.0":
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/@types/feather-icons/-/feather-icons-4.7.0.tgz#ec66bc046bcd1513835f87541ecef54b50c57ec9"
@@ -1354,7 +1349,7 @@ arweave-id@^2.0.7:
     jshashes "^1.0.8"
     xss "^1.0.7"
 
-arweave@^1.7.1, arweave@^1.9.1:
+arweave@^1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.9.1.tgz#9b3754eeb38a244ed9abf1024ab0df6bfb76a990"
   integrity sha512-S0oLpxTKV0r6TPQ3l7ZZu8c6tE4F2xtnw+vQKR2+232k/rHbXqeuOijZZMEgHLoTi7c/MasXgyj4QLALh7hrXA==
@@ -2048,13 +2043,13 @@ commander@^5.0.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-5.1.0.tgz#46abbd1652f8e059bddaef99bbdcb2ad9cf179ae"
   integrity sha512-P0CysNDQ7rtVw4QIQtm+MRxV66vKFSvlsQvGYXZWR3qFU0jlMKHZZZgw8e+8DSah4UDKMqnknRDQz+xuQXQ/Zg==
 
-community-js@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.9.tgz#2b1c75a4fa40488a1e8ba079a59727d178fd688a"
-  integrity sha512-yN6v3o52/yJjG+C9vqOmLptJ9Q+BElRhWT5Pcpheh16YSKXB1TWJHnrJvD9JMjxtFgNkAt4KF8WNV4URSCrSNA==
+community-js@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.10.tgz#4b54fd08f5e4dd5d7672cf51e60230ee803f40cb"
+  integrity sha512-i58ubwPSuTxS+ass5Tn0/x5KKmIMF2+WKAq/cekocF43jmpQ4+DPIy0aCU+QJo2QEHjTX7g4V0XBXqMgSD3sAg==
   dependencies:
     arweave "^1.9.1"
-    smartweave "https://arweave.net/dvJ-z54lonYNfyz0xoicTax3NhbHvB0LqmS90zLBE8c"
+    smartweave "https://arweave.net/bGbhpHfMnFhjrrqcTNs1X5NERqsC_p2UA0xP50EqFPk"
     tiny-worker "^2.3.0"
 
 component-emitter@^1.2.1:
@@ -2451,19 +2446,19 @@ debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   dependencies:
     ms "2.0.0"
 
-debug@4.1.1, debug@^4.1.0, debug@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
-  integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
-  dependencies:
-    ms "^2.1.1"
-
 debug@=3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
   integrity sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
   dependencies:
     ms "2.0.0"
+
+debug@^4.1.0, debug@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
+  integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
+  dependencies:
+    ms "^2.1.1"
 
 decamelize@^1.2.0:
   version "1.2.0"
@@ -5391,14 +5386,6 @@ promise@^7.0.1:
   dependencies:
     asap "~2.0.3"
 
-promises-tho@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/promises-tho/-/promises-tho-1.1.0.tgz#21d5ab7f9f8d5412237472678c1e15be4a2cee68"
-  integrity sha512-sr6lVl1T5TbV5TdnwNRunCPWRWcSNs+iiaTzz0A+Hfnup1muqLG90pcLovsdrSdOhD4qGkTFLXyIt027PjAUZA==
-  dependencies:
-    "@types/debug" "4.1.5"
-    debug "4.1.1"
-
 proxy-addr@~2.0.5:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/proxy-addr/-/proxy-addr-2.0.6.tgz#fdc2336505447d3f2f2c638ed272caf614bbb2bf"
@@ -6027,13 +6014,12 @@ simple-swizzle@^0.2.2:
   dependencies:
     is-arrayish "^0.3.1"
 
-"smartweave@https://arweave.net/dvJ-z54lonYNfyz0xoicTax3NhbHvB0LqmS90zLBE8c":
-  version "0.3.3"
-  resolved "https://arweave.net/dvJ-z54lonYNfyz0xoicTax3NhbHvB0LqmS90zLBE8c#72f255fd97aa3a2702925ca14cd74d5a34253d4b"
+"smartweave@https://arweave.net/bGbhpHfMnFhjrrqcTNs1X5NERqsC_p2UA0xP50EqFPk":
+  version "0.3.2"
+  resolved "https://arweave.net/bGbhpHfMnFhjrrqcTNs1X5NERqsC_p2UA0xP50EqFPk#dd25246c2942d6a6b31582a447c1301a6554dc28"
   dependencies:
-    arweave "^1.7.1"
+    arweave "^1.9.1"
     bignumber.js "^9.0.0"
-    promises-tho "^1.1.0"
     yargs "^15.3.1"
 
 snapdragon-node@^2.0.1:

@@ -33,7 +33,7 @@ class App {
   constructor() {
     if(window.location.host === 'community.xyz') {
       this.arweave = Arweave.init({
-        host: 'arweave.net',
+        host: 'arweave.dev',
         protocol: 'https',
         port: 443
       });

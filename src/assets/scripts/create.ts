@@ -11,7 +11,7 @@ import { JWKInterface } from "arweave/web/lib/wallet";
 let arweave = Arweave.init({timeout: 100000});
 if(window.location.host === 'community.xyz') {
   arweave = Arweave.init({
-    host: 'arweave.net',
+    host: 'arweave.dev',
     protocol: 'https',
     port: 443,
     timeout: 100000
