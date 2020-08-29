@@ -32,7 +32,6 @@ export default class PageJobs {
   }
 
   private async showAll() {
-    // TODO: Use GQL instead of ArQL
     this.opportunities = await Opportunity.getAll();
 
     $('.jobs-total-results').text(`${this.opportunities.length} results`);
