@@ -162,7 +162,7 @@ class App {
   }
 
   private async updateLinks() {
-    $('a').each((i: number, e: Element) => {
+    $('a').not('[data-toggle]').each((i: number, e: Element) => {
       const link = $(e).attr('href').split('#');
       if(link.length > 1 && link[1] !== '!' && !link[1].startsWith(this.hashes[0])) {
         $(e).attr('href', `#${this.hashes[0]}${link[1]}`);
