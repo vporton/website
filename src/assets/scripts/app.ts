@@ -12,6 +12,7 @@ import PageTokens from "./pages/tokens";
 import PageVotes from "./pages/votes";
 import PageVault from "./pages/vault";
 import Account from "./models/account";
+import Utils from "./utils/utils";
 
 class App {
   private hash: string;
@@ -31,15 +32,7 @@ class App {
   private pageVault: PageVault;
 
   constructor() {
-    if(window.location.host === 'community.xyz') {
-      this.arweave = Arweave.init({
-        host: 'arweave.dev',
-        protocol: 'https',
-        port: 443
-      });
-    } else {
-      this.arweave = Arweave.init({timeout: 100000});
-    }
+    this.arweave = Utils.createArweaveInstance();
     
     this.community = new Community(this.arweave);
     this.account = new Account(this.arweave, this.community);
@@ -88,12 +81,13 @@ class App {
 
     await this.updateNetworkInfo();
     this.checkVersion();
-    await this.account.init();
+    const t = await this.community.setCommunityTx(this.hashes[0]);
+    console.log('after community tx', t);
     $('body').show();
-
+    
     await this.updateLinks();
-    await this.community.setCommunityTx(this.hashes[0]);
     await this.pageChanged();
+    await this.account.init();
 
     this.events();
   }

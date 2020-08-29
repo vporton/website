@@ -12,6 +12,7 @@ import Arweave from "arweave";
 import Community from "community-js";
 import PageCreateJob from "./create";
 import Transaction from "arweave/node/lib/transaction";
+import Utils from "../utils/utils";
 
 class JobBoard {
   private hash: string;
@@ -53,15 +54,7 @@ class JobBoard {
   }
 
   constructor() {
-    if(window.location.host === 'community.xyz') {
-      this.arweave = Arweave.init({
-        host: 'arweave.dev',
-        protocol: 'https',
-        port: 443
-      });
-    } else {
-      this.arweave = Arweave.init({timeout: 100000});
-    }
+    this.arweave = Utils.createArweaveInstance();
     
     this.community = new Community(this.arweave);
     this.account = new Account(this.arweave, this.community);

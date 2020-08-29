@@ -1,3 +1,5 @@
+import Arweave from "arweave";
+
 export default class Utils {
 
   static async pause(timeout: number = 500) {
@@ -51,5 +53,14 @@ export default class Utils {
   static escapeScriptStyles(str: string) {
     str = str.replace(/onload="?[^>]+/gi, '');
     return str.replace(/<(\/?(script|style|iframe))[^>]*>/gi, '&lt;$1$2&gt;');
+  }
+
+  static createArweaveInstance(): Arweave {
+    return Arweave.init({
+      host: 'arweave.dev',
+      protocol: 'https',
+      port: 443,
+      timeout: 100000
+    });
   }
 }

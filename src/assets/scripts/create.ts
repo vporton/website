@@ -1,22 +1,14 @@
 import "../styles/style.scss";
 
-import Arweave from 'arweave';
 import Community from 'community-js';
 import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
 
 import './global';
 import { JWKInterface } from "arweave/web/lib/wallet";
+import Utils from "./utils/utils";
 
-let arweave = Arweave.init({timeout: 100000});
-if(window.location.host === 'community.xyz') {
-  arweave = Arweave.init({
-    host: 'arweave.dev',
-    protocol: 'https',
-    port: 443,
-    timeout: 100000
-  });
-}
+let arweave = Utils.createArweaveInstance();
 const community = new Community(arweave);
 
 let currentStep = 1;
