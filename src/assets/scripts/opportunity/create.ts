@@ -206,7 +206,9 @@ export default class PageCreateJob {
 
       const target = await mainComm.selectWeightedHolder();
       if(target !== addy) {
-        await jobboard.getCommunity().transfer(target, this.transferFee);
+        console.log(target, addy);
+        await community.setWallet(await jobboard.getAccount().getWallet());
+        await community.transfer(target, this.transferFee);
       }
 
       $('#confirm-modal').modal('hide');
