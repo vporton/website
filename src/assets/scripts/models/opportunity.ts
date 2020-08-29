@@ -270,7 +270,7 @@ export default class Opportunity implements OpportunityInterface {
       project: objParams.project,
       permission: objParams.permission,
       author: node.owner.address,
-      timestamp: node.block.timestamp * 1000
+      timestamp: (node.block && node.block.timestamp? node.block.timestamp * 1000 : (new Date()).getTime())
     });
 
     await opp.update();
