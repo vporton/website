@@ -45,7 +45,7 @@ export default class PageJob {
       $('.btn-opp-status').addClass('disabled');
     }
 
-    $('.btn-opp-status').removeClass('disabled btn-dark btn-danger').addClass('btn-primary').text(this.opportunity.status);
+    $('.btn-opp-status').removeClass('btn-dark btn-danger').addClass('btn-primary').text(this.opportunity.status);
     switch(this.opportunity.status) {
       case 'Closed':
         $('.btn-opp-status').removeClass('btn-primary').addClass('disabled btn-danger');
