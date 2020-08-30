@@ -45,13 +45,13 @@ export default class PageJob {
       $('.btn-opp-status').addClass('disabled');
     }
 
-    $('.btn-opp-status').addClass('btn-primary').text('Active');
+    $('.btn-opp-status').removeClass('disabled btn-dark btn-danger').addClass('btn-primary').text(this.opportunity.status);
     switch(this.opportunity.status) {
       case 'Closed':
-        $('.btn-opp-status').addClass('disabled btn-danger').text('Closed');
+        $('.btn-opp-status').removeClass('btn-primary').addClass('disabled btn-danger');
         break;
       case 'Finished':
-        $('.btn-opp-status').addClass('disabled btn-dark').text('Finished');
+        $('.btn-opp-status').removeClass('btn-primary').addClass('disabled btn-dark');
         break;
     }
   }
