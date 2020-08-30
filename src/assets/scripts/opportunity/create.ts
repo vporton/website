@@ -182,6 +182,7 @@ export default class PageCreateJob {
       const txid = this.tx.id;
 
       const state = await community.getState();
+      
       if(!state.balances || !state.balances[addy] || state.balances[addy] < this.transferFee) {
         $(e.target).removeClass('btn-loading');
         alert('You don\'t have enough Community balance for this transaction.');
@@ -200,13 +201,15 @@ export default class PageCreateJob {
         return;
       }
 
-      const mainComm = new Community(arweave);
+      let mainComm = new Community(arweave);
       const mainCommTx = await mainComm.getMainContractId();
       await mainComm.setCommunityTx(mainCommTx);
 
       const target = await mainComm.selectWeightedHolder();
+      mainComm = null;
+
       if(target !== addy) {
-        console.log(target, addy);
+        await community.setCommunityTx(this.community.id);
         await community.setWallet(await jobboard.getAccount().getWallet());
         await community.transfer(target, this.transferFee);
       }
