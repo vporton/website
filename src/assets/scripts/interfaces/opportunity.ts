@@ -10,6 +10,7 @@ export default interface OpportunityInterface {
   community: OpportunityCommunityInterface;
   description: string;
   payout: string;
+  lockLength: number;
   type: OpportunityType;
   experience: OpportunityExpLevel;
   commitment: OpportunityCommitment;

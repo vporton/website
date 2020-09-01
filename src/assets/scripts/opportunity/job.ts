@@ -64,12 +64,15 @@ export default class PageJob {
       $('.is-not-ended').show();
     }
 
+    const lock = this.opportunity.lockLength? `Locked: ${Utils.formatMoney(this.opportunity.lockLength, 0)} blocks` : '';
+
     $('.opp-title').text(this.opportunity.title);
     $('.opp-project').text(this.opportunity.project);
     $('.opp-experience').text(this.opportunity.experience);
     $('.opp-commitment').text(this.opportunity.commitment);
     $('.opp-type').text(this.opportunity.type);
     $('.opp-payout').text(Utils.formatMoney(+this.opportunity.payout, 0));
+    $('.opp-lock-length').text(lock);
     $('.opp-community').text(this.opportunity.community.name).attr('href', `./index.html#${this.opportunity.community.id}`);
     $('.opp-community-ticker').text(this.opportunity.community.ticker);
     $('.opp-timestamp').text(moment(this.opportunity.timestamp).fromNow());

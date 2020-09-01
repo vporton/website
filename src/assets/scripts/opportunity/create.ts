@@ -92,6 +92,7 @@ export default class PageCreateJob {
   private async submit() {
     const title = $.trim(Utils.stripHTML($('#job-title').val().toString()));
     const amount = +$.trim(Utils.stripHTML($('#job-amount').val().toString()));
+    const lockLength = +$.trim(Utils.stripHTML($('#job-lock-length').val().toString()));
     const description = $.trim(Utils.escapeScriptStyles(this.quill.root.innerHTML));
     const jobType = $.trim(Utils.stripHTML($('[name="job-type"]:checked').val().toString()));
     const expLevel = $.trim(Utils.stripHTML($('[name="job-exp"]:checked').val().toString()));
@@ -119,6 +120,11 @@ export default class PageCreateJob {
       return;
     }
 
+    if(isNaN(lockLength) || lockLength < 1) {
+      alert('Invalid lock length.');
+      return;
+    }
+
     // Create the transaction
     this.tx = await jobboard.getArweave().createTransaction({data: description}, await jobboard.getAccount().getWallet());
     this.tx.addTag('Content-Type', 'text/html');
@@ -131,6 +137,7 @@ export default class PageCreateJob {
     this.tx.addTag('project', project);
     this.tx.addTag('permission', permission);
     this.tx.addTag('payout', amount.toString());
+    this.tx.addTag('lockLength', lockLength.toString());
 
     this.tx.addTag('communityId', this.community.id);
     this.tx.addTag('communityName', this.community.name);
@@ -227,6 +234,7 @@ export default class PageCreateJob {
       $(e.target).removeClass('btn-loading');
       $('#job-title').val('');
       $('#job-amount').val('');
+      $('#job-lock-length').val('');
       $('[name="job-type"]').first().click();
       $('[name="job-exp"]').first().click();
       $('[name="job-commitment"]').first().click();

@@ -13,6 +13,7 @@ export default class Opportunity implements OpportunityInterface {
   community: OpportunityCommunityInterface;
   description: string;
   payout: string;
+  lockLength: number;
   type: OpportunityType;
   experience: OpportunityExpLevel;
   commitment: OpportunityCommitment;
@@ -264,6 +265,7 @@ export default class Opportunity implements OpportunityInterface {
       },
       description: '',
       payout: objParams.payout,
+      lockLength: +objParams.lockLength || 0,
       type: objParams.jobType,
       experience: objParams.expLevel,
       commitment: objParams.commitment,

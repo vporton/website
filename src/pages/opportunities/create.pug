@@ -15,7 +15,7 @@
       .invalid-feedback The title doesn't explain what is this opportunity.
 
     .row
-      .col-md-8.mb-3
+      .col-md-6.mb-3
         label.form-label Community ID ( #[span.community-name.text-yellow ] )
         .input-icon
           input#job-community.form-control(type="text")
@@ -23,11 +23,16 @@
             .spinner-border.spinner-border-sm(role="status")
         .invalid-feedback Community not defined.
 
-      .col-md-4.mb-3
+      .col-md-3.mb-3
         label.form-label Amount to be paid
         .input-group
-          input#job-amount.input-number.form-control(type="text")
+          input#job-amount.input-number.form-control(type="text", value="0")
           span.input-group-text.ticker
+        .invalid-feedback Payout must be higher than 0.
+      
+      .col-md-3.mb-3
+        label.form-label Lock length in blocks
+        input#job-lock-length.input-number.form-control(type="text", value="0")
         .invalid-feedback Payout must be higher than 0.
 
     .mb-5
