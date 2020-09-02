@@ -50,14 +50,14 @@ export default class PageTokens {
 
     $('.ticker').text(state.ticker);
     $('.minted').text(Utils.formatMoney(balance + vaultBalance, 0));
-    $('.vault').text(Utils.formatMoney(vaultBalance, 0));
     $('.minted').parents('.dimmer').removeClass('active');
     
     const holdersByBalance = await this.tokensWorker.sortHoldersByBalance(state.balances, state.vault);
-    this.createOrUpdateCharts(holdersByBalance, state, balance);
+    this.createOrUpdateCharts(holdersByBalance);
     this.createOrUpdateTable(holdersByBalance, state);
 
     const bal = await this.balancesWorker.getAddressBalance((await app.getAccount().getAddress()), state.balances, state.vault);
+    $('.user-total-balance').text(Utils.formatMoney(bal.balance, 0));
     $('.user-unlocked-balance').text(Utils.formatMoney(bal.unlocked, 0));
 
     const transferFee = await app.getCommunity().getActionCost(true, {formatted: true, decimals: 5, trim: true});
@@ -115,13 +115,13 @@ export default class PageTokens {
     $('.token-holders').find('tbody').html(html).parents('.dimmer').removeClass('active');
   }
 
-  private async createOrUpdateCharts(holders: {address: string, balance: number}[], state: StateInterface, balance: number) {
+  private async createOrUpdateCharts(holders: {address: string, balance: number}[]) {
     if(!this.chart) {
       this.chart = new ApexCharts(document.getElementById('chart-total-tokens'), {
         chart: {
           type: 'donut',
           fontFamily: 'inherit',
-          height: 175,
+          height: 216,
           sparkline: {
             enabled: true
           },
@@ -157,9 +157,15 @@ export default class PageTokens {
     const series: number[] = [];
 
     const maxChartHolders = holders.length > 5? 5 : holders.length;
+
+    let totalBalance = 0;
+    for(let i = 0, j = holders.length; i < j; i++) {
+      totalBalance += holders[i].balance;
+    }
+
     for(let i = 0, j = maxChartHolders; i < j; i++) {
         labels.push(holders[i].address);
-        series.push(Math.round(holders[i].balance / balance * 100));
+        series.push(Math.round(holders[i].balance / totalBalance * 100));
     }
 
     this.chart.updateSeries(series);
