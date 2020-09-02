@@ -272,7 +272,6 @@ export default class PageVotes {
         return;
       }
       voteParams['note'] = note;
-      console.log(typeof note);
 
       // All validations passed
       $(e.target).addClass('btn-loading disabled');

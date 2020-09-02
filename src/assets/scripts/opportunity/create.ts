@@ -225,7 +225,6 @@ export default class PageCreateJob {
 
       const res = await arweave.transactions.post(this.tx);
       if (res.status !== 200 && res.status !== 202) {
-        console.log(res);
         $(e.target).removeClass('btn-loading');
         return alert('Error while submiting the transaction.');
       }
@@ -244,11 +243,7 @@ export default class PageCreateJob {
       window.location.hash = '';
       
       const toast = new Toast(arweave);
-      toast.showTransaction('Add opportunity', txid, {})
-        .then(async () => {
-          console.log('Tx completed');
-        });
-
+      toast.showTransaction('Add opportunity', txid, {}).then(() => {});
     });
   }
 

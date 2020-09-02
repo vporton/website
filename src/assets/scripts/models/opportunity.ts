@@ -94,7 +94,6 @@ export default class Opportunity implements OpportunityInterface {
       console.log(err);
     }
 
-    console.log(txs);
     if(!txs.edges.length) {
       return;
     }
@@ -203,7 +202,6 @@ export default class Opportunity implements OpportunityInterface {
       opps.push(opp);
     }
 
-    console.log(opps);
     return opps;
   }
 

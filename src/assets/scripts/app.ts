@@ -82,7 +82,6 @@ class App {
     await this.updateNetworkInfo();
     this.checkVersion();
     const t = await this.community.setCommunityTx(this.hashes[0]);
-    console.log('after community tx', t);
     $('body').show();
     
     await this.updateLinks();
@@ -148,7 +147,6 @@ class App {
       }
     }
 
-    console.log(contracts);
     if(contracts[0] === contracts[1]) {
       return;
     }

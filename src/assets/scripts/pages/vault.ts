@@ -261,7 +261,6 @@ export default class PageVault {
     $(document).on('click', '.btn-increase-lock', async (e: any) => {
       e.preventDefault();
 
-      console.log(e.target);
       const $tr = $(e.target).parents('tr');
       $('.vault-id').text(`#${$tr.index()}`).val($tr.index());
 

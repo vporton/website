@@ -142,8 +142,6 @@ export default class PageJob {
       e.preventDefault();
 
       const status = $(e.target).text().trim();
-      console.log(status);
-
       await this.opportunity.update({ status });
     });
 

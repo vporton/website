@@ -46,7 +46,6 @@ const createCommunity = () => {
     };
     attempt();
   }).catch(e => {
-    console.log('inside catch.');
     console.log(e);
   });
 }
