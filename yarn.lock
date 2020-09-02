@@ -2106,13 +2106,13 @@ commander@^5.0.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-5.1.0.tgz#46abbd1652f8e059bddaef99bbdcb2ad9cf179ae"
   integrity sha512-P0CysNDQ7rtVw4QIQtm+MRxV66vKFSvlsQvGYXZWR3qFU0jlMKHZZZgw8e+8DSah4UDKMqnknRDQz+xuQXQ/Zg==
 
-community-js@^1.0.12:
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.12.tgz#1cbbb947f35ba17441df756d37b44453d111de1b"
-  integrity sha512-42KgtpxfF4njS7EWH8Do9q9050rm9iwpmiRViFKAtElqxlr3HRGceOjXeCCmo5yfXv6/rWspN96JYWGXp3igJA==
+community-js@^1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.13.tgz#4857523b6f7894c201d9dcd5339f015cfcdc07f6"
+  integrity sha512-VOZGbHppnmayoLK20DI3/zc/Rb8/WYiurnHOy0E5i0633RhymFnDyaA2PJ3d06JULJ56QRF6HM0RCcZZ2Byo2w==
   dependencies:
     arweave "^1.9.1"
-    smartweave "https://arweave.net/QKWySKiNimiOU7taGjuh3eLCESmcbBO9A8iNw8FdUFc"
+    smartweave "^0.3.3"
     tiny-worker "^2.3.0"
 
 component-emitter@^1.2.1:
@@ -6077,9 +6077,10 @@ simple-swizzle@^0.2.2:
   dependencies:
     is-arrayish "^0.3.1"
 
-"smartweave@https://arweave.net/QKWySKiNimiOU7taGjuh3eLCESmcbBO9A8iNw8FdUFc":
-  version "0.3.2"
-  resolved "https://arweave.net/QKWySKiNimiOU7taGjuh3eLCESmcbBO9A8iNw8FdUFc#a07150cd6228643fe252890956a8f93b3c3b260b"
+smartweave@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/smartweave/-/smartweave-0.3.3.tgz#331b31f099cfe655e4b1300210234cee097bc70d"
+  integrity sha512-G//7xPG4vRRC3FR7u269zzzvAY5e67Kp5Ypkiu03hOyIHYh4kDFGlOAdSJJcJ+mWKE9MhOjdU4IxxZqbFVJQeA==
   dependencies:
     arweave "^1.9.1"
     bignumber.js "^9.0.0"
