@@ -1,10 +1,10 @@
 import { JWKInterface } from "arweave/web/lib/wallet";
-import { get, getIdenticon } from 'arweave-id';
 import Arweave from "arweave";
 
 import $ from '../libs/jquery';
 import Toast from '../utils/toast';
 import Community from "community-js";
+import { getIdenticon, get } from "../utils/arweaveid";
 
 export default class Account {
   private arweave: Arweave;
@@ -31,7 +31,7 @@ export default class Account {
   }
 
   async getArweaveId(address: string = this.address) {
-    return get(address, this.arweave);
+    return get(address);
   }
   async getIdenticon(address: string = this.address): Promise<string> {
     return getIdenticon(address);
@@ -63,7 +63,7 @@ export default class Account {
     this.address = await this.community.setWallet(wallet);
     this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
 
-    const acc = await get(this.address, this.arweave);
+    const acc = await get(this.address);
     this.username = acc.name;
     this.avatar = acc.avatarDataUri || getIdenticon(this.address);
 

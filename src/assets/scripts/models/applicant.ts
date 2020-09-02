@@ -2,8 +2,8 @@ import Utils from "../utils/utils";
 import ApplicantInterface from "../interfaces/applicant";
 import { GQLNodeInterface, GQLTransactionsResultInterface } from "../interfaces/gqlResult";
 import Arweave from "arweave";
-import { get, getIdenticon } from "arweave-id";
 import jobboard from "../opportunity/jobboard";
+import { get, getIdenticon } from "../utils/arweaveid";
 
 export default class Applicant implements ApplicantInterface {
   id: string;
@@ -130,7 +130,7 @@ export default class Applicant implements ApplicantInterface {
     }
 
     const arweave = jobboard.getArweave();
-    const user = await get(node.owner.address, arweave);
+    const user = await get(node.owner.address);
     const message = (await arweave.api.get(`/${node.id}`)).data;
     
     const applicant = new Applicant({

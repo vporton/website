@@ -1,6 +1,5 @@
 import ApexCharts from 'apexcharts';
 import { ModuleThread, spawn } from 'threads';
-import * as arweaveId from 'arweave-id';
 
 import $ from '../libs/jquery';
 import { BalancesWorker } from '../workers/balances';
@@ -9,6 +8,7 @@ import { StateInterface } from 'community-js/lib/faces';
 import Utils from '../utils/utils';
 import Toast from '../utils/toast';
 import app from '../app';
+import { getIdenticon, get } from '../utils/arweaveid';
 
 export default class PageTokens {
   private chart: ApexCharts;
@@ -73,8 +73,8 @@ export default class PageTokens {
 
     for(let i = 0, j = holders.length; i < j; i++) {
       const holder = holders[i];
-      const arId = await app.getAccount().getArweaveId(holder.address);
-      const avatar = arId.avatarDataUri || arweaveId.getIdenticon(holder.address);
+      const arId = await get(holder.address);
+      const avatar = arId.avatarDataUri || getIdenticon(holder.address);
       const balance = holder.balance > holder.vaultBalance? holder.balance-holder.vaultBalance : holder.vaultBalance-holder.balance;
 
       let role = '-';

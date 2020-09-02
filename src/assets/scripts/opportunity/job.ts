@@ -1,10 +1,10 @@
 import jobboard from "./jobboard";
 import Opportunity from "../models/opportunity";
 import Utils from "../utils/utils";
-import { get, getIdenticon } from "arweave-id";
 import Applicant from "../models/applicant";
 import Toast from "../utils/toast";
 import moment from "moment";
+import { getIdenticon, get } from "../utils/arweaveid";
 
 export default class PageJob {
   private opportunity: Opportunity;
@@ -82,7 +82,7 @@ export default class PageJob {
 
     this.showApplicants();
 
-    get(this.opportunity.author, jobboard.getArweave()).then(author => {
+    get(this.opportunity.author).then(author => {
       $('.creator-addy').attr('data-original-title', this.opportunity.author).text(author.name || this.opportunity.author);
       $('[data-toggle="tooltip"]').tooltip();
 

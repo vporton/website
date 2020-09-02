@@ -1,11 +1,11 @@
 import feather from 'feather-icons';
-import { get, getIdenticon } from 'arweave-id';
 
 import $ from '../libs/jquery';
 import { VoteInterface, VoteStatus, VoteType, StateInterface } from "community-js/lib/faces";
 import app from '../app';
 import Utils from '../utils/utils';
 import Toast from '../utils/toast';
+import { getIdenticon, get } from '../utils/arweaveid';
 
 export default class Vote implements VoteInterface {
   status?: VoteStatus;
@@ -94,7 +94,7 @@ export default class Vote implements VoteInterface {
 
     let details = '';
     if(this.type === 'mint' || this.type === 'mintLocked' || this.type === 'burnVault') {
-      const arId = await get(this.recipient || this.target, app.getArweave());
+      const arId = await get(this.recipient || this.target);
       let avatar = arId.avatarDataUri || getIdenticon(this.recipient || this.target);
       details = `
       <div class="mb-3">
@@ -221,7 +221,7 @@ export default class Vote implements VoteInterface {
     if(this.voted.length) {
       const maxLength = this.voted.length > 5? 5 : this.voted.length;
       for(let i = 0, j = maxLength; i < j; i++) {
-        const arId = await get(this.voted[i], app.getArweave());
+        const arId = await get(this.voted[i]);
         const avatar = arId.avatarDataUri || getIdenticon(this.voted[i]);
         avatarList += `<span class="avatar" style="background-image: url(${avatar})"></span>`;
       }

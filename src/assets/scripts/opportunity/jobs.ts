@@ -3,9 +3,9 @@ import "quill/dist/quill.snow.css";
 import moment from "moment";
 import jobboard from "./jobboard";
 import Opportunity from "../models/opportunity";
-import { get, getIdenticon } from "arweave-id";
 import Applicant from "../models/applicant";
 import Utils from "../utils/utils";
+import { getIdenticon, get } from "../utils/arweaveid";
 
 export default class PageJobs {
   private opportunities: Opportunity[] = [];
@@ -93,7 +93,7 @@ export default class PageJobs {
       const $job = $(el);
       const creator = $job.attr('data-author');
 
-      get(creator, jobboard.getArweave()).then(author => {
+      get(creator).then(author => {
         const avatar = author.avatarDataUri || getIdenticon(creator);
         $job.find('.avatar').attr('style', `background-image: url(${avatar})`);
       });
