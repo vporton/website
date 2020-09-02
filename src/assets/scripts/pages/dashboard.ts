@@ -39,7 +39,10 @@ export default class PageDashboard {
     const {users, balance} = await this.balancesWorker.usersAndBalance(state.balances);
     const {vaultUsers, vaultBalance} = await this.balancesWorker.vaultUsersAndBalance(state.vault);
 
-    $('.users').text(users.length).parents('.dimmer').removeClass('active');
+    let nbUsers = users.length;
+    nbUsers += vaultUsers.filter(user => !users.includes(user)).length;
+
+    $('.users').text(nbUsers).parents('.dimmer').removeClass('active');
     $('.users-vault').text(`${vaultUsers.length} `);
 
     const votes = await this.votesWorker.activeVotesByType(state.votes);
