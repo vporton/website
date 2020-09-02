@@ -71,6 +71,8 @@ export default class PageTokens {
 }[], state: StateInterface): Promise<void> {
     let html = '';
 
+    $('#total-holders').text(`(${holders.length})`);
+
     for(let i = 0, j = holders.length; i < j; i++) {
       const holder = holders[i];
       const arId = await get(holder.address);
@@ -131,7 +133,7 @@ export default class PageTokens {
         },
         fill: { opacity: 1 },
         title: {
-          text: 'Top Holders'
+          text: 'Top holders'
         },
         labels: [],
         series: [],
