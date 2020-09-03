@@ -143,7 +143,7 @@ export default class PageJobs {
       if(!await jobboard.getAccount().isLoggedIn()) {
         e.preventDefault();
 
-        alert('Please login first.');
+        await jobboard.getAccount().showLoginError();
 
         return false;
       }

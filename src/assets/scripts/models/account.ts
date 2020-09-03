@@ -51,9 +51,9 @@ export default class Account {
     return this.arBalance;
   }
 
-  async showLoginError() {
+  async showLoginError(duration: number = 5000) {
     const toast = new Toast(this.arweave);
-    toast.show('Login first', 'Before being able to do this action you need to login.', 'login', 10000);
+    toast.show('Login first', 'Before being able to do this action you need to login.', 'login', duration);
   }
 
   // Setters

@@ -211,17 +211,16 @@ export default class PageTokens {
 
       $(e.target).addClass('btn-loading disabled');
 
-      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().transfer(transferTarget, transferBalance);
-        toast.showTransaction('Transfer balance', txid, {target: transferTarget, amount: Utils.formatMoney(transferBalance, 0)})
-          .then(async () => {
-            await app.getCommunity().getState(false);
-            app.getCurrentPage().syncPageState();
-          });
-
+        app.getStatusify().add('Transfer balance', txid)
+        .then(async () => {
+          await app.getCommunity().getState(false);
+          app.getCurrentPage().syncPageState();
+        });
       } catch (err) {
         console.log(err.message);
+        const toast = new Toast(app.getArweave());
         toast.show('Transfer error', err.message, 'error', 3000);
       }
 

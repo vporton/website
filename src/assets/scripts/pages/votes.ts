@@ -275,24 +275,23 @@ export default class PageVotes {
 
       // All validations passed
       $(e.target).addClass('btn-loading disabled');
-      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().proposeVote(voteParams);
-        toast.showTransaction('Create vote', txid, voteParams)
-          .then(async () => {
-            // Just create the new vote, do not sync the entire page.
-            const state = await app.getCommunity().getState(false);
+        app.getStatusify().add('Create vote', txid)
+        .then(async () => {
+          // Just create the new vote, do not sync the entire page.
+          const state = await app.getCommunity().getState(false);
 
-            const voteId = state.votes.length - 1;
-            if(this.votes.length < state.votes.length) {
-              const vote = new Vote(state.votes[this.votes.length], this.votes.length);
-              this.votes.push(vote);
-              await vote.show();
-            }
-          });
-
+          const voteId = state.votes.length - 1;
+          if(this.votes.length < state.votes.length) {
+            const vote = new Vote(state.votes[this.votes.length], this.votes.length);
+            this.votes.push(vote);
+            await vote.show();
+          }
+        });
       } catch (err) {
         console.log(err.message);
+        const toast = new Toast(app.getArweave());
         toast.show('Vote error', err.message, 'error', 3000);
       }
 

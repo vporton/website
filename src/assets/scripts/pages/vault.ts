@@ -216,16 +216,16 @@ export default class PageVault {
 
       $(e.target).addClass('btn-loading disabled');
 
-      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().lockBalance(balance, length);
-        toast.showTransaction('Lock balance', txid, {lockAmount: Utils.formatMoney(balance, 0), lockLength: Utils.formatMoney(length, 0)})
-          .then(() => {
-            app.getCurrentPage().syncPageState();
-          });
+        app.getStatusify().add('Lock balance', txid)
+        .then(() => {
+          app.getCurrentPage().syncPageState();
+        });
 
       } catch (err) {
         console.log(err.message);
+        const toast = new Toast(app.getArweave());
         toast.show('Lock balance error', err.message, 'error', 3000);
       }
 
@@ -242,16 +242,17 @@ export default class PageVault {
 
       const prevHtml = $(e.target).html();
       $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
-      const toast = new Toast(app.getArweave());
+      
       try {
         const txid = await app.getCommunity().unlockVault();
-        toast.showTransaction('Unlock vault', txid, {})
-          .then(() => {
-            app.getCurrentPage().syncPageState();
-          });
+        app.getStatusify().add('Unlock vault', txid)
+        .then(() => {
+          app.getCurrentPage().syncPageState();
+        });
 
       } catch (err) {
         console.log(err.message);
+        const toast = new Toast(app.getArweave());
         toast.show('Transfer error', err.message, 'error', 3000);
       }
 
@@ -290,16 +291,15 @@ export default class PageVault {
       }
 
       $(e.target).addClass('disabled').html('<div class="spinner-border spinner-border-sm" role="status"></div>');
-      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().increaseVault(vaultId, length);
-        toast.showTransaction('Increase lock', txid, {vaultId: Utils.formatMoney(vaultId, 0), lockLength: Utils.formatMoney(length, 0)})
-          .then(() => {
-            app.getCurrentPage().syncPageState();
-          });
-
+        app.getStatusify().add('Increase lock', txid)
+        .then(() => {
+          app.getCurrentPage().syncPageState();
+        });
       } catch (err) {
         console.log(err.message);
+        const toast = new Toast(app.getArweave());
         toast.show('Transfer error', err.message, 'error', 3000);
       }
 

@@ -135,7 +135,9 @@ export default class Opportunity implements OpportunityInterface {
     const res = await arweave.transactions.post(tx);
     if (res.status !== 200 && res.status !== 202) {
       console.log(res);
-      alert('Error submitting transaction.');
+
+      const toast = new Toast(arweave);
+      toast.show('Error', 'Error submitting transaction.', 'error', 5000);
       return false;
     }
 
@@ -188,7 +190,9 @@ export default class Opportunity implements OpportunityInterface {
       txs = res.data.data.transactions;
     } catch (err) {
       console.log(err);
-      alert('Error connecting to the network.');
+      
+      const toast = new Toast(jobboard.getArweave());
+      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }
 
@@ -235,7 +239,9 @@ export default class Opportunity implements OpportunityInterface {
       tx = res.data.data.transaction;
     } catch (err) {
       console.log(err);
-      alert('Error connecting to the network.');
+      
+      const toast = new Toast(jobboard.getArweave());
+      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }
 

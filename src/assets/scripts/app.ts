@@ -13,6 +13,7 @@ import PageVotes from "./pages/votes";
 import PageVault from "./pages/vault";
 import Account from "./models/account";
 import Utils from "./utils/utils";
+import Statusify from "./utils/statusify";
 
 class App {
   private hash: string;
@@ -20,6 +21,7 @@ class App {
   private arweave: Arweave;
   private community: Community;
   private account: Account;
+  private statusify: Statusify;
   private currentBlock: number = 0;
 
   private firstCall = true;
@@ -36,6 +38,7 @@ class App {
     
     this.community = new Community(this.arweave);
     this.account = new Account(this.arweave, this.community);
+    this.statusify = new Statusify(this.arweave);
 
     this.pageDashboard = new PageDashboard();
     this.pageTokens = new PageTokens();
@@ -53,6 +56,9 @@ class App {
   }
   getAccount() {
     return this.account;
+  }
+  getStatusify() {
+    return this.statusify;
   }
   getCurrentBlock() {
     return this.currentBlock;

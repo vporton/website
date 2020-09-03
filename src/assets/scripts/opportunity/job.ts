@@ -2,9 +2,9 @@ import jobboard from "./jobboard";
 import Opportunity from "../models/opportunity";
 import Utils from "../utils/utils";
 import Applicant from "../models/applicant";
-import Toast from "../utils/toast";
 import moment from "moment";
 import { getIdenticon, get } from "../utils/arweaveid";
+import Toast from "../utils/toast";
 
 export default class PageJob {
   private opportunity: Opportunity;
@@ -149,7 +149,8 @@ export default class PageJob {
       e.preventDefault();
 
       if(!await jobboard.getAccount().isLoggedIn() || await jobboard.getAccount().getAddress() === this.opportunity.author) {
-        alert('Please login first.');
+        await jobboard.getAccount().showLoginError();
+        
         return;
       }
 
@@ -179,7 +180,8 @@ export default class PageJob {
       const message = $('<div></div>').append($('#apply-message').val().toString().trim()).text();
 
       if(!await jobboard.chargeFee('OpportunityApplication')) {
-        alert('Unable to submit transaction, please try again later.');
+        const toast = new Toast(jobboard.getArweave());
+        toast.show('Error', 'Unable to submit transaction, please try again later.', 'error', 5000);
         return;
       }
 
@@ -194,7 +196,8 @@ export default class PageJob {
       const res = await arweave.transactions.post(tx);
       if (res.status !== 200 && res.status !== 202) {
         console.log(res);
-        alert('Unable to submit transaction, please try again later.');
+        const toast = new Toast(jobboard.getArweave());
+        toast.show('Error', 'Unable to submit transaction, please try again later.', 'error', 5000);
         $(e.target).removeClass('btn-loading');
         return;
       }
@@ -202,11 +205,8 @@ export default class PageJob {
       $(e.target).removeClass('btn-loading');
       $('#modal-apply').modal('hide');
 
-      const toast = new Toast(arweave);
-      toast.showTransaction('Apply', tx.id, {OpportunityId: this.opportunity.id}).then(() => {
-        this.showApplicants();
-      });
-      
+      jobboard.getStatusify().add('Application', tx.id);
+      this.showApplicants();
     });
   }
 

@@ -13,6 +13,7 @@ import Community from "community-js";
 import PageCreateJob from "./create";
 import Transaction from "arweave/node/lib/transaction";
 import Utils from "../utils/utils";
+import Statusify from "../utils/statusify";
 
 class JobBoard {
   private hash: string;
@@ -20,6 +21,7 @@ class JobBoard {
   private arweave: Arweave;
   private community: Community;
   private account: Account;
+  private statusify: Statusify;
   
   private firstCall = true;
   private fee = '';
@@ -45,6 +47,9 @@ class JobBoard {
   getAccount(): Account {
     return this.account;
   }
+  getStatusify(): Statusify {
+    return this.statusify;
+  }
   getFee(): String {
     return this.fee;
   }
@@ -58,6 +63,7 @@ class JobBoard {
     
     this.community = new Community(this.arweave);
     this.account = new Account(this.arweave, this.community);
+    this.statusify = new Statusify(this.arweave);
 
     this.pageJobs = new PageJobs();
     this.pageJob = new PageJob();

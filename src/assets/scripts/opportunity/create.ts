@@ -4,12 +4,11 @@ import jobboard from './jobboard';
 import Utils from "../utils/utils";
 import { OpportunityCommunityInterface } from '../interfaces/opportunity';
 import Transaction from "arweave/node/lib/transaction";
-import Toast from "../utils/toast";
 import { StateInterface } from "community-js/lib/faces";
 import Community from "community-js";
+import Toast from "../utils/toast";
 
 export default class PageCreateJob {
-  private isCurrentPage: boolean = false;
   private quill: Quill;
   private tx: Transaction;
 
@@ -21,8 +20,6 @@ export default class PageCreateJob {
   private transferFee: number = 0;
 
   async open() {
-    this.isCurrentPage = true;
-
     if(!this.quill) {
       const toolbarOptions = [
         [{ "header": [false, 2, 3, 4, 5, 6] }],
@@ -100,28 +97,30 @@ export default class PageCreateJob {
     const project = $.trim(Utils.stripHTML($('[name="job-project"]:checked').val().toString()));
     const permission = $.trim(Utils.stripHTML($('[name="permission"]:checked').val().toString()));
 
+    const toast = new Toast(jobboard.getArweave());
+
     if(title.length < 3) {
-      alert('The title doesn\'t explain what is this opportunity.');
+      toast.show('Error', 'The title doesn\'t explain what is this opportunity.', 'error', 5000);
       return;
     }
 
     if(!this.community.id || !await Utils.isArTx(this.community.id) || !this.community.name.length) {
-      alert('There seems to be an issue with your community ID. Please type it again.');
+      toast.show('Error', 'There seems to be an issue with your community ID. Please type it again.', 'error', 5000);
       return;
     }
 
     if(!$(this.quill.root).text().trim().length) {
-      alert('Description is required.');
+      toast.show('Error', 'Description is required.', 'error', 5000);
       return;
     }
 
     if(isNaN(amount) || amount < 1) {
-      alert('Invalid payout amount.');
+      toast.show('Error', 'Invalid payout amount.', 'error', 5000);
       return;
     }
 
     if(isNaN(lockLength) || lockLength < 1) {
-      alert('Invalid lock length.');
+      toast.show('Error', 'Invalid lock length.', 'error', 5000);
       return;
     }
 
@@ -189,22 +188,23 @@ export default class PageCreateJob {
       const txid = this.tx.id;
 
       const state = await community.getState();
+      const toast = new Toast(jobboard.getArweave());
       
       if(!state.balances || !state.balances[addy] || state.balances[addy] < this.transferFee) {
         $(e.target).removeClass('btn-loading');
-        alert('You don\'t have enough Community balance for this transaction.');
+        toast.show('Error', 'You don\'t have enough Community balance for this transaction.', 'error', 5000);
         return;
       }
 
       if(await account.getArBalance() < +$('.fee').text()) {
         $(e.target).removeClass('btn-loading');
-        alert('You don\'t have enough balance for this transaction.');
+        toast.show('Error', 'You don\'t have enough balance for this transaction.', 'error', 5000);
         return;
       }
 
       if(!await jobboard.chargeFee('addOpportunity')) {
         $(e.target).removeClass('btn-loading');
-        alert('Error while trying to charge the fee for this transaction.');
+        toast.show('Error', 'Error while trying to charge the fee for this transaction.', 'error', 5000);
         return;
       }
 
@@ -226,7 +226,7 @@ export default class PageCreateJob {
       const res = await arweave.transactions.post(this.tx);
       if (res.status !== 200 && res.status !== 202) {
         $(e.target).removeClass('btn-loading');
-        return alert('Error while submiting the transaction.');
+        return toast.show('Error', 'Error while submiting the transaction.', 'error', 5000);
       }
 
       this.community = { id: '', name: '', ticker: '' };
@@ -242,8 +242,7 @@ export default class PageCreateJob {
       this.quill.root.innerHTML = '';
       window.location.hash = '';
       
-      const toast = new Toast(arweave);
-      toast.showTransaction('Add opportunity', txid, {}).then(() => {});
+      jobboard.getStatusify().add('Add opportunity', txid);
     });
   }
 

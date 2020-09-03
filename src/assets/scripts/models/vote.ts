@@ -289,16 +289,16 @@ export default class Vote implements VoteInterface {
       $(e.target).addClass('btn-loading disabled');
       this.$card.find('.btn-vote-no').addClass('disabled');
 
-      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().vote(this.voteId, 'yay');
-        toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'Yes'})
-          .then(() => {
-            this.sync(false);
-          });
+        app.getStatusify().add('Vote', txid)
+        .then(() => {
+          this.sync(false);
+        });
         $(e.target).removeClass('btn-loading');
       } catch (err) {
         console.log(err.message);
+        const toast = new Toast(app.getArweave());
         toast.show('Vote error', err.message, 'error', 3000);
         $(e.target).removeClass('btn-loading disabled');
       }
@@ -315,17 +315,17 @@ export default class Vote implements VoteInterface {
 
       $(e.target).addClass('btn-loading disabled');
       this.$card.find('.btn-vote-yes').addClass('disabled');
-
-      const toast = new Toast(app.getArweave());
+      
       try {
         const txid = await app.getCommunity().vote(this.voteId, 'nay');
-        toast.showTransaction('Vote', txid, {voteId: this.voteId, cast: 'No'})
-          .then(() => {
-            this.sync(false);
-          });
+        app.getStatusify().add('Vote', txid)
+        .then(() => {
+          this.sync(false);
+        });
         $(e.target).removeClass('btn-loading');
       } catch (err) {
         console.log(err.message);
+        const toast = new Toast(app.getArweave());
         toast.show('Vote error', err.message, 'error', 3000);
         $(e.target).removeClass('btn-loading disabled');
       }
@@ -346,16 +346,16 @@ export default class Vote implements VoteInterface {
       }
 
       $(e.target).addClass('btn-loading disabled');
-      const toast = new Toast(app.getArweave());
       try {
         const txid = await app.getCommunity().finalize(this.voteId);
-        toast.showTransaction('Finalize vote', txid, {voteId: this.voteId})
-          .then(() => {
-            this.sync(false);
-          });
+        app.getStatusify().add('Finalize vote', txid)
+        .then(() => {
+          this.sync(false);
+        });
         $(e.target).removeClass('btn-loading');
       } catch (err) {
         console.log(err.message);
+        const toast = new Toast(app.getArweave());
         toast.show('Vote error', err.message, 'error', 3000);
         $(e.target).removeClass('btn-loading disabled');
       }

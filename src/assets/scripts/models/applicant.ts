@@ -4,6 +4,7 @@ import { GQLNodeInterface, GQLTransactionsResultInterface } from "../interfaces/
 import Arweave from "arweave";
 import jobboard from "../opportunity/jobboard";
 import { get, getIdenticon } from "../utils/arweaveid";
+import Toast from "../utils/toast";
 
 export default class Applicant implements ApplicantInterface {
   id: string;
@@ -68,7 +69,8 @@ export default class Applicant implements ApplicantInterface {
       txs = res.data.data.transactions;
     } catch (err) {
       console.log(err);
-      alert('Error connecting to the network.');
+      const toast = new Toast(jobboard.getArweave());
+      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }
 
@@ -111,7 +113,9 @@ export default class Applicant implements ApplicantInterface {
       tx = res.data.data.transaction;
     } catch (err) {
       console.log(err);
-      alert('Error connecting to the network.');
+      
+      const toast = new Toast(jobboard.getArweave());
+      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }
 
