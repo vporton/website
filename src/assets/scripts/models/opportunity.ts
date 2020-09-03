@@ -157,57 +157,73 @@ export default class Opportunity implements OpportunityInterface {
   }
 
   static async getAll(): Promise<Opportunity[]> {
-    const query = {
-      query: `
-      query{
-        transactions(tags:[{
-          name: "App-Name",
-          values: "CommunityXYZ"
-        },
-        {
-          name: "Action",
-          values: "addOpportunity"
-        }]){
-          pageInfo {
-            hasNextPage
-          }
-          edges {
-            cursor
-            node {
-              id
-              owner {
-                address
-              },
-              tags {
-                name,
-                value
-              }
-              block {
-                timestamp
-                height
+    let hasNextPage = true;
+    let edges: GQLEdgeInterface[] = [];
+    let cursor: string = '';
+
+    while(hasNextPage) {
+      const query = {
+        query: `
+        query{
+          transactions(
+            tags:[{
+              name: "App-Name",
+              values: "CommunityXYZ"
+            },
+            {
+              name: "Action",
+              values: "addOpportunity"
+            }]
+            after: "${cursor}"
+          ){
+            pageInfo {
+              hasNextPage
+            }
+            edges {
+              cursor
+              node {
+                id
+                owner {
+                  address
+                },
+                tags {
+                  name,
+                  value
+                }
+                block {
+                  timestamp
+                  height
+                }
               }
             }
           }
         }
+        `
+      };
+  
+      let res: any;
+      try {
+        res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
+      } catch (err) {
+        console.log(err);
+        
+        const toast = new Toast(jobboard.getArweave());
+        toast.show('Error', 'Error connecting to the network.', 'error', 5000);
+        return;
       }
-      `
-    };
+  
+      const transactions: GQLTransactionsResultInterface = res.data.data.transactions;
+      if(transactions.edges) {
+        edges = edges.concat(transactions.edges);
+        cursor = transactions.edges[transactions.edges.length - 1].cursor;
+      }
 
-    let txs: GQLTransactionsResultInterface;
-    try {
-      const res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
-      txs = res.data.data.transactions;
-    } catch (err) {
-      console.log(err);
-      
-      const toast = new Toast(jobboard.getArweave());
-      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
-      return;
+      hasNextPage = transactions.pageInfo.hasNextPage;
     }
 
     const opps: Opportunity[] = [];
-    for(let i = 0, j = txs.edges.length; i < j; i++) {
-      const opp = await Opportunity.nodeToOpportunity(txs.edges[i].node);
+    for(let i = 0, j = edges.length; i < j; i++) {
+      const opp = await Opportunity.nodeToOpportunity(edges[i].node);
       await opp.update();
       if(opp.status !== 'Active' && opp.status !== 'In progress') {
         continue;
