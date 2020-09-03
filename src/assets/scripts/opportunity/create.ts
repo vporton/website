@@ -119,7 +119,7 @@ export default class PageCreateJob {
       return;
     }
 
-    if(isNaN(lockLength) || lockLength < 1) {
+    if(isNaN(lockLength) || lockLength < 0) {
       toast.show('Error', 'Invalid lock length.', 'error', 5000);
       return;
     }
