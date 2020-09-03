@@ -34,7 +34,9 @@ export default class PageJob {
   }
 
   async syncPageState() {
-    // @ts-ignore
+    await this.opportunity.update();
+    console.log(this.opportunity.status);
+
     if(await jobboard.getAccount().isLoggedIn() && this.opportunity.author === await jobboard.getAccount().getAddress()) {
       $('.is-owner').show();
       $('.is-not-owner').hide();
@@ -54,15 +56,16 @@ export default class PageJob {
         $('.btn-opp-status').removeClass('btn-primary').addClass('disabled btn-dark');
         break;
     }
-  }
 
-  private async show() {
-    await this.syncPageState();
     if(this.opportunity.status === 'Closed' || this.opportunity.status === 'Finished') {
       $('.is-not-ended').hide();
     } else {
       $('.is-not-ended').show();
     }
+  }
+
+  private async show() {
+    await this.syncPageState();
 
     const lock = this.opportunity.lockLength? `Locked: ${Utils.formatMoney(this.opportunity.lockLength, 0)} blocks` : '';
 
@@ -125,10 +128,15 @@ export default class PageJob {
     }
 
     if(!applicants.length) {
+      let link = '';
+      if(this.opportunity.status !== 'Closed' && this.opportunity.status !== 'Finished') {
+        link = '<a class="btn-apply is-not-ended" href="#">Be the first to apply.</a>';
+      }
+
       html = `
       <div class="card">
         <div class="card-body">
-          This opportunity doesn't have any applications. <a class="btn-apply" href="#">Be the first to apply.</a>
+          This opportunity doesn't have any applications. ${link}
         </div>
       </div>`;
     }
@@ -143,6 +151,7 @@ export default class PageJob {
 
       const status = $(e.target).text().trim();
       await this.opportunity.update({ status });
+      await this.syncPageState();
     });
 
     $('body').on('click', '.btn-apply', async e => {

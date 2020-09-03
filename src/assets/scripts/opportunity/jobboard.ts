@@ -14,6 +14,7 @@ import PageCreateJob from "./create";
 import Transaction from "arweave/node/lib/transaction";
 import Utils from "../utils/utils";
 import Statusify from "../utils/statusify";
+import Toast from "../utils/toast";
 
 class JobBoard {
   private hash: string;
@@ -108,6 +109,8 @@ class JobBoard {
     const res = await this.arweave.transactions.post(tx);
     if (res.status !== 200 && res.status !== 202) {
       console.log(res);
+      const toast = new Toast(this.arweave);
+      toast.show('Error', 'Transaction failed.', 'error', 5000);
       return false;
     }
 

@@ -240,7 +240,7 @@ export default class PageCreateJob {
       $('[name="job-project"]').first().click();
       $('[name="permission"]').first().click();
       this.quill.root.innerHTML = '';
-      window.location.hash = '';
+      window.location.hash = txid;
       
       jobboard.getStatusify().add('Add opportunity', txid);
     });

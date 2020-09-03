@@ -92,6 +92,9 @@ export default class Opportunity implements OpportunityInterface {
     } catch (err) {
       console.log(query);
       console.log(err);
+      const toast = new Toast(jobboard.getArweave());
+      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
+      return;
     }
 
     if(!txs.edges.length) {
@@ -107,19 +110,27 @@ export default class Opportunity implements OpportunityInterface {
   }
 
   private async doUpdate(params: {[key: string]: string}) {
+    $('.btn-opp-status').addClass('btn-loading');
+
     const keys = Object.keys(params);
     if(!keys.length) {
-      return;
+      return false;
     }
 
     const arweave = jobboard.getArweave();
     const wallet =  await jobboard.getAccount().getWallet();
 
-    if(!await jobboard.chargeFee('updateOpportunity')) {
-      return;
+    const toast = new Toast(arweave);
+    if(this.author !== await jobboard.getAccount().getAddress()) {
+      toast.show('Error', 'You cannot edit this opportunity.', 'error', 5000);
+      return false;
     }
 
-    $('.btn-opp-status').addClass('btn-loading');
+    if(!await jobboard.chargeFee('updateOpportunity')) {
+      $('.btn-opp-status').removeClass('btn-loading');
+      return false;
+    }
+
     const tx = await arweave.createTransaction({ data: Math.random().toString().substr(-4) }, wallet);
     
     for(let i = 0; i < keys.length; i++) {
@@ -136,15 +147,13 @@ export default class Opportunity implements OpportunityInterface {
     if (res.status !== 200 && res.status !== 202) {
       console.log(res);
 
-      const toast = new Toast(arweave);
       toast.show('Error', 'Error submitting transaction.', 'error', 5000);
+      $('.btn-opp-status').removeClass('btn-loading');
       return false;
     }
 
-    const toast = new Toast(arweave);
-    toast.showTransaction('Update opportunity', tx.id, params).then(() => {
-      window.location.reload();
-    });
+    jobboard.getStatusify().add('Update opportunity', tx.id);
+    $('.btn-opp-status').removeClass('btn-loading');
   }
 
   static async getAll(): Promise<Opportunity[]> {
