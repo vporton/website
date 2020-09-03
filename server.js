@@ -7,6 +7,10 @@ app.get('/', (_, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html')); 
 });
 
+app.get('/index.html', (_, res) => {
+  res.redirect('/');
+});
+
 app.get('/create.html', (_, res) => {
   res.redirect('/create');
 });
