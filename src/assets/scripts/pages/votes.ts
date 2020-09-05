@@ -110,10 +110,6 @@ export default class PageVotes {
 
       switch (voteType) {
         case 'mint':
-          $('.vote-recipient, .vote-qty').show();
-          $('.vote-fields, .vote-lock-length').hide();
-          break;
-        case 'mintLocked':
           $('.vote-recipient, .vote-qty, .vote-lock-length').show();
           $('.vote-fields').hide();
           break;
@@ -188,7 +184,9 @@ export default class PageVotes {
       const length = +$('#vote-lock-length').val().toString().trim();
       const state = await app.getCommunity().getState();
 
-      if(isNaN(length) || !Number.isInteger(length) || length < state.settings.get('lockMinLength') || length > state.settings.get('lockMaxLength')) {
+      if(isNaN(length) ||
+         !Number.isInteger(length) ||
+         (length < state.settings.get('lockMinLength') || length > state.settings.get('lockMaxLength')) && length != 0) {
         $('#vote-lock-length').addClass('is-invalid');
       } else {
         $('#vote-lock-length').removeClass('is-invalid');
@@ -231,7 +229,7 @@ export default class PageVotes {
         type: voteType
       };
 
-      if(voteType === 'mint' || voteType === 'mintLocked') {
+      if(voteType === 'mint') {
         if(!await Utils.isArTx(recipient)) {
           $('#vote-recipient').addClass('is-invalid');
           return;
@@ -244,11 +242,13 @@ export default class PageVotes {
         voteParams['recipient'] = recipient;
         voteParams['qty'] = qty;
 
-        if(voteType === 'mintLocked') {
+        // If a lock length was specified, mint locked tokens.
+        if(length > 0) {
           if(isNaN(length) || !Number.isInteger(length) || length < state.settings.get('lockMinLength') || length > state.settings.get('lockMaxLength')) {
             $('#vote-lock-length').addClass('is-invalid');
             return;
           }
+          voteParams['type'] = 'mintLocked';
           voteParams['lockLength'] = length;
         }
       } else if(voteType === 'burnVault') {

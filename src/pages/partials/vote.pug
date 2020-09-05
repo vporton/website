@@ -16,12 +16,6 @@
               | Mint
 
           label.form-selectgroup-item
-            input.form-selectgroup-input(type="radio", name="voteType", value="mintLocked")
-            span.form-selectgroup-label
-              i.icon.mr-1(data-feather="lock") 
-              | Mint Locked
-
-          label.form-selectgroup-item
             input.form-selectgroup-input(type="radio", name="voteType", value="burnVault")
             span.form-selectgroup-label
               i.icon.mr-1(data-feather="delete")
@@ -52,10 +46,10 @@
       .vote-lock-length.mb-3(style="display: none")
         .form-label Lock length in blocks
         .input-group
-          input#vote-lock-length.input-max-lock.input-number.form-control(type="text")
+          input#vote-lock-length.input-max-lock.input-number.form-control(type="text", value="0")
           a.btn-max-lock.btn.btn-success(href="#") MAX
 
-        small.form-hint Minimum length is #[span.min-lock-length.strong] and maximum is #[span.max-lock-length.strong] blocks.
+        small.form-hint Minimum length is #[span.min-lock-length.strong] and maximum is #[span.max-lock-length.strong] blocks. If 0 is specified, there will be no lock.
         
       .vote-fields.vote-burn-vault.mb-3(style="display: none")
         label.form-label Target
