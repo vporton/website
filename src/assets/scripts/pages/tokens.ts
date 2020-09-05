@@ -106,7 +106,6 @@ export default class PageTokens {
             <div data-addy="${holder.address}" class="dropdown-menu dropdown-menu-right">
               <a class="transfer-user dropdown-item" href="#">Transfer</a>
               <a class="mint-user dropdown-item" href="#">Mint</a>
-              <a class="mint-locked-user dropdown-item" href="#">Mint Locked</a>
               <a class="burn-vault-user dropdown-item" href="#">Burn</a>
             </div>
           </span>
