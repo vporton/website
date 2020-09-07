@@ -6,7 +6,7 @@
     "start": "node server.js",
     "dev": "parcel src/*.pug",
     "build": "parcel build src/*.pug --public-url ./ --no-source-maps",
-    "test": "pr-log 1.0.9"
+    "test": "pr-log 1.0.9 --sloppy"
   },
   "license": "MIT",
   "repository": {
