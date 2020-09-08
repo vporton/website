@@ -1,3 +1,6 @@
+import { ModuleThread } from "threads";
+import { OpportunitiesWorker } from "../workers/opportunities";
+
 export interface OpportunityCommunityInterface {
   id: string;
   name: string;

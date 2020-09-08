@@ -35,7 +35,6 @@ export default class PageJob {
 
   async syncPageState() {
     await this.opportunity.update();
-    console.log(this.opportunity.status);
 
     if(await jobboard.getAccount().isLoggedIn() && this.opportunity.author === await jobboard.getAccount().getAddress()) {
       $('.is-owner').show();

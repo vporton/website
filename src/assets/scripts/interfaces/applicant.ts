@@ -4,4 +4,5 @@ export default interface ApplicantInterface {
   address: string;
   avatar: string;
   message: string;
+  oppId: string;
 }
