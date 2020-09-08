@@ -248,6 +248,8 @@ export default class Opportunity implements OpportunityInterface {
       opps[i].nbApplicants = appCount || 0;
     }
 
+    opps.sort((a, b) => b.timestamp - a.timestamp);
+
     return opps;
   }
 
