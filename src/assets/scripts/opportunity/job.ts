@@ -35,7 +35,6 @@ export default class PageJob {
 
   async syncPageState() {
     await this.opportunity.update();
-    console.log(this.opportunity.status);
 
     if(await jobboard.getAccount().isLoggedIn() && this.opportunity.author === await jobboard.getAccount().getAddress()) {
       $('.is-owner').show();
@@ -165,21 +164,6 @@ export default class PageJob {
 
       $('#modal-apply').modal('show');
     });
-
-    // $('#apply-twitter').on('input', e => {
-    //   if($(e.target).val().toString().includes('/')) {
-    //     $(e.target).addClass('is-invalid');
-    //   } else {
-    //     $(e.target).removeClass('is-invalid');
-    //   }
-    // });
-    // $('#apply-github').on('input', e => {
-    //   if(!$(e.target).val().toString().startsWith('https://github.com/')) {
-    //     $(e.target).addClass('is-invalid');
-    //   } else {
-    //     $(e.target).removeClass('is-invalid');
-    //   }
-    // });
 
     $('.do-apply').on('click', async e => {
       e.preventDefault();

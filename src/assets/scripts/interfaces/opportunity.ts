@@ -1,3 +1,6 @@
+import { ModuleThread } from "threads";
+import { OpportunitiesWorker } from "../workers/opportunities";
+
 export interface OpportunityCommunityInterface {
   id: string;
   name: string;
@@ -23,6 +26,6 @@ export default interface OpportunityInterface {
 export type OpportunityType = 'Bug' | 'Feature' | 'Improvement' | 'Security' | 'Documentation' | 'Design' | 'Code review' | 'Other';
 export type OpportunityExpLevel = 'Beginner' | 'Intermediate' | 'Advanced';
 export type OpportunityCommitment = 'Hours' | 'Days' | 'Weeks' | 'Months';
-export type OpportunityProjectType = 'Traditional' | 'Contest' | 'Cooperative';
+export type OpportunityProjectType = 'Traditional' | 'Bounty' | 'Contest' | 'Cooperative'; // Traditional is deprecated
 export type OpportunityPermission = 'Permission' | 'Permissionless';
 export type OpportunityStatus = 'Active' | 'In progress' | 'Finished' | 'Closed';

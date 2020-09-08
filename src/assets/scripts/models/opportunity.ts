@@ -3,9 +3,11 @@ import Utils from "../utils/utils";
 import { GQLTransactionsResultInterface, GQLEdgeInterface, GQLNodeInterface } from "../interfaces/gqlResult";
 import Arweave from "arweave";
 import Transaction from "arweave/node/lib/transaction";
-import { JWKInterface } from "arweave/node/lib/wallet";
 import jobboard from "../opportunity/jobboard";
 import Toast from "../utils/toast";
+import { OpportunitiesWorker } from "../workers/opportunities";
+import { ModuleThread, spawn, Pool } from "threads";
+import Applicant from "./applicant";
 
 export default class Opportunity implements OpportunityInterface {
   id?: string;
@@ -23,6 +25,7 @@ export default class Opportunity implements OpportunityInterface {
   status: OpportunityStatus;
   updateTx: Transaction;
   timestamp: number;
+  nbApplicants: number;
   
   constructor(params: OpportunityInterface) {
     if(Object.keys(params).length) {
@@ -90,7 +93,6 @@ export default class Opportunity implements OpportunityInterface {
       const res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
       txs = res.data.data.transactions;
     } catch (err) {
-      console.log(query);
       console.log(err);
       const toast = new Toast(jobboard.getArweave());
       toast.show('Error', 'Error connecting to the network.', 'error', 5000);
@@ -105,6 +107,7 @@ export default class Opportunity implements OpportunityInterface {
       if(txs.edges[0].node.tags[i].name === 'status') {
         // @ts-ignore
         this.status = txs.edges[0].node.tags[i].value;
+        break;
       }
     }
   }
@@ -166,6 +169,7 @@ export default class Opportunity implements OpportunityInterface {
         query: `
         query{
           transactions(
+            first: 100
             tags:[{
               name: "App-Name",
               values: "CommunityXYZ"
@@ -221,17 +225,142 @@ export default class Opportunity implements OpportunityInterface {
       hasNextPage = transactions.pageInfo.hasNextPage;
     }
 
-    const opps: Opportunity[] = [];
+    const pool = Pool(() => spawn<OpportunitiesWorker>(new Worker('../workers/opportunities.ts')), 8);
+    let opps: Opportunity[] = [];
     for(let i = 0, j = edges.length; i < j; i++) {
-      const opp = await Opportunity.nodeToOpportunity(edges[i].node);
-      await opp.update();
-      if(opp.status !== 'Active' && opp.status !== 'In progress') {
-        continue;
-      }
-      opps.push(opp);
+      pool.queue(async oppsWorker => {
+        const res = await oppsWorker.nodeToOpportunity(edges[i].node);
+        const opp = new Opportunity(res);
+        opps.push(opp);
+      });
     }
 
+    await pool.completed();
+    await pool.terminate();
+
+    // Get updates
+    opps = await this.updateAll(opps);
+
+    // get all applicants counter
+    const allApplicants = await Applicant.getAllCount(opps.map(opp => opp.id));
+    for(let i = 0, j = opps.length; i < j; i++) {
+      const appCount = allApplicants.get(opps[i].id);
+      opps[i].nbApplicants = appCount || 0;
+    }
+
+    opps.sort((a, b) => b.timestamp - a.timestamp);
+
     return opps;
+  }
+
+  static async updateAll(opps: Opportunity[]) {
+    let hasNextPage = true;
+    let edges: GQLEdgeInterface[] = [];
+    let cursor: string = '';
+
+    const ids = JSON.stringify(opps.map(opp => opp.id));
+    while(hasNextPage) {
+      const query = {
+        query: `
+        query{
+          transactions(
+            first: 100
+            tags:[
+              {
+                name: "App-Name",
+                values: "CommunityXYZ"
+              },
+              {
+                name: "Action",
+                values: "updateOpportunity"
+              },
+              {
+                name: "Opportunity-ID",
+                values: ${ids}
+              }]
+            after: "${cursor}"
+          ){
+            pageInfo {
+              hasNextPage
+            }
+            edges {
+              cursor
+              node {
+                id
+                owner {
+                  address
+                },
+                tags {
+                  name,
+                  value
+                }
+                block {
+                  timestamp
+                  height
+                }
+              }
+            }
+          }
+        }
+        `
+      };
+  
+      let res: any;
+      try {
+        res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
+      } catch (err) {
+        console.log(err);
+        
+        const toast = new Toast(jobboard.getArweave());
+        toast.show('Error', 'Error connecting to the network.', 'error', 5000);
+        return;
+      }
+  
+      const transactions: GQLTransactionsResultInterface = res.data.data.transactions;
+      if(transactions.edges) {
+        edges = edges.concat(transactions.edges);
+        cursor = transactions.edges[transactions.edges.length - 1].cursor;
+      }
+
+      hasNextPage = transactions.pageInfo.hasNextPage;
+    }
+
+    const updates: Map<string, GQLNodeInterface> = new Map();
+    for(let i = 0, j = edges.length; i < j; i++) {
+      for(let j = 0; j < edges[i].node.tags.length; j++) {
+        const tag = edges[i].node.tags[j];
+
+        if(tag.name === 'Opportunity-ID') {
+          if(updates.has(tag.value)) {
+            break;
+          }
+          updates.set(tag.value, edges[i].node);
+          break;
+        }
+      }
+    }
+
+    const tmpOpps: Opportunity[] = [];
+    for(let i = 0, j = opps.length; i < j; i++) {
+      const opp = updates.get(opps[i].id);
+      if(opp) {
+        for(let k = 0; k < opp.tags.length; k++) {
+          if(opp.tags[k].name === 'status') {
+            // @ts-ignore
+            opps[i].status = opp.tags[k].value;
+            break;
+          }
+        }
+
+        if(opps[i].status !== 'Closed' && opps[i].status !== 'Finished') {
+          tmpOpps.push(opps[i]);
+        }
+      } else {
+        tmpOpps.push(opps[i]);
+      }
+    }
+
+    return tmpOpps;
   }
 
   static async getOpportunity(opportunityId: string, arweave: Arweave): Promise<Opportunity> {
@@ -274,38 +403,8 @@ export default class Opportunity implements OpportunityInterface {
       return;
     }
 
-    return this.nodeToOpportunity(tx);
+    const oppsWorker = await spawn<OpportunitiesWorker>(new Worker('../workers/opportunities.ts'));
+    const res = await oppsWorker.nodeToOpportunity(tx);
+    return new Opportunity(res);
   }
-
-  static async nodeToOpportunity(node: GQLNodeInterface): Promise<Opportunity> {
-    // Default object
-    const objParams: any = {};
-    for(let i = 0, j = node.tags.length; i < j; i++) {
-      objParams[Utils.stripTags(node.tags[i].name)] = Utils.stripTags(node.tags[i].value);
-    }
-    
-    const opp = new Opportunity({
-      id: node.id,
-      title: objParams.title,
-      community: {
-        id: objParams.communityId,
-        name: objParams.communityName,
-        ticker: objParams.communityTicker
-      },
-      description: '',
-      payout: objParams.payout,
-      lockLength: +objParams.lockLength || 0,
-      type: objParams.jobType,
-      experience: objParams.expLevel,
-      commitment: objParams.commitment,
-      project: objParams.project,
-      permission: objParams.permission,
-      author: node.owner.address,
-      timestamp: (node.block && node.block.timestamp? node.block.timestamp * 1000 : (new Date()).getTime())
-    });
-
-    await opp.update();
-    return opp;
-  }
-
 }

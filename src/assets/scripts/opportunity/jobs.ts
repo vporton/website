@@ -66,8 +66,6 @@ export default class PageJobs {
       const $expTotal = $('.exp-level').find('[data-total="All"]');
       $expTotal.text((+$expTotal.text()) + 1);
 
-      const applicants = await Applicant.getAll(opp.id, true);
-
       html += `
       <a data-author="${opp.author}" class="jobs-job list-item" href="#${opp.id}">
         <span class="avatar"></span>
@@ -79,7 +77,7 @@ export default class PageJobs {
               <li class="list-inline-item">${opp.type}</li>
               <li class="list-inline-item">${opp.experience}</li>
               <li class="list-inline-item">${moment(opp.timestamp).fromNow()}</li>
-              <li class="list-inline-item">${applicants}&nbsp;${applicants === 1? 'applicant': 'applicants'}</li>
+              <li class="list-inline-item">${opp.nbApplicants}&nbsp;${opp.nbApplicants === 1? 'applicant': 'applicants'}</li>
             </ul>
           </small>
         </div>

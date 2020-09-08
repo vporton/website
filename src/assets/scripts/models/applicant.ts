@@ -12,6 +12,7 @@ export default class Applicant implements ApplicantInterface {
   address: string;
   avatar: string;
   message: string;
+  oppId: string;
 
   constructor(params: ApplicantInterface) {
     if(Object.keys(params).length) {
@@ -22,7 +23,74 @@ export default class Applicant implements ApplicantInterface {
     }
   }
 
-  static async getAll(oppId: string, onlyCount = false): Promise<number|Applicant[]> {
+  static async getAllCount(oppIds: string[]): Promise<Map<string, number>> {
+    const query = {
+      query: `
+      query{
+        transactions(tags:[{
+          name: "App-Name",
+          values: "CommunityXYZ"
+        },
+        {
+          name: "Action",
+          values: "Application"
+        },
+        {
+          name: "Opportunity-ID",
+          values: ${JSON.stringify(oppIds)}
+        }]){
+          pageInfo {
+            hasNextPage
+          }
+          edges {
+            cursor
+            node {
+              id
+              owner {
+                address
+              },
+              tags {
+                name,
+                value
+              }
+              block {
+                timestamp
+                height
+              }
+            }
+          }
+        }
+      }
+      `
+    };
+
+    let txs: GQLTransactionsResultInterface;
+    try {
+      const res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
+      txs = res.data.data.transactions;
+    } catch (err) {
+      console.log(err);
+      const toast = new Toast(jobboard.getArweave());
+      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
+      return;
+    }
+
+    const res: Map<string, number> = new Map();
+    for(let i = 0, j = txs.edges.length; i < j; i++) {
+      const applicant = await this.nodeToApplicant(txs.edges[i].node);
+
+      let appCount = res.get(applicant.oppId);
+      if(appCount) {
+        res.set(applicant.oppId, ++appCount);
+      } else {
+        res.set(applicant.oppId, 1);
+      }
+    }
+
+    return res;
+  }
+
+  static async getAll(oppId: string): Promise<number|Applicant[]> {
     const query = {
       query: `
       query{
@@ -72,10 +140,6 @@ export default class Applicant implements ApplicantInterface {
       const toast = new Toast(jobboard.getArweave());
       toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
-    }
-
-    if(onlyCount) {
-      return txs.edges.length;
     }
 
     const applicants: Applicant[] = [];
@@ -142,7 +206,8 @@ export default class Applicant implements ApplicantInterface {
       address: node.owner.address,
       username: user.name || node.owner.address,
       avatar: user.avatarDataUri || getIdenticon(node.owner.address),
-      message: Utils.stripHTML(message)
+      message: Utils.stripHTML(message),
+      oppId: objParams['Opportunity-ID']
     });
 
     return applicant;
