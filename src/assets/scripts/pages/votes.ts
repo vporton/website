@@ -35,7 +35,6 @@ export default class PageVotes {
     $('.max-lock-length').text(state.settings.get('lockMaxLength'));
 
     $('.proposals').html('');
-    console.log(state);
     if(state.votes.length) {
       this.votes = [];
       for(let i = 0, j = state.votes.length; i < j; i++) {
