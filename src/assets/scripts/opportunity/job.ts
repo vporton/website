@@ -253,6 +253,7 @@ export default class PageJob {
       const res = await applicant.update({approved: 'true'});
       if(res && updateOpp) {
         await this.opportunity.update({status: 'In progress'});
+        await this.syncPageState();
       }
 
       $(e.target).removeClass('btn-loading');
