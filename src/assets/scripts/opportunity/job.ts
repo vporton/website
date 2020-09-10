@@ -99,18 +99,19 @@ export default class PageJob {
     let html = '';
     for(let i = 0, j = this.opportunity.applicants.length; i < j; i++) {
       const applicant = this.opportunity.applicants[i];
+      const authorApp = await applicant.author.getDetails();
 
       html += `
         <div class="card" data-applicant-id="${applicant.id}">
           <div class="card-body">
             <div class="row row-sm">
               <div class="col-auto">
-                <span class="avatar avatar-md" style="background-image: url(${applicant.avatar})"></span>
+                <span class="avatar avatar-md" style="background-image: url(${authorApp.avatar})"></span>
               </div>
               <div class="col">
-                <h4 class="card-title m-0 d-inline" data-toggle="tooltip" data-original-title="${applicant.address}">${applicant.username}</h4>
+                <h4 class="card-title m-0 d-inline" data-toggle="tooltip" data-original-title="${authorApp.address}">${authorApp.name}</h4>
                 <div class="mb-2">
-                  <a class="btn btn-sm btn-light mr-2" href="https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${applicant.address}" target="_blank">Contact on WeveMail</a>
+                  <a class="btn btn-sm btn-light mr-2" href="https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${authorApp.address}" target="_blank">Contact on WeveMail</a>
                   <a class="btn-applicant-approve btn btn-sm btn-outline-success mr-2" href="#!">Approve applicant</a>
                 </div>
                 <div class="small mt-1">${await applicant.getMessage()}</div>

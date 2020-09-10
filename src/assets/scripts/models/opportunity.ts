@@ -419,6 +419,9 @@ export default class Opportunity implements OpportunityInterface {
     const oppsWorker = await spawn<OpportunitiesWorker>(new Worker('../workers/opportunities.ts'));
     const res = await oppsWorker.nodeToOpportunity(tx);
     const opp = new Opportunity(res);
+    opp.author = new Author(tx.owner.address, tx.owner.address, null);
+
+    await opp.update();
 
     // get all applicants
     const allApplicants = await Applicant.getAll([opp.id]);

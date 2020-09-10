@@ -6,12 +6,11 @@ import jobboard from "../opportunity/jobboard";
 import { get, getIdenticon } from "../utils/arweaveid";
 import Toast from "../utils/toast";
 import arweave from "../libs/arweave";
+import Author from "./author";
 
 export default class Applicant implements ApplicantInterface {
   id: string;
-  username: string;
-  address: string;
-  avatar: string;
+  author: Author;
   message: string;
   oppId: string;
 
@@ -201,18 +200,12 @@ export default class Applicant implements ApplicantInterface {
       objParams[Utils.stripTags(node.tags[i].name)] = Utils.stripTags(node.tags[i].value);
     }
 
-    const user = await get(node.owner.address);
-    const message = (await arweave.api.get(`/${node.id}`)).data;
-    
     const applicant = new Applicant({
       id: node.id,
-      address: node.owner.address,
-      username: user.name || node.owner.address,
-      avatar: user.avatarDataUri || getIdenticon(node.owner.address),
-      message: Utils.stripHTML(message),
+      author: new Author(node.owner.address, node.owner.address, null),
+      message: null,
       oppId: objParams['Opportunity-ID']
     });
-
     return applicant;
   }
 }
