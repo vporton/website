@@ -10,6 +10,7 @@ Versions will be updated here as soon as a new one is created, by default it wil
 v1.0.9
 - Reduced load time from 30s-1m to 5s-15s
 - Updated opps structure to include applicants and authors
+- Better structure for Arweave instance
 
 v1.0.8 - https://arweave.net/kOqu-l5K2u4PKSDf2adHYot0b_9IZHmWEwvLGyVr4LU
 - GQL integration for faster interaction with transactions
