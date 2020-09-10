@@ -1,4 +1,7 @@
-import { ImmortalDB } from 'immortal-db';
+import store from 'store';
+import expirePlugin from 'store/plugins/expire';
 
-const communityDB = ImmortalDB;
+store.addPlugin(expirePlugin);
+
+const communityDB = store;
 export default communityDB;

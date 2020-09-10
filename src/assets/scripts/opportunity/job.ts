@@ -93,8 +93,6 @@ export default class PageJob {
   }
 
   private async showApplicants() {
-    console.log(this.opportunity);
-
     $('.total-applications').text(`${this.opportunity.applicants.length} ${this.opportunity.applicants.length === 1? 'applicant': 'applicants'}`);
     let html = '';
     for(let i = 0, j = this.opportunity.applicants.length; i < j; i++) {

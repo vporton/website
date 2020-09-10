@@ -1,9 +1,6 @@
 import Utils from "../utils/utils";
 import ApplicantInterface from "../interfaces/applicant";
 import { GQLNodeInterface, GQLTransactionsResultInterface } from "../interfaces/gqlResult";
-import Arweave from "arweave";
-import jobboard from "../opportunity/jobboard";
-import { get, getIdenticon } from "../utils/arweaveid";
 import Toast from "../utils/toast";
 import arweave from "../libs/arweave";
 import Author from "./author";
@@ -91,106 +88,6 @@ export default class Applicant implements ApplicantInterface {
     }
 
     return res;
-  }
-
-  static async getAllByOppId(oppId: string): Promise<number|Applicant[]> {
-    const query = {
-      query: `
-      query{
-        transactions(tags:[{
-          name: "App-Name",
-          values: "CommunityXYZ"
-        },
-        {
-          name: "Action",
-          values: "Application"
-        },
-        {
-          name: "Opportunity-ID",
-          values: "${oppId}"
-        }]){
-          pageInfo {
-            hasNextPage
-          }
-          edges {
-            cursor
-            node {
-              id
-              owner {
-                address
-              },
-              tags {
-                name,
-                value
-              }
-              block {
-                timestamp
-                height
-              }
-            }
-          }
-        }
-      }
-      `
-    };
-
-    let txs: GQLTransactionsResultInterface;
-    try {
-      const res = await arweave.api.post('/graphql', query);
-      txs = res.data.data.transactions;
-    } catch (err) {
-      console.log(err);
-      const toast = new Toast();
-      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
-      return;
-    }
-
-    const applicants: Applicant[] = [];
-    for(let i = 0, j = txs.edges.length; i < j; i++) {
-      const applicant = await this.nodeToApplicant(txs.edges[i].node);
-      applicants.push(applicant);
-    }
-
-    return applicants;
-  }
-
-  static async getApplicant(opportunityId: string, arweave: Arweave): Promise<Applicant> {
-    const query = {
-      query: `
-      query{
-        transaction(
-          id: "${opportunityId}"
-        ){
-          id
-          owner {
-            address
-          },
-          block {
-            timestamp
-            height
-          }
-        }
-      }
-      `
-    };
-
-    let tx: GQLNodeInterface;
-    try {
-      const res = await arweave.api.post('/graphql', query);
-      tx = res.data.data.transaction;
-    } catch (err) {
-      console.log(err);
-      
-      const toast = new Toast();
-      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
-      return;
-    }
-
-    if(!tx) {
-      return;
-    }
-
-    return this.nodeToApplicant(tx);
   }
 
   static async nodeToApplicant(node: GQLNodeInterface): Promise<Applicant> {

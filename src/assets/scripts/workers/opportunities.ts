@@ -37,6 +37,7 @@ const worker = {
       commitment: objParams.commitment,
       project: objParams.project,
       permission: objParams.permission,
+      owner: node.owner.address,
       author: null,
       timestamp: (node.block && node.block.timestamp? node.block.timestamp * 1000 : (new Date()).getTime()),
       applicants: []

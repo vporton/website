@@ -18,15 +18,17 @@ export default class Author {
   }
 
   async getDetails(): Promise<AuthorInterface> {
+    // caching but for only 30 mins
     if(!this._avatar) {
-      let res = await communityDB.get(this._address);
+      const res = communityDB.get(this._address);
       let author: any;
 
       if(res) {
-        author = JSON.parse(res);
+        author = res;
       } else {
         author = await get(this._address);
-        await communityDB.set(this._address, JSON.stringify(author));
+        // @ts-ignore
+        communityDB.set(this._address, author, (new Date().getTime() + 30 * 60 * 1000));
       }
       
       this._name = author.name;

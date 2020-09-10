@@ -9,6 +9,7 @@ import { spawn, Pool } from "threads";
 import Applicant from "./applicant";
 import arweave from "../libs/arweave";
 import Author from "./author";
+import communityDB from "../libs/db";
 
 export default class Opportunity implements OpportunityInterface {
   id?: string;
@@ -22,6 +23,7 @@ export default class Opportunity implements OpportunityInterface {
   commitment: OpportunityCommitment;
   project: OpportunityProjectType;
   permission: OpportunityPermission;
+  owner: string;
   author: Author;
   status: OpportunityStatus;
   updateTx: Transaction;
@@ -59,7 +61,7 @@ export default class Opportunity implements OpportunityInterface {
       query{
         transactions(
           first: 1
-          owners: "${this.author}"
+          owners: "${this.author.address}"
           tags:[
           {
             name: "App-Name",
@@ -239,6 +241,8 @@ export default class Opportunity implements OpportunityInterface {
     for(let i = 0, j = edges.length; i < j; i++) {
       pool.queue(async oppsWorker => {
         const res = await oppsWorker.nodeToOpportunity(edges[i].node);
+        communityDB.set(res.id, res);
+
         const opp = new Opportunity(res);
 
         opp.author = new Author(edges[i].node.owner.address, edges[i].node.owner.address, null);
@@ -377,51 +381,53 @@ export default class Opportunity implements OpportunityInterface {
   }
 
   static async getOpportunity(opportunityId: string): Promise<Opportunity> {
-    const query = {
-      query: `
-      query{
-        transaction(
-          id: "${opportunityId}"
-        ){
-          id
-          owner {
-            address
-          },
-          tags {
-            name,
-            value
-          }
-          block {
-            timestamp
-            height
+    let res: OpportunityInterface = communityDB.get(opportunityId);
+    if(!res) {
+      const query = {
+        query: `
+        query{
+          transaction(
+            id: "${opportunityId}"
+          ){
+            id
+            owner {
+              address
+            },
+            tags {
+              name,
+              value
+            }
+            block {
+              timestamp
+              height
+            }
           }
         }
+        `
+      };
+
+      let tx: GQLNodeInterface;
+      try {
+        const res = await arweave.api.post('/graphql', query);
+        tx = res.data.data.transaction;
+      } catch (err) {
+        console.log(err);
+        
+        const toast = new Toast();
+        toast.show('Error', 'Error connecting to the network.', 'error', 5000);
+        return;
       }
-      `
-    };
+  
+      if(!tx) {
+        return;
+      }
 
-    let tx: GQLNodeInterface;
-    try {
-      const res = await arweave.api.post('/graphql', query);
-      tx = res.data.data.transaction;
-    } catch (err) {
-      console.log(err);
-      
-      const toast = new Toast();
-      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
-      return;
+      const oppsWorker = await spawn<OpportunitiesWorker>(new Worker('../workers/opportunities.ts'));
+      res = await oppsWorker.nodeToOpportunity(tx);
+      communityDB.set(opportunityId, res);
     }
-
-    if(!tx) {
-      return;
-    }
-
-    const oppsWorker = await spawn<OpportunitiesWorker>(new Worker('../workers/opportunities.ts'));
-    const res = await oppsWorker.nodeToOpportunity(tx);
     const opp = new Opportunity(res);
-    opp.author = new Author(tx.owner.address, tx.owner.address, null);
-
-    await opp.update();
+    opp.author = new Author(res.owner, res.owner, null);
 
     // get all applicants
     const allApplicants = await Applicant.getAll([opp.id]);

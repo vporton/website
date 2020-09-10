@@ -19,6 +19,7 @@ export default interface OpportunityInterface {
   commitment: OpportunityCommitment;
   project: OpportunityProjectType;
   permission: OpportunityPermission;
+  owner: string;
   author: Author;
   timestamp: number;
   applicants: Applicant[];
