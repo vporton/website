@@ -1,5 +1,5 @@
 import Applicant from "../models/applicant";
-import AuthorInterface from './author';
+import Author from "../models/author";
 
 export interface OpportunityCommunityInterface {
   id: string;
@@ -19,7 +19,7 @@ export default interface OpportunityInterface {
   commitment: OpportunityCommitment;
   project: OpportunityProjectType;
   permission: OpportunityPermission;
-  author: AuthorInterface;
+  author: Author;
   timestamp: number;
   applicants: Applicant[];
 }

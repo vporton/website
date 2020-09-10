@@ -7,9 +7,8 @@ import Toast from "../utils/toast";
 import { OpportunitiesWorker } from "../workers/opportunities";
 import { spawn, Pool } from "threads";
 import Applicant from "./applicant";
-import AuthorInterface from "../interfaces/author";
 import arweave from "../libs/arweave";
-import { getIdenticon, get } from "../utils/arweaveid";
+import Author from "./author";
 
 export default class Opportunity implements OpportunityInterface {
   id?: string;
@@ -23,7 +22,7 @@ export default class Opportunity implements OpportunityInterface {
   commitment: OpportunityCommitment;
   project: OpportunityProjectType;
   permission: OpportunityPermission;
-  author: AuthorInterface;
+  author: Author;
   status: OpportunityStatus;
   updateTx: Transaction;
   timestamp: number;
@@ -48,17 +47,6 @@ export default class Opportunity implements OpportunityInterface {
     }
 
     return this.description;
-  }
-
-  async getAuthorDetails(): Promise<AuthorInterface> {
-    if(!this.author.avatar) {
-      console.log(this.author.address);
-      const author = await get(this.author.address);
-      this.author.name = author.name;
-      this.author.avatar = author.avatarDataUri || getIdenticon(this.author.address);
-    }
-
-    return this.author;
   }
 
   async update(params?: {[key: string]: string}) {
@@ -252,6 +240,8 @@ export default class Opportunity implements OpportunityInterface {
       pool.queue(async oppsWorker => {
         const res = await oppsWorker.nodeToOpportunity(edges[i].node);
         const opp = new Opportunity(res);
+
+        opp.author = new Author(edges[i].node.owner.address, edges[i].node.owner.address, null);
         opps.push(opp);
       });
     }

@@ -62,7 +62,7 @@ export default class PageJob {
   private async show() {
     await this.syncPageState();
 
-    this.opportunity.getAuthorDetails().then((author) => {
+    this.opportunity.author.getDetails().then((author) => {
       $('.creator-addy').attr('data-original-title', author.address).text(author.name || author.address);
     $('[data-toggle="tooltip"]').tooltip();
     $('.creator-avatar').css('background-image', `url(${author.avatar})`);

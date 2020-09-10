@@ -90,11 +90,8 @@ export default class PageJobs {
       const oppId = $job.attr('data-opp-id');
 
       jobboard.getOpportunities().get(oppId).then(async opp => {
-        if(!opp.author.avatar) {
-          await opp.getAuthorDetails();
-        }
-  
-        $job.find('.avatar').attr('style', `background-image: url(${opp.author.avatar})`);
+        const author = await opp.author.getDetails();
+        $job.find('.avatar').attr('style', `background-image: url(${author.avatar})`);
       });
     });
 
