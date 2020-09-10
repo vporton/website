@@ -23,7 +23,16 @@ export default class Applicant implements ApplicantInterface {
     }
   }
 
-  static async getAllCount(oppIds: string[]): Promise<Map<string, number>> {
+  async getMessage(arweave: Arweave): Promise<string> {
+    if(!this.message) {
+      const res = await arweave.api.get(`/${this.id}`);
+      this.message = Utils.escapeScriptStyles(res.data);
+    }
+
+    return this.message;
+  }
+
+  static async getAll(oppIds: string[]): Promise<Applicant[]> {
     const query = {
       query: `
       query{
@@ -75,22 +84,16 @@ export default class Applicant implements ApplicantInterface {
       return;
     }
 
-    const res: Map<string, number> = new Map();
+    const res: Applicant[] = [];
     for(let i = 0, j = txs.edges.length; i < j; i++) {
       const applicant = await this.nodeToApplicant(txs.edges[i].node);
-
-      let appCount = res.get(applicant.oppId);
-      if(appCount) {
-        res.set(applicant.oppId, ++appCount);
-      } else {
-        res.set(applicant.oppId, 1);
-      }
+      res.push(applicant);
     }
 
     return res;
   }
 
-  static async getAll(oppId: string): Promise<number|Applicant[]> {
+  static async getAllByOppId(oppId: string): Promise<number|Applicant[]> {
     const query = {
       query: `
       query{

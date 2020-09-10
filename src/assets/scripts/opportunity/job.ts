@@ -1,23 +1,18 @@
 import jobboard from "./jobboard";
-import Opportunity from "../models/opportunity";
 import Utils from "../utils/utils";
-import Applicant from "../models/applicant";
 import moment from "moment";
 import { getIdenticon, get } from "../utils/arweaveid";
 import Toast from "../utils/toast";
+import Opportunity from "../models/opportunity";
 
 export default class PageJob {
   private opportunity: Opportunity;
-
-  getOpportunity(): Opportunity {
-    return this.opportunity;
-  }
 
   async open() {
     $('.jobboard-job').show();
 
     const oppId = jobboard.getHashes()[0];
-    this.opportunity = await Opportunity.getOpportunity(oppId, jobboard.getArweave());
+    this.opportunity = await jobboard.getOpportunities().get(oppId, true);
 
     if(!this.opportunity) {
       window.location.hash = '';
@@ -36,7 +31,7 @@ export default class PageJob {
   async syncPageState() {
     await this.opportunity.update();
 
-    if(await jobboard.getAccount().isLoggedIn() && this.opportunity.author === await jobboard.getAccount().getAddress()) {
+    if(await jobboard.getAccount().isLoggedIn() && this.opportunity.author.address === await jobboard.getAccount().getAddress()) {
       $('.is-owner').show();
       $('.is-not-owner').hide();
       $('.btn-opp-status').removeClass('disabled');
@@ -66,6 +61,12 @@ export default class PageJob {
   private async show() {
     await this.syncPageState();
 
+    this.opportunity.getAuthorDetails(jobboard.getArweave()).then((author) => {
+      $('.creator-addy').attr('data-original-title', author.address).text(author.name || author.address);
+    $('[data-toggle="tooltip"]').tooltip();
+    $('.creator-avatar').css('background-image', `url(${author.avatar})`);
+    });
+
     const lock = this.opportunity.lockLength? `Locked: ${Utils.formatMoney(this.opportunity.lockLength, 0)} blocks` : '';
 
     $('.opp-title').text(this.opportunity.title);
@@ -84,29 +85,20 @@ export default class PageJob {
 
     this.showApplicants();
 
-    get(this.opportunity.author).then(author => {
-      $('.creator-addy').attr('data-original-title', this.opportunity.author).text(author.name || this.opportunity.author);
-      $('[data-toggle="tooltip"]').tooltip();
-
-      const avatar = author.avatarDataUri || getIdenticon(this.opportunity.author);
-      $('.creator-avatar').css('background-image', `url(${avatar})`);
-    });
-
-    jobboard.getArweave().api.get(`/${this.opportunity.id}`).then(res => {
-      const $editor = $('<div class="ql-editor"></div>').html(Utils.escapeScriptStyles(res.data));
+    this.opportunity.getDescription(jobboard.getArweave()).then((desc: string) => {
+      const $editor = $('<div class="ql-editor"></div>').html(desc);
       $('.opp-description').html('').append($editor).parents('.dimmer').removeClass('active');
     });
   }
 
   private async showApplicants() {
-    //$('.opp-applicants').html('').parents('.dimmer').addClass('active');
+    console.log(this.opportunity);
 
-    // @ts-ignore
-    const applicants: Applicant[] = await Applicant.getAll(this.opportunity.id);
-    $('.total-applications').text(`${applicants.length} ${applicants.length === 1? 'applicant': 'applicants'}`);
+    $('.total-applications').text(`${this.opportunity.applicants.length} ${this.opportunity.applicants.length === 1? 'applicant': 'applicants'}`);
     let html = '';
-    for(let i = 0, j = applicants.length; i < j; i++) {
-      const applicant = applicants[i];
+    for(let i = 0, j = this.opportunity.applicants.length; i < j; i++) {
+      const applicant = this.opportunity.applicants[i];
+
       html += `
         <div class="card" data-applicant-id="${applicant.id}">
           <div class="card-body">
@@ -118,17 +110,18 @@ export default class PageJob {
                 <h4 class="card-title m-0 d-inline" data-toggle="tooltip" data-original-title="${applicant.address}">${applicant.username}</h4>
                 <div class="mb-2">
                   <a class="btn btn-sm btn-light mr-2" href="https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${applicant.address}" target="_blank">Contact on WeveMail</a>
+                  <a class="btn-applicant-approve btn btn-sm btn-outline-success mr-2" href="#!">Approve applicant</a>
                 </div>
-                <div class="small mt-1">${applicant.message}</div>
+                <div class="small mt-1">${await applicant.getMessage(jobboard.getArweave())}</div>
               </div>
             </div>
           </div>
         </div>`;
     }
 
-    if(!applicants.length) {
+    if(!this.opportunity.applicants.length) {
       let link = '';
-      if(this.opportunity.status !== 'Closed' && this.opportunity.status !== 'Finished') {
+      if(this.opportunity.status !== 'Closed' && this.opportunity.status !== 'Finished' && this.opportunity.author.address !== await jobboard.getAccount().getAddress()) {
         link = '<a class="btn-apply is-not-ended" href="#">Be the first to apply.</a>';
       }
 
@@ -156,7 +149,7 @@ export default class PageJob {
     $('body').on('click', '.btn-apply', async e => {
       e.preventDefault();
 
-      if(!await jobboard.getAccount().isLoggedIn() || await jobboard.getAccount().getAddress() === this.opportunity.author) {
+      if(!await jobboard.getAccount().isLoggedIn() || await jobboard.getAccount().getAddress() === this.opportunity.author.address) {
         await jobboard.getAccount().showLoginError();
         
         return;
@@ -200,6 +193,12 @@ export default class PageJob {
 
       jobboard.getStatusify().add('Application', tx.id);
       this.showApplicants();
+    });
+
+    $('body').on('click', '.btn-applicant-approve', async e => {
+      e.preventDefault();
+
+      // TODO: Select this applicant, but first check the opp to see if it's allowed more than one, and show a warning if not.
     });
   }
 

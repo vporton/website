@@ -1,5 +1,5 @@
-import { ModuleThread } from "threads";
-import { OpportunitiesWorker } from "../workers/opportunities";
+import Applicant from "../models/applicant";
+import AuthorInterface from './author';
 
 export interface OpportunityCommunityInterface {
   id: string;
@@ -19,8 +19,9 @@ export default interface OpportunityInterface {
   commitment: OpportunityCommitment;
   project: OpportunityProjectType;
   permission: OpportunityPermission;
-  author: string;
+  author: AuthorInterface;
   timestamp: number;
+  applicants: Applicant[];
 }
 
 export type OpportunityType = 'Bug' | 'Feature' | 'Improvement' | 'Security' | 'Documentation' | 'Design' | 'Code review' | 'Other';

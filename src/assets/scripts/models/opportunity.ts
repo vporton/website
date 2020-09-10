@@ -6,8 +6,10 @@ import Transaction from "arweave/node/lib/transaction";
 import jobboard from "../opportunity/jobboard";
 import Toast from "../utils/toast";
 import { OpportunitiesWorker } from "../workers/opportunities";
-import { ModuleThread, spawn, Pool } from "threads";
+import { spawn, Pool } from "threads";
 import Applicant from "./applicant";
+import AuthorInterface from "../interfaces/author";
+import { get, getIdenticon } from "arweave-id";
 
 export default class Opportunity implements OpportunityInterface {
   id?: string;
@@ -21,11 +23,11 @@ export default class Opportunity implements OpportunityInterface {
   commitment: OpportunityCommitment;
   project: OpportunityProjectType;
   permission: OpportunityPermission;
-  author: string;
+  author: AuthorInterface;
   status: OpportunityStatus;
   updateTx: Transaction;
   timestamp: number;
-  nbApplicants: number;
+  applicants: Applicant[];
   
   constructor(params: OpportunityInterface) {
     if(Object.keys(params).length) {
@@ -36,6 +38,27 @@ export default class Opportunity implements OpportunityInterface {
     }
 
     this.status = 'Active';
+    this.applicants = [];
+  }
+
+  async getDescription(arweave: Arweave): Promise<string> {
+    if(!this.description) {
+      const res = await arweave.api.get(`/${this.id}`);
+      this.description = Utils.escapeScriptStyles(res.data);
+    }
+
+    return this.description;
+  }
+
+  async getAuthorDetails(arweave: Arweave): Promise<AuthorInterface> {
+    if(!this.author.avatar) {
+      console.log(this.author.address);
+      const author = await get(this.author.address, arweave);
+      this.author.name = author.name;
+      this.author.avatar = author.avatarDataUri || getIdenticon(this.author.address);
+    }
+
+    return this.author;
   }
 
   async update(params?: {[key: string]: string}) {
@@ -124,7 +147,7 @@ export default class Opportunity implements OpportunityInterface {
     const wallet =  await jobboard.getAccount().getWallet();
 
     const toast = new Toast(arweave);
-    if(this.author !== await jobboard.getAccount().getAddress()) {
+    if(this.author.address !== await jobboard.getAccount().getAddress()) {
       toast.show('Error', 'You cannot edit this opportunity.', 'error', 5000);
       return false;
     }
@@ -241,15 +264,17 @@ export default class Opportunity implements OpportunityInterface {
     // Get updates
     opps = await this.updateAll(opps);
 
-    // get all applicants counter
-    const allApplicants = await Applicant.getAllCount(opps.map(opp => opp.id));
+    // get all applicants
+    const allApplicants = await Applicant.getAll(opps.map(opp => opp.id));
     for(let i = 0, j = opps.length; i < j; i++) {
-      const appCount = allApplicants.get(opps[i].id);
-      opps[i].nbApplicants = appCount || 0;
+      for(let k = 0, l = allApplicants.length; k < l; k++) {
+        if(opps[i].id === allApplicants[k].oppId) {
+          opps[i].applicants.push(allApplicants[k]);
+        }
+      }
     }
 
     opps.sort((a, b) => b.timestamp - a.timestamp);
-
     return opps;
   }
 
@@ -405,6 +430,16 @@ export default class Opportunity implements OpportunityInterface {
 
     const oppsWorker = await spawn<OpportunitiesWorker>(new Worker('../workers/opportunities.ts'));
     const res = await oppsWorker.nodeToOpportunity(tx);
-    return new Opportunity(res);
+    const opp = new Opportunity(res);
+
+    // get all applicants
+    const allApplicants = await Applicant.getAll([opp.id]);
+    for(let k = 0, l = allApplicants.length; k < l; k++) {
+      if(opp.id === allApplicants[k].oppId) {
+        opp.applicants.push(allApplicants[k]);
+      }
+    }
+
+    return opp;
   }
 }

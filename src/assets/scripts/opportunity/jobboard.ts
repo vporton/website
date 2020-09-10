@@ -15,6 +15,7 @@ import Transaction from "arweave/node/lib/transaction";
 import Utils from "../utils/utils";
 import Statusify from "../utils/statusify";
 import Toast from "../utils/toast";
+import Opportunities from "../models/opportunities";
 
 class JobBoard {
   private hash: string;
@@ -23,6 +24,7 @@ class JobBoard {
   private community: Community;
   private account: Account;
   private statusify: Statusify;
+  private opportunities: Opportunities;
   
   private firstCall = true;
   private fee = '';
@@ -54,6 +56,9 @@ class JobBoard {
   getFee(): String {
     return this.fee;
   }
+  getOpportunities(): Opportunities {
+    return this.opportunities;
+  }
 
   async getPageStr(): Promise<string> {
     return this.hashes[0] || 'home';
@@ -66,6 +71,7 @@ class JobBoard {
     this.account = new Account(this.arweave, this.community);
     this.statusify = new Statusify(this.arweave);
 
+    this.opportunities = new Opportunities(this.arweave);
     this.pageJobs = new PageJobs();
     this.pageJob = new PageJob();
     this.pageCreateJob = new PageCreateJob();
