@@ -5,6 +5,7 @@ import { getIdenticon, get } from "../utils/arweaveid";
 import Toast from "../utils/toast";
 import Opportunity from "../models/opportunity";
 import arweave from "../libs/arweave";
+import Applicant from "../models/applicant";
 
 export default class PageJob {
   private opportunity: Opportunity;
@@ -94,13 +95,25 @@ export default class PageJob {
 
   private async showApplicants() {
     $('.total-applications').text(`${this.opportunity.applicants.length} ${this.opportunity.applicants.length === 1? 'applicant': 'applicants'}`);
+    
+    let display = await jobboard.getAccount().getAddress() === this.opportunity.author.address ? '' : 'display: none';
+
     let html = '';
     for(let i = 0, j = this.opportunity.applicants.length; i < j; i++) {
       const applicant = this.opportunity.applicants[i];
+      await applicant.update(null, this.opportunity.author.address);
+
       const authorApp = await applicant.author.getDetails();
+
+      let bg = '';
+      if(applicant.approved) {
+        display = 'display: none';
+        bg = 'bg-green';
+      }
 
       html += `
         <div class="card" data-applicant-id="${applicant.id}">
+          <div class="card-status-top ${bg}"></div>
           <div class="card-body">
             <div class="row row-sm">
               <div class="col-auto">
@@ -110,7 +123,7 @@ export default class PageJob {
                 <h4 class="card-title m-0 d-inline" data-toggle="tooltip" data-original-title="${authorApp.address}">${authorApp.name}</h4>
                 <div class="mb-2">
                   <a class="btn btn-sm btn-light mr-2" href="https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${authorApp.address}" target="_blank">Contact on WeveMail</a>
-                  <a class="btn-applicant-approve btn btn-sm btn-outline-success mr-2" href="#!">Approve applicant</a>
+                  <a class="btn-applicant-approve is-owner btn btn-sm btn-outline-success mr-2" style="${display}" href="#!" data-applicant="${authorApp.address}">Approve applicant</a>
                 </div>
                 <div class="small mt-1">${await applicant.getMessage()}</div>
               </div>
@@ -198,11 +211,60 @@ export default class PageJob {
       e.preventDefault();
 
       // TODO: Select this applicant, but first check the opp to see if it's allowed more than one, and show a warning if not.
+      const toast = new Toast();
+      if(await jobboard.getAccount().getAddress() !== this.opportunity.author.address) {
+        toast.show('Error', 'You cannot approve an applicant for this opportunity.', 'error', 3000);
+        return;
+      }
+
+      $('#opp-app-approve').val($(e.target).attr('data-applicant').trim());
+      $('#opp-update-status').prop('checked', false);
+      $('#opp-app-id').val($(e.target).parents('.card').first().attr('data-applicant-id').trim());
+      $('.tx-app-fee').text(jobboard.getFee());
+      $('#modal-applicant').modal('show');
+    });
+
+    $('body').on('change', '#opp-update-status', e => {
+      const checked = $(e.target).prop('checked');
+      if(checked){
+        $('.tx-app-fee').text((+jobboard.getFee()) + (+jobboard.getFee()));
+      } else {
+        $('.tx-app-fee').text(jobboard.getFee());
+      }
+    });
+
+    $('.do-app-update').on('click', async e => {
+      e.preventDefault();
+
+      $(e.target).addClass('btn-loading');
+
+      const appId = $('#opp-app-id').val().toString().trim();
+      const updateOpp = $('#opp-update-status').prop('checked');
+
+      let applicant: Applicant;
+      for(let i = 0, j = this.opportunity.applicants.length; i < j; i++) {
+        const app = this.opportunity.applicants[i];
+        if(app.id === appId) {
+          applicant = app;
+          break;
+        }
+      }
+
+      const res = await applicant.update({approved: 'true'});
+      if(res && updateOpp) {
+        await this.opportunity.update({status: 'In progress'});
+      }
+
+      $(e.target).removeClass('btn-loading');
+      $('#modal-applicant').modal('hide');
+      $(`.card[data-applicant-id="${applicant.id}"]`).find('.card-status-top').addClass('bg-green')
+      $(`.card[data-applicant-id="${applicant.id}"]`).find('.btn-applicant-approve').hide();
     });
   }
 
   private async removeEvents() {
-    $('.change-status, .do-apply, body').off('click');
+    $('.change-status, .do-apply, body, .do-app-update').off('click');
     $('#apply-twitter, #apply-github').off('input');
+    $('body').off('change');
   }
 }

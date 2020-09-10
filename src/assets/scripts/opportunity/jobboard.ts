@@ -48,7 +48,7 @@ class JobBoard {
   getStatusify(): Statusify {
     return this.statusify;
   }
-  getFee(): String {
+  getFee(): string {
     return this.fee;
   }
   getOpportunities(): Opportunities {

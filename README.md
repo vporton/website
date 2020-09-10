@@ -11,6 +11,8 @@ v1.0.9
 - Reduced load time from 30s-1m to 5s-15s
 - Updated opps structure to include applicants and authors
 - Better structure for Arweave instance
+- Caching system for opportunities and applicants
+- Approve an applicant and highlight the applicant's card
 
 v1.0.8 - https://arweave.net/kOqu-l5K2u4PKSDf2adHYot0b_9IZHmWEwvLGyVr4LU
 - GQL integration for faster interaction with transactions

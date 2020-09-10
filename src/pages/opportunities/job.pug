@@ -105,3 +105,31 @@
           span.tx-fee 0
           | AR
       a.do-apply.btn.btn-primary.ml-auto(href="#") Apply
+
+#modal-applicant.modal.modal-blur.fade(role="dialog")
+  .modal-dialog(role="document"): .modal-content
+    .modal-header
+      h5.modal-title Approve applicant
+      button.close(data-dismiss="modal")
+        i.icon(data-feather="x")
+  
+    .modal-body
+      .mb-3 You're about to highlight an applicant as approved.
+      .mb-5 
+        label.form-label Applicant Address
+        input#opp-app-approve.form-control(disabled="disabled")
+
+      div
+        label.form-check
+          input#opp-update-status.form-check-input(type="checkbox")
+          span.form-check-label Update the opportunity to "#[strong In progress]".
+
+      input#opp-app-id(type="hidden")
+      
+    .modal-footer
+      div
+        span.strong Fee:
+        span.text-muted 
+          span.tx-app-fee 0
+          | AR
+      a.do-app-update.btn.btn-primary.ml-auto(href="#") Approve

@@ -31,7 +31,7 @@ export default class Author {
         communityDB.set(this._address, author, (new Date().getTime() + 30 * 60 * 1000));
       }
       
-      this._name = author.name;
+      this._name = author.name || this._address;
       this._avatar = author.avatarDataUri || getIdenticon(this._address);
     }
 

@@ -4,12 +4,14 @@ import { GQLNodeInterface, GQLTransactionsResultInterface } from "../interfaces/
 import Toast from "../utils/toast";
 import arweave from "../libs/arweave";
 import Author from "./author";
+import jobboard from "../opportunity/jobboard";
 
 export default class Applicant implements ApplicantInterface {
   id: string;
   author: Author;
   message: string;
   oppId: string;
+  approved: boolean;
 
   constructor(params: ApplicantInterface) {
     if(Object.keys(params).length) {
@@ -27,6 +29,136 @@ export default class Applicant implements ApplicantInterface {
     }
 
     return this.message;
+  }
+
+  async update(params?: {[key: string]: string}, oppOwner?: string) {
+    if(params) {
+      return this.doUpdate(params, oppOwner);
+    }
+
+    const owners = [this.author.address];
+    if(oppOwner) {
+      owners.push(oppOwner);
+    }
+
+    const query = {
+      query: `
+      query{
+        transactions(
+          first: 1
+          owners: ${JSON.stringify(owners)}
+          tags:[
+          {
+            name: "App-Name",
+            values: "CommunityXYZ"
+          },
+          {
+            name: "Action",
+            values: "updateApplicant"
+          },
+          {
+            name: "Applicant-ID",
+            values: "${this.id}"
+          }]
+        ){
+          pageInfo {
+            hasNextPage
+          }
+          edges {
+            cursor
+            node {
+              id
+              owner {
+                address
+              },
+              tags {
+                name,
+                value
+              }
+              block {
+                timestamp
+                height
+              }
+            }
+          }
+        }
+      }
+      `
+    };
+
+    let txs: GQLTransactionsResultInterface;
+    try {
+      const res = await arweave.api.post('/graphql', query);
+      txs = res.data.data.transactions;
+    } catch (err) {
+      console.log(err);
+      const toast = new Toast();
+      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
+      return;
+    }
+
+    if(!txs.edges.length) {
+      return;
+    }
+
+    for(let i = 0; i < txs.edges[0].node.tags.length; i++) {
+      if(txs.edges[0].node.tags[i].name === 'approved') {
+        // @ts-ignore
+        this.approved = txs.edges[0].node.tags[i].value === 'true';
+        break;
+      }
+    }
+  }
+
+  private async doUpdate(params: {[key: string]: string}, oppOwner: string) {
+    const keys = Object.keys(params);
+    if(!keys.length) {
+      return false;
+    }
+
+    const wallet =  await jobboard.getAccount().getWallet();
+    const toast = new Toast();
+
+    const isOwner = this.author.address !== await jobboard.getAccount().getAddress();
+    const isOppOwner = oppOwner !== await jobboard.getAccount().getAddress();
+
+    if(!isOwner || !isOppOwner) {
+      toast.show('Error', 'You cannot update this applicant.', 'error', 3000);
+      return false;
+    }
+
+    if(params.approved && !isOppOwner) {
+      toast.show('Error', 'You cannot set this applicant as approved.', 'error', 3000);
+      return false;
+    }
+
+    if(!await jobboard.chargeFee('updateApplicant')) {
+      return false;
+    }
+
+    const tx = await arweave.createTransaction({ data: Math.random().toString().substr(-4) }, wallet);
+    
+    for(let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      tx.addTag(key, params[key]);
+    }
+    
+    tx.addTag('App-Name', 'CommunityXYZ');
+    tx.addTag('Action', 'updateApplicant');
+    tx.addTag('Applicant-ID', this.id);
+
+    await arweave.transactions.sign(tx, wallet);
+    const res = await arweave.transactions.post(tx);
+    if (res.status !== 200 && res.status !== 202) {
+      console.log(res);
+
+      toast.show('Error', 'Error submitting transaction.', 'error', 5000);
+      $('.btn-opp-status').removeClass('btn-loading');
+      return false;
+    }
+
+    jobboard.getStatusify().add('Set applicant', tx.id);
+    return true;
   }
 
   static async getAll(oppIds: string[]): Promise<Applicant[]> {
