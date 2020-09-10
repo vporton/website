@@ -53,6 +53,7 @@
     "community-js": "^1.0.14",
     "express": "^4.17.1",
     "feather-icons": "^4.28.0",
+    "immortal-db": "^1.1.0",
     "jquery": "^3.5.1",
     "moment": "^2.27.0",
     "peity": "^3.3.0",
