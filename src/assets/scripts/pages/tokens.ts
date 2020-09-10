@@ -220,7 +220,7 @@ export default class PageTokens {
         });
       } catch (err) {
         console.log(err.message);
-        const toast = new Toast(app.getArweave());
+        const toast = new Toast();
         toast.show('Transfer error', err.message, 'error', 3000);
       }
 

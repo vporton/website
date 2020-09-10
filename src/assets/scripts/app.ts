@@ -1,7 +1,6 @@
 import "../styles/board.scss";
 
 import "threads/register";
-import Arweave from 'arweave';
 import Community from 'community-js';
 import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
@@ -12,13 +11,12 @@ import PageTokens from "./pages/tokens";
 import PageVotes from "./pages/votes";
 import PageVault from "./pages/vault";
 import Account from "./models/account";
-import Utils from "./utils/utils";
 import Statusify from "./utils/statusify";
+import arweave from "./libs/arweave";
 
 class App {
   private hash: string;
   private hashes: string[];
-  private arweave: Arweave;
   private community: Community;
   private account: Account;
   private statusify: Statusify;
@@ -34,11 +32,9 @@ class App {
   private pageVault: PageVault;
 
   constructor() {
-    this.arweave = Utils.createArweaveInstance();
-    
-    this.community = new Community(this.arweave);
-    this.account = new Account(this.arweave, this.community);
-    this.statusify = new Statusify(this.arweave);
+    this.community = new Community(arweave);
+    this.account = new Account(this.community);
+    this.statusify = new Statusify(arweave);
 
     this.pageDashboard = new PageDashboard();
     this.pageTokens = new PageTokens();
@@ -52,7 +48,7 @@ class App {
     return this.community;
   }
   getArweave() {
-    return this.arweave;
+    return arweave;
   }
   getAccount() {
     return this.account;
@@ -98,7 +94,7 @@ class App {
   }
 
   private async updateNetworkInfo() {
-    this.currentBlock = (await this.arweave.network.getInfo()).height;
+    this.currentBlock = (await arweave.network.getInfo()).height;
 
     setTimeout(() => this.updateNetworkInfo(), 60000);
   }
@@ -130,7 +126,7 @@ class App {
       `
     };
 
-    const res = await this.arweave.api.request().post('https://arweave.dev/graphql', query);
+    const res = await arweave.api.post('/graphql', query);
     if(!res.data || !res.data.data) {
       return;
     }

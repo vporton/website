@@ -3,7 +3,6 @@ import "quill/dist/quill.snow.css";
 import moment from "moment";
 import jobboard from "./jobboard";
 import Utils from "../utils/utils";
-import { getIdenticon, get } from "../utils/arweaveid";
 import Opportunity from "../models/opportunity";
 
 export default class PageJobs {
@@ -92,7 +91,7 @@ export default class PageJobs {
 
       jobboard.getOpportunities().get(oppId).then(async opp => {
         if(!opp.author.avatar) {
-          await opp.getAuthorDetails(jobboard.getArweave());
+          await opp.getAuthorDetails();
         }
   
         $job.find('.avatar').attr('style', `background-image: url(${opp.author.avatar})`);

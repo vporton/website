@@ -1,17 +1,11 @@
 import feather from 'feather-icons';
-import Arweave from 'arweave';
-
 import $ from '../libs/jquery';
 import Utils from './utils';
 import { TransactionStatusResponse } from 'arweave/node/transactions';
+import arweave from '../libs/arweave';
 
 export default class Toast {
-  private arweave: Arweave;
   private t: any;
-
-  constructor(arweave: Arweave) {
-    this.arweave = arweave;
-  }
 
   show(title: string, message: string, type: 'error' | 'success' | 'none' | 'login', duration: number = 500) {
     const autohide: boolean = duration > 0;
@@ -102,7 +96,7 @@ export default class Toast {
   }
 
   private async checkTransaction(txid: string): Promise<void> {
-    const res = await this.arweave.transactions.getStatus(txid);
+    const res = await arweave.transactions.getStatus(txid);
     console.log(res);
 
     if (res.status !== 200 && res.status !== 202) {

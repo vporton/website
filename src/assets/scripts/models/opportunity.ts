@@ -1,7 +1,6 @@
 import OpportunityInterface, { OpportunityCommunityInterface, OpportunityType, OpportunityExpLevel, OpportunityCommitment, OpportunityProjectType, OpportunityPermission, OpportunityStatus } from "../interfaces/opportunity";
 import Utils from "../utils/utils";
 import { GQLTransactionsResultInterface, GQLEdgeInterface, GQLNodeInterface } from "../interfaces/gqlResult";
-import Arweave from "arweave";
 import Transaction from "arweave/node/lib/transaction";
 import jobboard from "../opportunity/jobboard";
 import Toast from "../utils/toast";
@@ -9,7 +8,8 @@ import { OpportunitiesWorker } from "../workers/opportunities";
 import { spawn, Pool } from "threads";
 import Applicant from "./applicant";
 import AuthorInterface from "../interfaces/author";
-import { get, getIdenticon } from "arweave-id";
+import arweave from "../libs/arweave";
+import { getIdenticon, get } from "../utils/arweaveid";
 
 export default class Opportunity implements OpportunityInterface {
   id?: string;
@@ -41,7 +41,7 @@ export default class Opportunity implements OpportunityInterface {
     this.applicants = [];
   }
 
-  async getDescription(arweave: Arweave): Promise<string> {
+  async getDescription(): Promise<string> {
     if(!this.description) {
       const res = await arweave.api.get(`/${this.id}`);
       this.description = Utils.escapeScriptStyles(res.data);
@@ -50,10 +50,10 @@ export default class Opportunity implements OpportunityInterface {
     return this.description;
   }
 
-  async getAuthorDetails(arweave: Arweave): Promise<AuthorInterface> {
+  async getAuthorDetails(): Promise<AuthorInterface> {
     if(!this.author.avatar) {
       console.log(this.author.address);
-      const author = await get(this.author.address, arweave);
+      const author = await get(this.author.address);
       this.author.name = author.name;
       this.author.avatar = author.avatarDataUri || getIdenticon(this.author.address);
     }
@@ -113,11 +113,11 @@ export default class Opportunity implements OpportunityInterface {
 
     let txs: GQLTransactionsResultInterface;
     try {
-      const res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
+      const res = await arweave.api.post('/graphql', query);
       txs = res.data.data.transactions;
     } catch (err) {
       console.log(err);
-      const toast = new Toast(jobboard.getArweave());
+      const toast = new Toast();
       toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }
@@ -143,10 +143,8 @@ export default class Opportunity implements OpportunityInterface {
       return false;
     }
 
-    const arweave = jobboard.getArweave();
     const wallet =  await jobboard.getAccount().getWallet();
-
-    const toast = new Toast(arweave);
+    const toast = new Toast();
     if(this.author.address !== await jobboard.getAccount().getAddress()) {
       toast.show('Error', 'You cannot edit this opportunity.', 'error', 5000);
       return false;
@@ -230,11 +228,11 @@ export default class Opportunity implements OpportunityInterface {
   
       let res: any;
       try {
-        res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
+        res = await arweave.api.post('/graphql', query);
       } catch (err) {
         console.log(err);
         
-        const toast = new Toast(jobboard.getArweave());
+        const toast = new Toast();
         toast.show('Error', 'Error connecting to the network.', 'error', 5000);
         return;
       }
@@ -332,11 +330,11 @@ export default class Opportunity implements OpportunityInterface {
   
       let res: any;
       try {
-        res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
+        res = await arweave.api.post('/graphql', query);
       } catch (err) {
         console.log(err);
         
-        const toast = new Toast(jobboard.getArweave());
+        const toast = new Toast();
         toast.show('Error', 'Error connecting to the network.', 'error', 5000);
         return;
       }
@@ -388,7 +386,7 @@ export default class Opportunity implements OpportunityInterface {
     return tmpOpps;
   }
 
-  static async getOpportunity(opportunityId: string, arweave: Arweave): Promise<Opportunity> {
+  static async getOpportunity(opportunityId: string): Promise<Opportunity> {
     const query = {
       query: `
       query{
@@ -414,12 +412,12 @@ export default class Opportunity implements OpportunityInterface {
 
     let tx: GQLNodeInterface;
     try {
-      const res = await arweave.api.request().post('https://arweave.dev/graphql', query);
+      const res = await arweave.api.post('/graphql', query);
       tx = res.data.data.transaction;
     } catch (err) {
       console.log(err);
       
-      const toast = new Toast(jobboard.getArweave());
+      const toast = new Toast();
       toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }
