@@ -1,8 +1,8 @@
+import Author from "../models/author";
+
 export default interface ApplicantInterface {
   id: string;
-  username: string;
-  address: string;
-  avatar: string;
+  author: Author;
   message: string;
   oppId: string;
 }

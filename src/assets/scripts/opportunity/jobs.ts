@@ -2,13 +2,12 @@ import "quill/dist/quill.snow.css";
 
 import moment from "moment";
 import jobboard from "./jobboard";
-import Opportunity from "../models/opportunity";
-import Applicant from "../models/applicant";
 import Utils from "../utils/utils";
 import { getIdenticon, get } from "../utils/arweaveid";
+import Opportunity from "../models/opportunity";
 
 export default class PageJobs {
-  private opportunities: Opportunity[] = [];
+  private opps: Opportunity[] = [];
   private oppType = 'All';
   private oppExp = 'All';
 
@@ -32,17 +31,17 @@ export default class PageJobs {
   }
 
   private async showAll() {
-    this.opportunities = await Opportunity.getAll();
+    this.opps = await jobboard.getOpportunities().getAll();
 
-    $('.jobs-total-results').text(`${this.opportunities.length} results`);
-    $('.bounty-type, .exp-level').find('[data-total="All"]').text(this.opportunities.length);
+    $('.jobs-total-results').text(`${this.opps.length} results`);
+    $('.bounty-type, .exp-level').find('[data-total="All"]').text(this.opps.length);
 
     await this.toHTML();
     $('.dimmer').removeClass('active');
   }
 
   private async toHTML() {
-    const opps = this.opportunities;
+    const opps = this.opps;
 
     $('[data-total]').text(0);
     $('.bounty-type').find('[data-total="All"]').text(opps.length);
@@ -67,7 +66,7 @@ export default class PageJobs {
       $expTotal.text((+$expTotal.text()) + 1);
 
       html += `
-      <a data-author="${opp.author}" class="jobs-job list-item" href="#${opp.id}">
+      <a data-author="${opp.author.address}" data-opp-id="${opp.id}" class="jobs-job list-item" href="#${opp.id}">
         <span class="avatar"></span>
         <div>
           <span class="text-body d-block">${opp.title}</span>
@@ -77,7 +76,7 @@ export default class PageJobs {
               <li class="list-inline-item">${opp.type}</li>
               <li class="list-inline-item">${opp.experience}</li>
               <li class="list-inline-item">${moment(opp.timestamp).fromNow()}</li>
-              <li class="list-inline-item">${opp.nbApplicants}&nbsp;${opp.nbApplicants === 1? 'applicant': 'applicants'}</li>
+              <li class="list-inline-item">${opp.applicants.length}&nbsp;${opp.applicants.length === 1? 'applicant': 'applicants'}</li>
             </ul>
           </small>
         </div>
@@ -89,11 +88,11 @@ export default class PageJobs {
 
     $('.jobs-job').each((i, el) => {
       const $job = $(el);
-      const creator = $job.attr('data-author');
+      const oppId = $job.attr('data-opp-id');
 
-      get(creator).then(author => {
-        const avatar = author.avatarDataUri || getIdenticon(creator);
-        $job.find('.avatar').attr('style', `background-image: url(${avatar})`);
+      jobboard.getOpportunities().get(oppId).then(async opp => {
+        const author = await opp.author.getDetails();
+        $job.find('.avatar').attr('style', `background-image: url(${author.avatar})`);
       });
     });
 
@@ -142,7 +141,6 @@ export default class PageJobs {
         e.preventDefault();
 
         await jobboard.getAccount().showLoginError();
-
         return false;
       }
     });

@@ -1,6 +1,7 @@
 import { expose } from "threads/worker";
 import { GQLNodeInterface } from "../interfaces/gqlResult";
 import OpportunityInterface from "../interfaces/opportunity";
+import Author from "../models/author";
 
 const worker = {
   nodeToOpportunity: async (node: GQLNodeInterface): Promise<OpportunityInterface> => {
@@ -36,8 +37,10 @@ const worker = {
       commitment: objParams.commitment,
       project: objParams.project,
       permission: objParams.permission,
-      author: node.owner.address,
-      timestamp: (node.block && node.block.timestamp? node.block.timestamp * 1000 : (new Date()).getTime())
+      owner: node.owner.address,
+      author: null,
+      timestamp: (node.block && node.block.timestamp? node.block.timestamp * 1000 : (new Date()).getTime()),
+      applicants: []
     };
   }
 }

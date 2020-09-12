@@ -6,8 +6,10 @@ import Transaction from "arweave/node/lib/transaction";
 import jobboard from "../opportunity/jobboard";
 import Toast from "../utils/toast";
 import { OpportunitiesWorker } from "../workers/opportunities";
-import { ModuleThread, spawn, Pool } from "threads";
+import { spawn, Pool } from "threads";
 import Applicant from "./applicant";
+import Author from "./author";
+import communityDB from "../libs/db";
 
 export default class Opportunity implements OpportunityInterface {
   id?: string;
@@ -21,11 +23,12 @@ export default class Opportunity implements OpportunityInterface {
   commitment: OpportunityCommitment;
   project: OpportunityProjectType;
   permission: OpportunityPermission;
-  author: string;
+  owner: string;
+  author: Author;
   status: OpportunityStatus;
   updateTx: Transaction;
   timestamp: number;
-  nbApplicants: number;
+  applicants: Applicant[];
   
   constructor(params: OpportunityInterface) {
     if(Object.keys(params).length) {
@@ -36,6 +39,16 @@ export default class Opportunity implements OpportunityInterface {
     }
 
     this.status = 'Active';
+    this.applicants = [];
+  }
+
+  async getDescription(arweave: Arweave): Promise<string> {
+    if(!this.description) {
+      const res = await arweave.api.get(`/${this.id}`);
+      this.description = Utils.escapeScriptStyles(res.data);
+    }
+
+    return this.description;
   }
 
   async update(params?: {[key: string]: string}) {
@@ -48,7 +61,7 @@ export default class Opportunity implements OpportunityInterface {
       query{
         transactions(
           first: 1
-          owners: "${this.author}"
+          owners: "${this.author.address}"
           tags:[
           {
             name: "App-Name",
@@ -124,7 +137,7 @@ export default class Opportunity implements OpportunityInterface {
     const wallet =  await jobboard.getAccount().getWallet();
 
     const toast = new Toast(arweave);
-    if(this.author !== await jobboard.getAccount().getAddress()) {
+    if(this.author.address !== await jobboard.getAccount().getAddress()) {
       toast.show('Error', 'You cannot edit this opportunity.', 'error', 5000);
       return false;
     }
@@ -230,7 +243,13 @@ export default class Opportunity implements OpportunityInterface {
     for(let i = 0, j = edges.length; i < j; i++) {
       pool.queue(async oppsWorker => {
         const res = await oppsWorker.nodeToOpportunity(edges[i].node);
+        try {
+          communityDB.set(res.id, res);
+        } catch (err) {}
+
         const opp = new Opportunity(res);
+
+        opp.author = new Author(edges[i].node.owner.address, edges[i].node.owner.address, null);
         opps.push(opp);
       });
     }
@@ -241,15 +260,17 @@ export default class Opportunity implements OpportunityInterface {
     // Get updates
     opps = await this.updateAll(opps);
 
-    // get all applicants counter
-    const allApplicants = await Applicant.getAllCount(opps.map(opp => opp.id));
+    // get all applicants
+    const allApplicants = await Applicant.getAll(opps.map(opp => opp.id));
     for(let i = 0, j = opps.length; i < j; i++) {
-      const appCount = allApplicants.get(opps[i].id);
-      opps[i].nbApplicants = appCount || 0;
+      for(let k = 0, l = allApplicants.length; k < l; k++) {
+        if(opps[i].id === allApplicants[k].oppId) {
+          opps[i].applicants.push(allApplicants[k]);
+        }
+      }
     }
 
     opps.sort((a, b) => b.timestamp - a.timestamp);
-
     return opps;
   }
 
@@ -364,47 +385,64 @@ export default class Opportunity implements OpportunityInterface {
   }
 
   static async getOpportunity(opportunityId: string, arweave: Arweave): Promise<Opportunity> {
-    const query = {
-      query: `
-      query{
-        transaction(
-          id: "${opportunityId}"
-        ){
-          id
-          owner {
-            address
-          },
-          tags {
-            name,
-            value
-          }
-          block {
-            timestamp
-            height
+    let res: OpportunityInterface = communityDB.get(opportunityId);
+    if(!res) {
+      const query = {
+        query: `
+        query{
+          transaction(
+            id: "${opportunityId}"
+          ){
+            id
+            owner {
+              address
+            },
+            tags {
+              name,
+              value
+            }
+            block {
+              timestamp
+              height
+            }
           }
         }
+        `
+      };
+
+      let tx: GQLNodeInterface;
+      try {
+        const res = await jobboard.getArweave().api.post('/graphql', query);
+        tx = res.data.data.transaction;
+      } catch (err) {
+        console.log(err);
+        
+        const toast = new Toast(jobboard.getArweave());
+        toast.show('Error', 'Error connecting to the network.', 'error', 5000);
+        return;
       }
-      `
-    };
+  
+      if(!tx) {
+        return;
+      }
 
-    let tx: GQLNodeInterface;
-    try {
-      const res = await arweave.api.request().post('https://arweave.dev/graphql', query);
-      tx = res.data.data.transaction;
-    } catch (err) {
-      console.log(err);
-      
-      const toast = new Toast(jobboard.getArweave());
-      toast.show('Error', 'Error connecting to the network.', 'error', 5000);
-      return;
+      const oppsWorker = await spawn<OpportunitiesWorker>(new Worker('../workers/opportunities.ts'));
+      res = await oppsWorker.nodeToOpportunity(tx);
+      try {
+        communityDB.set(opportunityId, res);
+      } catch (err) {}
+    }
+    const opp = new Opportunity(res);
+    opp.author = new Author(res.owner, res.owner, null);
+
+    // get all applicants
+    const allApplicants = await Applicant.getAll([opp.id]);
+    for(let k = 0, l = allApplicants.length; k < l; k++) {
+      if(opp.id === allApplicants[k].oppId) {
+        opp.applicants.push(allApplicants[k]);
+      }
     }
 
-    if(!tx) {
-      return;
-    }
-
-    const oppsWorker = await spawn<OpportunitiesWorker>(new Worker('../workers/opportunities.ts'));
-    const res = await oppsWorker.nodeToOpportunity(tx);
-    return new Opportunity(res);
+    return opp;
   }
 }
