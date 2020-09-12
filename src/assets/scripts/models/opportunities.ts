@@ -1,8 +1,15 @@
 import Opportunity from "./opportunity"
+import Arweave from "arweave";
 
 export default class Opportunities {
   private oppsMap: Map<string, Opportunity> = new Map();
   private oppsArr: Opportunity[] = [];
+
+  private arweave: Arweave;
+
+  constructor(arweave: Arweave) {
+    this.arweave = arweave;
+  }
 
   /**
    * Get all the opportunites, updated, sorted and with all the applicants.
@@ -23,7 +30,7 @@ export default class Opportunities {
   async get(id: string, reload: boolean = false): Promise<Opportunity> {
     let opp = this.oppsMap.get(id);
     if(!opp) {
-      opp = await Opportunity.getOpportunity(id);
+      opp = await Opportunity.getOpportunity(id, this.arweave);
       if(opp) {
         this.oppsArr.push(opp);
         this.oppsMap.set(id, opp);

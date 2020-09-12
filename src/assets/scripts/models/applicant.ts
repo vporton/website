@@ -2,7 +2,6 @@ import Utils from "../utils/utils";
 import ApplicantInterface from "../interfaces/applicant";
 import { GQLNodeInterface, GQLTransactionsResultInterface } from "../interfaces/gqlResult";
 import Toast from "../utils/toast";
-import arweave from "../libs/arweave";
 import Author from "./author";
 import jobboard from "../opportunity/jobboard";
 
@@ -22,7 +21,7 @@ export default class Applicant implements ApplicantInterface {
     }
   }
 
-  async getMessage(): Promise<string> {
+  async getMessage(arweave: Arweave): Promise<string> {
     if(!this.message) {
       const res = await arweave.api.get(`/${this.id}`);
       this.message = Utils.escapeScriptStyles(res.data);
@@ -88,11 +87,11 @@ export default class Applicant implements ApplicantInterface {
 
     let txs: GQLTransactionsResultInterface;
     try {
-      const res = await arweave.api.post('/graphql', query);
+      const res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
       txs = res.data.data.transactions;
     } catch (err) {
       console.log(err);
-      const toast = new Toast();
+      const toast = new Toast(jobboard.getArweave());
       toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }
@@ -204,11 +203,11 @@ export default class Applicant implements ApplicantInterface {
 
     let txs: GQLTransactionsResultInterface;
     try {
-      const res = await arweave.api.post('/graphql', query);
+      const res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
       txs = res.data.data.transactions;
     } catch (err) {
       console.log(err);
-      const toast = new Toast();
+      const toast = new Toast(jobboard.getArweave());
       toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }

@@ -6,8 +6,9 @@ import "bootstrap/dist/js/bootstrap.bundle";
 
 import './global';
 import { JWKInterface } from "arweave/web/lib/wallet";
-import arweave from "./libs/arweave";
+import Utils from "./utils/utils";
 
+let arweave = Utils.createArweaveInstance();
 const community = new Community(arweave);
 
 let currentStep = 1;

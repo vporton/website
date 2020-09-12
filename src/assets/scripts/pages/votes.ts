@@ -290,7 +290,7 @@ export default class PageVotes {
         });
       } catch (err) {
         console.log(err.message);
-        const toast = new Toast();
+        const toast = new Toast(app.getArweave());
         toast.show('Vote error', err.message, 'error', 3000);
       }
 

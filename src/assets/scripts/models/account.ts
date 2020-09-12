@@ -1,13 +1,14 @@
 import { JWKInterface } from "arweave/web/lib/wallet";
+import Arweave from "arweave";
 
 import $ from '../libs/jquery';
 import Toast from '../utils/toast';
 import Community from "community-js";
 import { getIdenticon, get } from "../utils/arweaveid";
-import arweave from "../libs/arweave";
 import communityDB from "../libs/db";
 
 export default class Account {
+  private arweave: Arweave;
   private community: Community;
 
   private loggedIn: boolean = false;
@@ -17,7 +18,8 @@ export default class Account {
   private address: string = '';
   private arBalance: number = -1;
 
-  constructor(community: Community) {
+  constructor(arweave: Arweave, community: Community) {
+    this.arweave = arweave;
     this.community = community;
   }
 
@@ -47,12 +49,12 @@ export default class Account {
   }
 
   async getArBalance(): Promise<number> {
-    this.arBalance = +arweave.ar.winstonToAr((await arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
     return this.arBalance;
   }
 
   async showLoginError(duration: number = 5000) {
-    const toast = new Toast();
+    const toast = new Toast(this.arweave);
     toast.show('Login first', 'Before being able to do this action you need to login.', 'login', duration);
   }
 
@@ -61,7 +63,7 @@ export default class Account {
     this.wallet = wallet;
 
     this.address = await this.community.setWallet(wallet);
-    this.arBalance = +arweave.ar.winstonToAr((await arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
 
     const acc = await get(this.address);
     this.username = acc.name;
@@ -92,7 +94,9 @@ export default class Account {
         window.currentPage.syncPageState();
         
         if(this.address.length && this.arBalance >= 0) {
-          communityDB.set('sesswall', btoa(ev.target.result));
+          try {
+            communityDB.set('sesswall', btoa(ev.target.result));
+          } catch(err) {}
         }
       };
       fileReader.readAsText(e.target.files[0]);
@@ -122,7 +126,7 @@ export default class Account {
       communityDB.remove('sesswall');
 
       // Set a dummy wallet address
-      this.community.setWallet(await arweave.wallets.generate());
+      this.community.setWallet(await this.arweave.wallets.generate());
     });
   }
 }

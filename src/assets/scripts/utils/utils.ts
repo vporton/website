@@ -54,4 +54,13 @@ export default class Utils {
     str = str.replace(/onload="?[^>]+/gi, '');
     return str.replace(/<(\/?(script|style|iframe))[^>]*>/gi, '&lt;$1$2&gt;');
   }
+
+  static createArweaveInstance(): Arweave {
+    return Arweave.init({
+      host: 'arweave.dev',
+      protocol: 'https',
+      port: 443,
+      timeout: 100000
+    });
+  }
 }

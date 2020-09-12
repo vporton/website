@@ -4,7 +4,6 @@ import moment from "moment";
 import { getIdenticon, get } from "../utils/arweaveid";
 import Toast from "../utils/toast";
 import Opportunity from "../models/opportunity";
-import arweave from "../libs/arweave";
 import Applicant from "../models/applicant";
 
 export default class PageJob {
@@ -87,7 +86,7 @@ export default class PageJob {
 
     this.showApplicants();
 
-    this.opportunity.getDescription().then((desc: string) => {
+    this.opportunity.getDescription(jobboard.getArweave()).then((desc: string) => {
       const $editor = $('<div class="ql-editor"></div>').html(desc);
       $('.opp-description').html('').append($editor).parents('.dimmer').removeClass('active');
     });
@@ -125,7 +124,7 @@ export default class PageJob {
                   <a class="btn btn-sm btn-light mr-2" href="https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${authorApp.address}" target="_blank">Contact on WeveMail</a>
                   <a class="btn-applicant-approve is-owner btn btn-sm btn-outline-success mr-2" style="${display}" href="#!" data-applicant="${authorApp.address}">Approve applicant</a>
                 </div>
-                <div class="small mt-1">${await applicant.getMessage()}</div>
+                <div class="small mt-1">${await applicant.getMessage(jobboard.getArweave())}</div>
               </div>
             </div>
           </div>
@@ -179,11 +178,12 @@ export default class PageJob {
       const message = $('<div></div>').append($('#apply-message').val().toString().trim()).text();
 
       if(!await jobboard.chargeFee('OpportunityApplication')) {
-        const toast = new Toast();
+        const toast = new Toast(jobboard.getArweave());
         toast.show('Error', 'Unable to submit transaction, please try again later.', 'error', 5000);
         return;
       }
 
+      const arweave = jobboard.getArweave();
       const wallet = await jobboard.getAccount().getWallet();
       const tx = await arweave.createTransaction({data: message}, wallet);
 
@@ -194,7 +194,7 @@ export default class PageJob {
       const res = await arweave.transactions.post(tx);
       if (res.status !== 200 && res.status !== 202) {
         console.log(res);
-        const toast = new Toast();
+        const toast = new Toast(jobboard.getArweave());
         toast.show('Error', 'Unable to submit transaction, please try again later.', 'error', 5000);
         $(e.target).removeClass('btn-loading');
         return;

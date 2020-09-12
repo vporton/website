@@ -225,7 +225,7 @@ export default class PageVault {
 
       } catch (err) {
         console.log(err.message);
-        const toast = new Toast();
+        const toast = new Toast(app.getArweave());
         toast.show('Lock balance error', err.message, 'error', 3000);
       }
 
@@ -252,7 +252,7 @@ export default class PageVault {
 
       } catch (err) {
         console.log(err.message);
-        const toast = new Toast();
+        const toast = new Toast(app.getArweave());
         toast.show('Transfer error', err.message, 'error', 3000);
       }
 
@@ -285,7 +285,7 @@ export default class PageVault {
       const vaultId = +$('#lock-vault-id').val().toString().trim();
       if(!state.vault[await app.getAccount().getAddress()][vaultId]) {
         $('#modal-increase-lock').modal('hide');
-        const toast = new Toast();
+        const toast = new Toast(app.getArweave());
         toast.show('Increase lock error', 'This vault ID isn\'t available.', 'error', 3000);
         return;
       }
@@ -299,7 +299,7 @@ export default class PageVault {
         });
       } catch (err) {
         console.log(err.message);
-        const toast = new Toast();
+        const toast = new Toast(app.getArweave());
         toast.show('Transfer error', err.message, 'error', 3000);
       }
 

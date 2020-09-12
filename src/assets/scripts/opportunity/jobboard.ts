@@ -8,17 +8,19 @@ import '../global';
 import PageJobs from "./jobs";
 import PageJob from "./job";
 import Account from "../models/account";
+import Arweave from "arweave";
 import Community from "community-js";
 import PageCreateJob from "./create";
 import Transaction from "arweave/node/lib/transaction";
+import Utils from "../utils/utils";
 import Statusify from "../utils/statusify";
 import Toast from "../utils/toast";
 import Opportunities from "../models/opportunities";
-import arweave from "../libs/arweave";
 
 class JobBoard {
   private hash: string;
   private hashes: string[];
+  private arweave: Arweave;
   private community: Community;
   private account: Account;
   private statusify: Statusify;
@@ -38,6 +40,9 @@ class JobBoard {
   }
   getCurrentPage(): PageJob | PageJobs | PageCreateJob {
     return this.currentPage;
+  }
+  getArweave(): Arweave {
+    return this.arweave;
   }
   getCommunity(): Community {
     return this.community;
@@ -60,11 +65,13 @@ class JobBoard {
   }
 
   constructor() {
-    this.community = new Community(arweave);
-    this.account = new Account(this.community);
-    this.statusify = new Statusify(arweave);
+    this.arweave = Utils.createArweaveInstance();
+    
+    this.community = new Community(this.arweave);
+    this.account = new Account(this.arweave, this.community);
+    this.statusify = new Statusify(this.arweave);
 
-    this.opportunities = new Opportunities();
+    this.opportunities = new Opportunities(this.arweave);
     this.pageJobs = new PageJobs();
     this.pageJob = new PageJob();
     this.pageCreateJob = new PageCreateJob();
@@ -87,7 +94,7 @@ class JobBoard {
   }
 
   async setCommunityTx(txid: string) {
-    this.community = new Community(arweave);
+    this.community = new Community(this.arweave);
     return this.community.setCommunityTx(txid);
   }
 
@@ -95,20 +102,20 @@ class JobBoard {
     await this.community.setCommunityTx(await this.community.getMainContractId());
     const target = await this.community.selectWeightedHolder();
 
-    const tx: Transaction = await arweave.createTransaction({
+    const tx: Transaction = await this.arweave.createTransaction({
       target,
-      quantity: arweave.ar.arToWinston(this.fee)
+      quantity: this.arweave.ar.arToWinston(this.fee)
     }, await this.account.getWallet());
 
     tx.addTag('App-Name', 'Community');
     tx.addTag('App-Version', '1.1.0');
     tx.addTag('Action', action);
 
-    await arweave.transactions.sign(tx, await this.account.getWallet());
-    const res = await arweave.transactions.post(tx);
+    await this.arweave.transactions.sign(tx, await this.account.getWallet());
+    const res = await this.arweave.transactions.post(tx);
     if (res.status !== 200 && res.status !== 202) {
       console.log(res);
-      const toast = new Toast();
+      const toast = new Toast(this.arweave);
       toast.show('Error', 'Transaction failed.', 'error', 5000);
       return false;
     }
