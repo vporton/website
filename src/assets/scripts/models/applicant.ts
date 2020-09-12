@@ -4,6 +4,7 @@ import { GQLNodeInterface, GQLTransactionsResultInterface } from "../interfaces/
 import Toast from "../utils/toast";
 import Author from "./author";
 import jobboard from "../opportunity/jobboard";
+import Arweave from "arweave";
 
 export default class Applicant implements ApplicantInterface {
   id: string;
@@ -116,7 +117,7 @@ export default class Applicant implements ApplicantInterface {
     }
 
     const wallet =  await jobboard.getAccount().getWallet();
-    const toast = new Toast();
+    const toast = new Toast(jobboard.getArweave());
 
     const isOwner = this.author.address !== await jobboard.getAccount().getAddress();
     const isOppOwner = oppOwner !== await jobboard.getAccount().getAddress();
@@ -135,6 +136,7 @@ export default class Applicant implements ApplicantInterface {
       return false;
     }
 
+    const arweave = jobboard.getArweave();
     const tx = await arweave.createTransaction({ data: Math.random().toString().substr(-4) }, wallet);
     
     for(let i = 0; i < keys.length; i++) {

@@ -27,8 +27,10 @@ export default class Author {
         author = res;
       } else {
         author = await get(this._address);
-        // @ts-ignore
-        communityDB.set(this._address, author, (new Date().getTime() + 30 * 60 * 1000));
+        try {
+          // @ts-ignore
+          communityDB.set(this._address, author, (new Date().getTime() + 30 * 60 * 1000));
+        } catch(e) {}
       }
       
       this._name = author.name || this._address;

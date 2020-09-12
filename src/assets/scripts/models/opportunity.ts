@@ -243,7 +243,9 @@ export default class Opportunity implements OpportunityInterface {
     for(let i = 0, j = edges.length; i < j; i++) {
       pool.queue(async oppsWorker => {
         const res = await oppsWorker.nodeToOpportunity(edges[i].node);
-        communityDB.set(res.id, res);
+        try {
+          communityDB.set(res.id, res);
+        } catch (err) {}
 
         const opp = new Opportunity(res);
 
@@ -382,7 +384,7 @@ export default class Opportunity implements OpportunityInterface {
     return tmpOpps;
   }
 
-  static async getOpportunity(opportunityId: string): Promise<Opportunity> {
+  static async getOpportunity(opportunityId: string, arweave: Arweave): Promise<Opportunity> {
     let res: OpportunityInterface = communityDB.get(opportunityId);
     if(!res) {
       const query = {
@@ -410,12 +412,12 @@ export default class Opportunity implements OpportunityInterface {
 
       let tx: GQLNodeInterface;
       try {
-        const res = await arweave.api.post('/graphql', query);
+        const res = await jobboard.getArweave().api.post('/graphql', query);
         tx = res.data.data.transaction;
       } catch (err) {
         console.log(err);
         
-        const toast = new Toast();
+        const toast = new Toast(jobboard.getArweave());
         toast.show('Error', 'Error connecting to the network.', 'error', 5000);
         return;
       }
@@ -426,7 +428,9 @@ export default class Opportunity implements OpportunityInterface {
 
       const oppsWorker = await spawn<OpportunitiesWorker>(new Worker('../workers/opportunities.ts'));
       res = await oppsWorker.nodeToOpportunity(tx);
-      communityDB.set(opportunityId, res);
+      try {
+        communityDB.set(opportunityId, res);
+      } catch (err) {}
     }
     const opp = new Opportunity(res);
     opp.author = new Author(res.owner, res.owner, null);

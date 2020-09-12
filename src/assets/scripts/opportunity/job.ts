@@ -211,7 +211,7 @@ export default class PageJob {
       e.preventDefault();
 
       // TODO: Select this applicant, but first check the opp to see if it's allowed more than one, and show a warning if not.
-      const toast = new Toast();
+      const toast = new Toast(jobboard.getArweave());
       if(await jobboard.getAccount().getAddress() !== this.opportunity.author.address) {
         toast.show('Error', 'You cannot approve an applicant for this opportunity.', 'error', 3000);
         return;
