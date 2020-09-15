@@ -1912,13 +1912,13 @@ commander@^5.0.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-5.1.0.tgz#46abbd1652f8e059bddaef99bbdcb2ad9cf179ae"
   integrity sha512-P0CysNDQ7rtVw4QIQtm+MRxV66vKFSvlsQvGYXZWR3qFU0jlMKHZZZgw8e+8DSah4UDKMqnknRDQz+xuQXQ/Zg==
 
-community-js@^1.0.14:
-  version "1.0.14"
-  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.14.tgz#8ec963d9df0c9393fe31359a0ca2d90f5ac8dc42"
-  integrity sha512-TuMeZjGBYUDnRr7byCW1J8yWZqgCWpel9tZEfcJR9styImsAj42liYDlcAIASzihePVbl3EYyT+xjEgboaWeBw==
+community-js@^1.0.15:
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/community-js/-/community-js-1.0.15.tgz#06a0b144735f8215ae78d9de7d3eec540a9aef49"
+  integrity sha512-RzlgUym2HkaPwW9Z0qV3GBAOHL82SqffXf0ZA+3QeXFlIXK4Zst6/8cHfSC97bm7+vFFTOhPNWI2rmR5Iomfyw==
   dependencies:
     arweave "^1.9.1"
-    smartweave "^0.3.5"
+    smartweave "^0.3.6"
     tiny-worker "^2.3.0"
 
 component-emitter@^1.2.1:
@@ -3849,6 +3849,11 @@ log-symbols@^2.2.0:
   integrity sha512-VeIAFslyIerEJLXHziedo2basKbMKtTw3vfn5IzG0XTjhAVEJyNHnL2p7vc+wBDSdQuUpNw3M2u6xb9QsAY5Eg==
   dependencies:
     chalk "^2.0.1"
+
+loglevel@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.7.0.tgz#728166855a740d59d38db01cf46f042caa041bb0"
+  integrity sha512-i2sY04nal5jDcagM3FMfG++T69GEEM8CYuOfeOIvmXzOIcwE9a/CJPR0MFM97pYMj/u10lzz7/zd7+qwhrBTqQ==
 
 loose-envify@^1.0.0:
   version "1.4.0"
@@ -5881,13 +5886,14 @@ simple-swizzle@^0.2.2:
   dependencies:
     is-arrayish "^0.3.1"
 
-smartweave@^0.3.5:
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/smartweave/-/smartweave-0.3.5.tgz#780cb2604d40a8024e5a0a2d294d51838b727049"
-  integrity sha512-yNb4FBJpWgzTwxesCw1GV9dCA6XRJmP7aF7/JFR8uur8QgAZUXghugyC1IdpAtjven4ASFl7U2uApvj78CIGlw==
+smartweave@^0.3.6:
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/smartweave/-/smartweave-0.3.6.tgz#97a78d10b2f094f78a4b6bdecb6b55c8527d6728"
+  integrity sha512-+JWkNkeZj+S1u8qwJBDypzYQwuxVuWfOlLBQQRXiEMk+9YB4z28aWIFu5PxaGYYsKK1Vwc3J9bjI5EATaRBQCQ==
   dependencies:
     arweave "^1.9.1"
     bignumber.js "^9.0.0"
+    loglevel "^1.7.0"
     yargs "^15.3.1"
 
 snapdragon-node@^2.0.1:
