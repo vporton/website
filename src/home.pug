@@ -7,30 +7,31 @@ html(lang="en")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title CommunityXYZ
   body.antialised: .page
-    header.navbar.bg-transparent
-      .container-xl
-        a.navbar-brand.navbar-brand-autodark.d-none-navbar-horizontal.pr-0.pr-md-3(href="./")
-          img.navbar-brand-image(src="./assets/images/logo.png" alt="CommunityXYZ")
-
-        .navbar-nav.flex-row.order-md-last
-          .nav-item.mr-3
-              a.create.btn.btn-secondary.opp(href='#')
-                i.icon(data-feather="star")
-                | Opportunities
-          .nav-item
-            a.create.btn.btn-primary.create(href='#')
-              i.icon(data-feather="zap")
-              | Create Community
-
     .content
       .container-xl.d-flex.flex-column
+        .text-center
+          img(src="./assets/images/logo.png" alt="CommunityXYZ", width="250px")
         .empty
           h1.mb-3 Start and Manage your Permaweb Community
           h2.mb-5.text-muted Communities built on the Arweave network offer better incentives and flexibility for founders and contributors.
+          .row(style="width: 80%")
+            .col-md-12.col-lg-4.mb-3
+              a.btn.btn-outline-primary.btn-block.create(href='#')
+                i.icon(data-feather="zap")
+                | Create Community
+            .col-md-6.col-lg-4.mb-3
+              a.btn.btn-outline-primary.btn-block.comms(href='#')
+                i.icon(data-feather="star")
+                | Communities
+            .col-md-6.col-lg-4.mb-5
+              a.btn.btn-outline-primary.btn-block.opp(href='#')
+                i.icon(data-feather="briefcase")
+                | Opportunities
+            
           .empty-icon
             object.h-8.mb-4(type="image/svg+xml" data="./assets/illustrations/undraw_Group_chat_unwm.svg")
 
-          p Communities flip the ownership model from investors to innovators with Profit Sharing Tokens (PSTs). All token holders earn a share of profits in real time and can influence their application’s direction through voting. Learn more about #[a(href="http://arweave.org/psc", target="_blank") Profit Sharing Communities].
+          p Communities flip the ownership model from investors to innovators with Profit Sharing Tokens (PSTs). All token holders earn a share of profits in real time and can influence their application’s direction through voting. Learn more about #[a(href="https://www.arweave.org/profit-sharing-communities", target="_blank") Profit Sharing Communities].
 
       .container-xl
         .row.align-items-start
@@ -93,7 +94,7 @@ html(lang="en")
 
         .mt-5.mb-5.text-center
           h2 Don't wait any longer and start experiencing CommunityXYZ
-          p: a.create.btn.btn-primary.btn-lg(href="#") 
+          p: a.create.btn.btn-outline-primary.btn-lg(href="#") 
             i.icon(data-feather="zap")
             | Create my Community
 
