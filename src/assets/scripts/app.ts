@@ -1,7 +1,6 @@
 import "../styles/board.scss";
 
 import "threads/register";
-import Arweave from 'arweave';
 import Community from 'community-js';
 import $ from './libs/jquery';
 import "bootstrap/dist/js/bootstrap.bundle";
@@ -12,38 +11,41 @@ import PageTokens from "./pages/tokens";
 import PageVotes from "./pages/votes";
 import PageVault from "./pages/vault";
 import Account from "./models/account";
-import Utils from "./utils/utils";
 import Statusify from "./utils/statusify";
+import PageOpportunity from "./pages/opportunity";
+import arweave from "./libs/arweave";
+//import Opportunities from "./models/opportunities";
 
 class App {
   private hash: string;
   private hashes: string[];
-  private arweave: Arweave;
   private community: Community;
   private account: Account;
   private statusify: Statusify;
+  //private opportunities: Opportunities;
   private currentBlock: number = 0;
 
   private firstCall = true;
   
   // Pages`
-  private currentPage: PageDashboard | PageTokens | PageVotes | PageVault; // Add all possible page objects here
+  private currentPage: PageDashboard | PageTokens | PageVotes | PageVault | PageOpportunity; // Add all possible page objects here
   private pageDashboard: PageDashboard;
   private pageTokens: PageTokens;
   private pageVotes: PageVotes;
   private pageVault: PageVault;
+  private pageOpportunity: PageOpportunity;
 
   constructor() {
-    this.arweave = Utils.createArweaveInstance();
-    
-    this.community = new Community(this.arweave);
-    this.account = new Account(this.arweave, this.community);
-    this.statusify = new Statusify(this.arweave);
+    this.community = new Community(arweave);
+    this.account = new Account(this.community);
+    this.statusify = new Statusify();
+    //this.opportunities = new Opportunities();
 
     this.pageDashboard = new PageDashboard();
     this.pageTokens = new PageTokens();
     this.pageVotes = new PageVotes();
     this.pageVault = new PageVault();
+    this.pageOpportunity = new PageOpportunity();
 
     this.hashChanged(false);
   }
@@ -51,15 +53,15 @@ class App {
   getCommunity() {
     return this.community;
   }
-  getArweave() {
-    return this.arweave;
-  }
   getAccount() {
     return this.account;
   }
   getStatusify() {
     return this.statusify;
   }
+  // getOpportunities() {
+  //   return this.opportunities;
+  // }
   getCurrentBlock() {
     return this.currentBlock;
   }
@@ -77,6 +79,12 @@ class App {
   }
   getPageVault() {
     return this.pageVault;
+  }
+  getPageOpportunity() {
+    return this.pageOpportunity;
+  }
+  getCommunityId(): string {
+    return this.hashes[0];
   }
 
   async init() {
@@ -98,7 +106,7 @@ class App {
   }
 
   private async updateNetworkInfo() {
-    this.currentBlock = (await this.arweave.network.getInfo()).height;
+    this.currentBlock = (await arweave.network.getInfo()).height;
 
     setTimeout(() => this.updateNetworkInfo(), 60000);
   }
@@ -130,7 +138,7 @@ class App {
       `
     };
 
-    const res = await this.arweave.api.request().post('https://arweave.dev/graphql', query);
+    const res = await arweave.api.request().post('https://arweave.dev/graphql', query);
     if(!res.data || !res.data.data) {
       return;
     }
@@ -209,6 +217,8 @@ class App {
       this.currentPage = this.pageVotes;
     } else if(page === 'vault') {
       this.currentPage = this.pageVault;
+    } else if(page === 'opportunity') {
+      this.currentPage = this.pageOpportunity;
     }
 
     // @ts-ignore

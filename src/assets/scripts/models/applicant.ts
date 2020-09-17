@@ -5,6 +5,7 @@ import Toast from "../utils/toast";
 import Author from "./author";
 import jobboard from "../opportunity/jobboard";
 import Arweave from "arweave";
+import arweave from "../libs/arweave";
 
 export default class Applicant implements ApplicantInterface {
   id: string;
@@ -22,7 +23,7 @@ export default class Applicant implements ApplicantInterface {
     }
   }
 
-  async getMessage(arweave: Arweave): Promise<string> {
+  async getMessage(): Promise<string> {
     if(!this.message) {
       const res = await arweave.api.get(`/${this.id}`);
       this.message = Utils.escapeScriptStyles(res.data);
@@ -88,11 +89,11 @@ export default class Applicant implements ApplicantInterface {
 
     let txs: GQLTransactionsResultInterface;
     try {
-      const res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
+      const res = await arweave.api.request().post('https://arweave.dev/graphql', query);
       txs = res.data.data.transactions;
     } catch (err) {
       console.log(err);
-      const toast = new Toast(jobboard.getArweave());
+      const toast = new Toast();
       toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }
@@ -117,7 +118,7 @@ export default class Applicant implements ApplicantInterface {
     }
 
     const wallet =  await jobboard.getAccount().getWallet();
-    const toast = new Toast(jobboard.getArweave());
+    const toast = new Toast();
 
     const isOwner = this.author.address !== await jobboard.getAccount().getAddress();
     const isOppOwner = oppOwner !== await jobboard.getAccount().getAddress();
@@ -136,7 +137,6 @@ export default class Applicant implements ApplicantInterface {
       return false;
     }
 
-    const arweave = jobboard.getArweave();
     const tx = await arweave.createTransaction({ data: Math.random().toString().substr(-4) }, wallet);
     
     for(let i = 0; i < keys.length; i++) {
@@ -205,11 +205,11 @@ export default class Applicant implements ApplicantInterface {
 
     let txs: GQLTransactionsResultInterface;
     try {
-      const res = await jobboard.getArweave().api.request().post('https://arweave.dev/graphql', query);
+      const res = await arweave.api.request().post('https://arweave.dev/graphql', query);
       txs = res.data.data.transactions;
     } catch (err) {
       console.log(err);
-      const toast = new Toast(jobboard.getArweave());
+      const toast = new Toast();
       toast.show('Error', 'Error connecting to the network.', 'error', 5000);
       return;
     }

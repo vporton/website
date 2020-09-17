@@ -5,12 +5,6 @@ export default class Opportunities {
   private oppsMap: Map<string, Opportunity> = new Map();
   private oppsArr: Opportunity[] = [];
 
-  private arweave: Arweave;
-
-  constructor(arweave: Arweave) {
-    this.arweave = arweave;
-  }
-
   /**
    * Get all the opportunites, updated, sorted and with all the applicants.
    * By default the data isn't available.
@@ -27,10 +21,29 @@ export default class Opportunities {
     return this.oppsArr;
   }
 
+  async getAllByCommunityIds(commIds: string[]): Promise<Opportunity[]> {
+    if(this.oppsMap.size < 2) {
+      this.oppsArr = await Opportunity.getAll(commIds);
+      for(let i = 0, j = this.oppsArr.length; i < j; i++) {
+        this.oppsMap.set(this.oppsArr[i].id, this.oppsArr[i]);
+      }
+
+      return this.oppsArr;
+    }
+    
+    const res: Opportunity[] = [];
+    for(let i = 0, j = this.oppsArr.length; i < j; i++) {
+      if(commIds.includes(this.oppsArr[i].community.id)) {
+        res.push(this.oppsArr[i]);
+      }
+    }
+    return res;
+  }
+
   async get(id: string, reload: boolean = false): Promise<Opportunity> {
     let opp = this.oppsMap.get(id);
     if(!opp) {
-      opp = await Opportunity.getOpportunity(id, this.arweave);
+      opp = await Opportunity.getOpportunity(id);
       if(opp) {
         this.oppsArr.push(opp);
         this.oppsMap.set(id, opp);
