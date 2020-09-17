@@ -1,6 +1,5 @@
 import "threads/register";
 import "../styles/style.scss";
-import "bootstrap/dist/js/bootstrap.bundle";
 
 import $ from './libs/jquery';
 import './global';
@@ -13,7 +12,6 @@ import { TokensWorker } from "./workers/tokens";
 import Author from "./models/author";
 import AuthorInterface from "./interfaces/author";
 import Opportunities from "./models/opportunities";
-import Opportunity from "./models/opportunity";
 
 const getAllCommunityIds = async (): Promise<string[]> => {
   let cursor = '';
@@ -108,12 +106,10 @@ const loadCards = async () => {
   const commIds: string[] = await getAllCommunityIds();
   const opps: {[key: string]: number} = await getAllOpportunities(commIds);
 
-  console.log(opps);
-
   $('.total').text(commIds.length);
   $('.loaded').show();
   
-  let list: {html: string, members: number}[] = [];
+  let list: {html: string, members: number, opportunities: number}[] = [];
   let current = -1;
   let completed = 0;
 
@@ -140,7 +136,7 @@ const loadCards = async () => {
     for(let i = 0; i < max; i++) {
       const author = new Author(users[i].address, users[i].address, null);
       const aDetails: AuthorInterface = await author.getDetails();
-      avatarList += `<span class="avatar" style="background-image: url(${aDetails.avatar})"></span>`;
+      avatarList += `<span class="avatar" data-toggle="tooltip" data-placement="top" title="${aDetails.address}" data-original-title="${aDetails.address}" style="background-image: url(${aDetails.avatar})"></span>`;
     }
 
     const oppsTotal = opps[commIds[i]]? opps[commIds[i]] : 0;
@@ -161,7 +157,8 @@ const loadCards = async () => {
         </a>
       </div>
       `,
-      members: users.length
+      members: users.length,
+      opportunities: oppsTotal
    });
 
     $('.completed').text(++completed);
@@ -176,8 +173,8 @@ const loadCards = async () => {
   }
 
   await Promise.all(gos);
-
-  $('.opps-cards').html(list.sort((a, b) => b.members - a.members).map(a => a.html).join(''));
+  $('.opps-cards').html(list.sort((a, b) => (b.members+b.opportunities) - (a.members + a.opportunities)).map(a => a.html).join(''));
+  $('[data-toggle="tooltip"]').tooltip();
 }
 
 $(() => {
