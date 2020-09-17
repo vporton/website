@@ -4,7 +4,7 @@ import $ from '../libs/jquery';
 import Toast from '../utils/toast';
 import Community from "community-js";
 import { getIdenticon, get } from "../utils/arweaveid";
-import communityDB from "../libs/db";
+import { cookieStore } from "../libs/db";
 import arweave from "../libs/arweave";
 
 export default class Account {
@@ -22,9 +22,9 @@ export default class Account {
   }
 
   async init() {
-    const sess = communityDB.get('sesswall')
+    const sess = cookieStore.get('sesswall')
     if(sess) {
-      await this.loadWallet(JSON.parse(atob(sess)));
+      await this.loadWallet(JSON.parse(sess));
     }
 
     this.events();
@@ -93,8 +93,10 @@ export default class Account {
         
         if(this.address.length && this.arBalance >= 0) {
           try {
-            communityDB.set('sesswall', btoa(ev.target.result));
-          } catch(err) {}
+            cookieStore.set('sesswall', ev.target.result);
+          } catch(err) {
+            console.log(err);
+          }
         }
       };
       fileReader.readAsText(e.target.files[0]);
@@ -121,7 +123,7 @@ export default class Account {
 
       //@ts-ignore
       window.currentPage.syncPageState();
-      communityDB.remove('sesswall');
+      cookieStore.remove('sesswall');
 
       // Set a dummy wallet address
       this.community.setWallet(await arweave.wallets.generate());
