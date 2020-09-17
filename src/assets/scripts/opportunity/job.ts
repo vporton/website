@@ -58,6 +58,8 @@ export default class PageJob {
     } else {
       $('.is-not-ended').show();
     }
+
+    this.showApplicants();
   }
 
   private async show() {
@@ -96,7 +98,13 @@ export default class PageJob {
   private async showApplicants() {
     $('.total-applications').text(`${this.opportunity.applicants.length} ${this.opportunity.applicants.length === 1? 'applicant': 'applicants'}`);
     
-    let display = await jobboard.getAccount().getAddress() === this.opportunity.author.address ? '' : 'display: none';
+    let display = 'display: none';
+    let adminDisplay = 'display: none';
+    let isAuthor = false;
+    if(await jobboard.getAccount().getAddress() === this.opportunity.author.address) {
+      display = '';
+      isAuthor = true;
+    }
 
     let html = '';
     for(let i = 0, j = this.opportunity.applicants.length; i < j; i++) {
@@ -109,6 +117,10 @@ export default class PageJob {
       if(applicant.approved) {
         display = 'display: none';
         bg = 'bg-green';
+
+        if(isAuthor) {
+          adminDisplay = '';
+        }
       }
 
       html += `
@@ -124,6 +136,7 @@ export default class PageJob {
                 <div class="mb-2">
                   <a class="btn btn-sm btn-light mr-2" href="https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${authorApp.address}" target="_blank">Contact on WeveMail</a>
                   <a class="btn-applicant-approve is-owner btn btn-sm btn-outline-success mr-2" style="${display}" href="#!" data-applicant="${authorApp.address}">Approve applicant</a>
+                  <a class="is-owner btn btn-sm btn-outline-success mr-2" style="${adminDisplay}" href="index.html#${this.opportunity.community.id}/votes/mint/${authorApp.address}/${this.opportunity.payout}/${this.opportunity.lockLength}" target="_blank">Start payout</a>
                 </div>
                 <div class="small mt-1">${await applicant.getMessage()}</div>
               </div>

@@ -80,6 +80,9 @@ class App {
   getCommunityId(): string {
     return this.hashes[0];
   }
+  getHashes(): string[] {
+    return this.hashes;
+  }
 
   async init() {
     if(!this.firstCall) {
