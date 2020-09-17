@@ -176,7 +176,7 @@ export default class Opportunity implements OpportunityInterface {
     let edges: GQLEdgeInterface[] = [];
     let cursor: string = '';
 
-    const oppTagStr = oppIds && oppIds.length ? `, {name: "Opportunity-ID", values: ${JSON.stringify(oppIds)}}` : '';
+    const oppTagStr = oppIds && oppIds.length ? `, {name: "communityId", values: ${JSON.stringify(oppIds)}}` : '';
 
     while(hasNextPage) {
       const query = {
@@ -234,7 +234,7 @@ export default class Opportunity implements OpportunityInterface {
       }
   
       const transactions: GQLTransactionsResultInterface = res.data.data.transactions;
-      if(transactions.edges) {
+      if(transactions.edges && transactions.edges.length) {
         edges = edges.concat(transactions.edges);
         cursor = transactions.edges[transactions.edges.length - 1].cursor;
       }
@@ -342,7 +342,7 @@ export default class Opportunity implements OpportunityInterface {
       }
   
       const transactions: GQLTransactionsResultInterface = res.data.data.transactions;
-      if(transactions.edges) {
+      if(transactions.edges && transactions.edges.length) {
         edges = edges.concat(transactions.edges);
         cursor = transactions.edges[transactions.edges.length - 1].cursor;
       }

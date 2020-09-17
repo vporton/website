@@ -101,7 +101,7 @@ export default class PageJob {
     let html = '';
     for(let i = 0, j = this.opportunity.applicants.length; i < j; i++) {
       const applicant = this.opportunity.applicants[i];
-      await applicant.update(null, this.opportunity.author.address);
+      await applicant.update(null, this.opportunity.author.address, jobboard);
 
       const authorApp = await applicant.author.getDetails();
 
@@ -250,7 +250,7 @@ export default class PageJob {
         }
       }
 
-      const res = await applicant.update({approved: 'true'});
+      const res = await applicant.update({approved: 'true'}, null, jobboard);
       if(res && updateOpp) {
         await this.opportunity.update({status: 'In progress'}, jobboard);
         await this.syncPageState();

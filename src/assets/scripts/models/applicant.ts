@@ -3,8 +3,6 @@ import ApplicantInterface from "../interfaces/applicant";
 import { GQLNodeInterface, GQLTransactionsResultInterface } from "../interfaces/gqlResult";
 import Toast from "../utils/toast";
 import Author from "./author";
-import jobboard from "../opportunity/jobboard";
-import Arweave from "arweave";
 import arweave from "../libs/arweave";
 
 export default class Applicant implements ApplicantInterface {
@@ -32,9 +30,9 @@ export default class Applicant implements ApplicantInterface {
     return this.message;
   }
 
-  async update(params?: {[key: string]: string}, oppOwner?: string) {
+  async update(params?: {[key: string]: string}, oppOwner?: string, caller?: any) {
     if(params) {
-      return this.doUpdate(params, oppOwner);
+      return this.doUpdate(params, oppOwner, caller);
     }
 
     const owners = [this.author.address];
@@ -111,17 +109,17 @@ export default class Applicant implements ApplicantInterface {
     }
   }
 
-  private async doUpdate(params: {[key: string]: string}, oppOwner: string) {
+  private async doUpdate(params: {[key: string]: string}, oppOwner: string, caller: any) {
     const keys = Object.keys(params);
     if(!keys.length) {
       return false;
     }
 
-    const wallet =  await jobboard.getAccount().getWallet();
+    const wallet =  await caller.getAccount().getWallet();
     const toast = new Toast();
 
-    const isOwner = this.author.address !== await jobboard.getAccount().getAddress();
-    const isOppOwner = oppOwner !== await jobboard.getAccount().getAddress();
+    const isOwner = this.author.address !== await caller.getAccount().getAddress();
+    const isOppOwner = oppOwner !== await caller.getAccount().getAddress();
 
     if(!isOwner || !isOppOwner) {
       toast.show('Error', 'You cannot update this applicant.', 'error', 3000);
@@ -133,7 +131,7 @@ export default class Applicant implements ApplicantInterface {
       return false;
     }
 
-    if(!await jobboard.chargeFee('updateApplicant')) {
+    if(!await caller.chargeFee('updateApplicant')) {
       return false;
     }
 
@@ -158,7 +156,7 @@ export default class Applicant implements ApplicantInterface {
       return false;
     }
 
-    jobboard.getStatusify().add('Set applicant', tx.id);
+    caller.getStatusify().add('Set applicant', tx.id);
     return true;
   }
 

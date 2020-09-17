@@ -14,7 +14,6 @@ import Account from "./models/account";
 import Statusify from "./utils/statusify";
 import PageOpportunity from "./pages/opportunity";
 import arweave from "./libs/arweave";
-//import Opportunities from "./models/opportunities";
 
 class App {
   private hash: string;
@@ -22,7 +21,6 @@ class App {
   private community: Community;
   private account: Account;
   private statusify: Statusify;
-  //private opportunities: Opportunities;
   private currentBlock: number = 0;
 
   private firstCall = true;
@@ -39,7 +37,6 @@ class App {
     this.community = new Community(arweave);
     this.account = new Account(this.community);
     this.statusify = new Statusify();
-    //this.opportunities = new Opportunities();
 
     this.pageDashboard = new PageDashboard();
     this.pageTokens = new PageTokens();
@@ -59,9 +56,6 @@ class App {
   getStatusify() {
     return this.statusify;
   }
-  // getOpportunities() {
-  //   return this.opportunities;
-  // }
   getCurrentBlock() {
     return this.currentBlock;
   }
