@@ -23,6 +23,10 @@ app.get('/opportunity.html', (_, res) => {
   res.redirect('/opportunity');
 });
 
+app.get('/communities.html', (_, res) => {
+  res.redirect('/communities');
+});
+
 app.get('/opportunity', (_, res) => {
   res.sendFile(path.join(__dirname, 'dist/opportunity.html'));
 });
@@ -33,6 +37,10 @@ app.get('/create', (_, res) => {
 
 app.get('/home', (_, res) => {
   res.sendFile(path.join(__dirname, 'dist/home.html'));
+});
+
+app.get('/communities', (_, res) => {
+  res.sendFile(path.join(__dirname, 'dist/communities.html'));
 });
 
 app.use(express.static('dist'));

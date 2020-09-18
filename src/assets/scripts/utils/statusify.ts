@@ -10,11 +10,11 @@ import Arweave from 'arweave';
 import $ from '../libs/jquery';
 import { GQLEdgeInterface } from '../interfaces/gqlResult';
 import Deferred from './deferred';
+import arweave from '../libs/arweave';
 
 type statusType = 'success' | 'error' | 'none' | 'pending';
 
 export default class Statusify {
-  private arweave: Arweave;
   private $elem: JQuery<HTMLElement>;
   private eventsStarted = false;
 
@@ -28,8 +28,7 @@ export default class Statusify {
   private updateMS: number = 0;
   private globalStatus: statusType = 'none';
 
-  constructor(arweave: Arweave, statusifyParent: JQuery<HTMLElement> = $('.statusify'), updateMS: number = 10000) {
-    this.arweave = arweave;
+  constructor(statusifyParent: JQuery<HTMLElement> = $('.statusify'), updateMS: number = 10000) {
     this.$elem = statusifyParent;
 
     setTimeout(() => this.update(), updateMS);
@@ -135,7 +134,7 @@ export default class Statusify {
       }`
     };
 
-    const res = await this.arweave.api.post('/graphql', query);
+    const res = await arweave.api.post('/graphql', query);
     const data: GQLEdgeInterface[] = res.data.data.transactions.edges;
     
     const foundTxs = [];

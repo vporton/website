@@ -7,6 +7,7 @@ import { VoteType, VoteInterface } from 'community-js/lib/faces';
 
 export default class PageVotes {
   private votes: Vote[] = [];
+  private firstCall: boolean = true;
 
   constructor() {}
 
@@ -34,6 +35,11 @@ export default class PageVotes {
     $('.min-lock-length').text(state.settings.get('lockMinLength'));
     $('.max-lock-length').text(state.settings.get('lockMaxLength'));
 
+    if(this.firstCall) {
+      this.extraParams();
+      this.firstCall = false;
+    }
+
     $('.proposals').html('');
     if(state.votes.length) {
       this.votes = [];
@@ -46,6 +52,28 @@ export default class PageVotes {
 
     $('[data-toggle="tooltip"]').tooltip();
     $('.dimmer').removeClass('active');
+  }
+
+  private async extraParams() {
+    // Check for hashes to see if we need to open the votes modal.
+    const hashes = app.getHashes();
+    if(hashes.length > 2 && hashes[2] === 'mint') {
+      const addy = hashes[3];
+      const qty = hashes[4];
+      const lockLength = hashes[5];
+
+      if(addy) {
+        $('#vote-recipient').val(addy.trim());
+      }
+      if(qty) {
+        $('#vote-qty').val(qty.trim());
+      }
+      if(lockLength) {
+        $('#vote-lock').val(lockLength.trim());
+      }
+
+      $('#modal-new-vote').modal('show');
+    }
   }
 
   private async setValidate() {
@@ -290,7 +318,7 @@ export default class PageVotes {
         });
       } catch (err) {
         console.log(err.message);
-        const toast = new Toast(app.getArweave());
+        const toast = new Toast();
         toast.show('Vote error', err.message, 'error', 3000);
       }
 

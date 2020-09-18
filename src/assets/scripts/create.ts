@@ -6,9 +6,8 @@ import "bootstrap/dist/js/bootstrap.bundle";
 
 import './global';
 import { JWKInterface } from "arweave/web/lib/wallet";
-import Utils from "./utils/utils";
+import arweave from "./libs/arweave";
 
-let arweave = Utils.createArweaveInstance();
 const community = new Community(arweave);
 
 let currentStep = 1;
@@ -173,7 +172,7 @@ const validate = async (e: any) => {
   }
 };
 
-$(document).ready(() => {
+$(() => {
   $('[data-toggle="tooltip"]').tooltip();
 
   $('.back').on('click', (e: any) => {

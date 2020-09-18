@@ -298,7 +298,7 @@ export default class Vote implements VoteInterface {
         $(e.target).removeClass('btn-loading');
       } catch (err) {
         console.log(err.message);
-        const toast = new Toast(app.getArweave());
+        const toast = new Toast();
         toast.show('Vote error', err.message, 'error', 3000);
         $(e.target).removeClass('btn-loading disabled');
       }
@@ -325,7 +325,7 @@ export default class Vote implements VoteInterface {
         $(e.target).removeClass('btn-loading');
       } catch (err) {
         console.log(err.message);
-        const toast = new Toast(app.getArweave());
+        const toast = new Toast();
         toast.show('Vote error', err.message, 'error', 3000);
         $(e.target).removeClass('btn-loading disabled');
       }
@@ -355,7 +355,7 @@ export default class Vote implements VoteInterface {
         $(e.target).removeClass('btn-loading');
       } catch (err) {
         console.log(err.message);
-        const toast = new Toast(app.getArweave());
+        const toast = new Toast();
         toast.show('Vote error', err.message, 'error', 3000);
         $(e.target).removeClass('btn-loading disabled');
       }

@@ -15,10 +15,17 @@ Sentry.init({
 
 import * as feather from "feather-icons";
 import $ from './libs/jquery';
+import "bootstrap/dist/js/bootstrap.bundle";
+import './libs/arweave';
 
-$(document).ready(() => {
+$(() => {
   feather.replace({width: 16, height: 16});
-  $('[data-toggle="popover"]').popover();
-  $('[data-toggle="tooltip"]').tooltip();
-  $('.toast').toast();
+
+  try {
+    $('[data-toggle="tooltip"]').tooltip();
+  } catch(e) {}
+  
+  try {
+    $('.toast').toast();
+  } catch(e) {}
 });

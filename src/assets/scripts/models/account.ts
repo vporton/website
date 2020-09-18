@@ -1,14 +1,13 @@
 import { JWKInterface } from "arweave/web/lib/wallet";
-import Arweave from "arweave";
 
 import $ from '../libs/jquery';
 import Toast from '../utils/toast';
 import Community from "community-js";
 import { getIdenticon, get } from "../utils/arweaveid";
-import communityDB from "../libs/db";
+import { cookieStore } from "../libs/db";
+import arweave from "../libs/arweave";
 
 export default class Account {
-  private arweave: Arweave;
   private community: Community;
 
   private loggedIn: boolean = false;
@@ -18,15 +17,14 @@ export default class Account {
   private address: string = '';
   private arBalance: number = -1;
 
-  constructor(arweave: Arweave, community: Community) {
-    this.arweave = arweave;
+  constructor(community: Community) {
     this.community = community;
   }
 
   async init() {
-    const sess = communityDB.get('sesswall')
+    const sess = cookieStore.get('sesswall')
     if(sess) {
-      await this.loadWallet(JSON.parse(atob(sess)));
+      await this.loadWallet(JSON.parse(sess));
     }
 
     this.events();
@@ -49,12 +47,12 @@ export default class Account {
   }
 
   async getArBalance(): Promise<number> {
-    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    this.arBalance = +arweave.ar.winstonToAr((await arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
     return this.arBalance;
   }
 
   async showLoginError(duration: number = 5000) {
-    const toast = new Toast(this.arweave);
+    const toast = new Toast();
     toast.show('Login first', 'Before being able to do this action you need to login.', 'login', duration);
   }
 
@@ -63,7 +61,7 @@ export default class Account {
     this.wallet = wallet;
 
     this.address = await this.community.setWallet(wallet);
-    this.arBalance = +this.arweave.ar.winstonToAr((await this.arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
+    this.arBalance = +arweave.ar.winstonToAr((await arweave.wallets.getBalance(this.address)), { formatted: true, decimals: 5, trim: true });
 
     const acc = await get(this.address);
     this.username = acc.name;
@@ -95,8 +93,10 @@ export default class Account {
         
         if(this.address.length && this.arBalance >= 0) {
           try {
-            communityDB.set('sesswall', btoa(ev.target.result));
-          } catch(err) {}
+            cookieStore.set('sesswall', ev.target.result);
+          } catch(err) {
+            console.log(err);
+          }
         }
       };
       fileReader.readAsText(e.target.files[0]);
@@ -123,10 +123,10 @@ export default class Account {
 
       //@ts-ignore
       window.currentPage.syncPageState();
-      communityDB.remove('sesswall');
+      cookieStore.remove('sesswall');
 
       // Set a dummy wallet address
-      this.community.setWallet(await this.arweave.wallets.generate());
+      this.community.setWallet(await arweave.wallets.generate());
     });
   }
 }

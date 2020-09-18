@@ -5,6 +5,7 @@ import { getIdenticon, get } from "../utils/arweaveid";
 import Toast from "../utils/toast";
 import Opportunity from "../models/opportunity";
 import Applicant from "../models/applicant";
+import arweave from "../libs/arweave";
 
 export default class PageJob {
   private opportunity: Opportunity;
@@ -57,6 +58,8 @@ export default class PageJob {
     } else {
       $('.is-not-ended').show();
     }
+
+    this.showApplicants();
   }
 
   private async show() {
@@ -86,7 +89,7 @@ export default class PageJob {
 
     this.showApplicants();
 
-    this.opportunity.getDescription(jobboard.getArweave()).then((desc: string) => {
+    this.opportunity.getDescription().then((desc: string) => {
       const $editor = $('<div class="ql-editor"></div>').html(desc);
       $('.opp-description').html('').append($editor).parents('.dimmer').removeClass('active');
     });
@@ -95,12 +98,18 @@ export default class PageJob {
   private async showApplicants() {
     $('.total-applications').text(`${this.opportunity.applicants.length} ${this.opportunity.applicants.length === 1? 'applicant': 'applicants'}`);
     
-    let display = await jobboard.getAccount().getAddress() === this.opportunity.author.address ? '' : 'display: none';
+    let display = 'display: none';
+    let adminDisplay = 'display: none';
+    let isAuthor = false;
+    if(await jobboard.getAccount().getAddress() === this.opportunity.author.address) {
+      display = '';
+      isAuthor = true;
+    }
 
     let html = '';
     for(let i = 0, j = this.opportunity.applicants.length; i < j; i++) {
       const applicant = this.opportunity.applicants[i];
-      await applicant.update(null, this.opportunity.author.address);
+      await applicant.update(null, this.opportunity.author.address, jobboard);
 
       const authorApp = await applicant.author.getDetails();
 
@@ -108,6 +117,10 @@ export default class PageJob {
       if(applicant.approved) {
         display = 'display: none';
         bg = 'bg-green';
+
+        if(isAuthor) {
+          adminDisplay = '';
+        }
       }
 
       html += `
@@ -123,8 +136,9 @@ export default class PageJob {
                 <div class="mb-2">
                   <a class="btn btn-sm btn-light mr-2" href="https://wqpddejmpwo6.arweave.net/RlUqMBb4NrvosxXV6e9kQkr2i4X0mqIAK49J_C3yrKg/index.html#/inbox/to=${authorApp.address}" target="_blank">Contact on WeveMail</a>
                   <a class="btn-applicant-approve is-owner btn btn-sm btn-outline-success mr-2" style="${display}" href="#!" data-applicant="${authorApp.address}">Approve applicant</a>
+                  <a class="is-owner btn btn-sm btn-outline-success mr-2" style="${adminDisplay}" href="index.html#${this.opportunity.community.id}/votes/mint/${authorApp.address}/${this.opportunity.payout}/${this.opportunity.lockLength}" target="_blank">Start payout</a>
                 </div>
-                <div class="small mt-1">${await applicant.getMessage(jobboard.getArweave())}</div>
+                <div class="small mt-1">${await applicant.getMessage()}</div>
               </div>
             </div>
           </div>
@@ -154,7 +168,7 @@ export default class PageJob {
       e.preventDefault();
 
       const status = $(e.target).text().trim();
-      await this.opportunity.update({ status });
+      await this.opportunity.update({ status }, jobboard);
       await this.syncPageState();
     });
 
@@ -178,12 +192,11 @@ export default class PageJob {
       const message = $('<div></div>').append($('#apply-message').val().toString().trim()).text();
 
       if(!await jobboard.chargeFee('OpportunityApplication')) {
-        const toast = new Toast(jobboard.getArweave());
+        const toast = new Toast();
         toast.show('Error', 'Unable to submit transaction, please try again later.', 'error', 5000);
         return;
       }
 
-      const arweave = jobboard.getArweave();
       const wallet = await jobboard.getAccount().getWallet();
       const tx = await arweave.createTransaction({data: message}, wallet);
 
@@ -194,7 +207,7 @@ export default class PageJob {
       const res = await arweave.transactions.post(tx);
       if (res.status !== 200 && res.status !== 202) {
         console.log(res);
-        const toast = new Toast(jobboard.getArweave());
+        const toast = new Toast();
         toast.show('Error', 'Unable to submit transaction, please try again later.', 'error', 5000);
         $(e.target).removeClass('btn-loading');
         return;
@@ -211,7 +224,7 @@ export default class PageJob {
       e.preventDefault();
 
       // TODO: Select this applicant, but first check the opp to see if it's allowed more than one, and show a warning if not.
-      const toast = new Toast(jobboard.getArweave());
+      const toast = new Toast();
       if(await jobboard.getAccount().getAddress() !== this.opportunity.author.address) {
         toast.show('Error', 'You cannot approve an applicant for this opportunity.', 'error', 3000);
         return;
@@ -250,9 +263,9 @@ export default class PageJob {
         }
       }
 
-      const res = await applicant.update({approved: 'true'});
+      const res = await applicant.update({approved: 'true'}, null, jobboard);
       if(res && updateOpp) {
-        await this.opportunity.update({status: 'In progress'});
+        await this.opportunity.update({status: 'In progress'}, jobboard);
         await this.syncPageState();
       }
 

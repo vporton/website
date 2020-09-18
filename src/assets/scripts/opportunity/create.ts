@@ -7,6 +7,7 @@ import Transaction from "arweave/node/lib/transaction";
 import { StateInterface } from "community-js/lib/faces";
 import Community from "community-js";
 import Toast from "../utils/toast";
+import arweave from "../libs/arweave";
 
 export default class PageCreateJob {
   private quill: Quill;
@@ -97,7 +98,7 @@ export default class PageCreateJob {
     const project = $.trim(Utils.stripHTML($('[name="job-project"]:checked').val().toString()));
     const permission = $.trim(Utils.stripHTML($('[name="permission"]:checked').val().toString()));
 
-    const toast = new Toast(jobboard.getArweave());
+    const toast = new Toast();
 
     if(title.length < 3) {
       toast.show('Error', 'The title doesn\'t explain what is this opportunity.', 'error', 5000);
@@ -125,7 +126,7 @@ export default class PageCreateJob {
     }
 
     // Create the transaction
-    this.tx = await jobboard.getArweave().createTransaction({data: description}, await jobboard.getAccount().getWallet());
+    this.tx = await arweave.createTransaction({data: description}, await jobboard.getAccount().getWallet());
     this.tx.addTag('Content-Type', 'text/html');
     this.tx.addTag('App-Name', 'CommunityXYZ');
     this.tx.addTag('Action', 'addOpportunity');
@@ -142,8 +143,7 @@ export default class PageCreateJob {
     this.tx.addTag('communityName', this.community.name);
     this.tx.addTag('communityTicker', this.community.ticker);
 
-    let cost = await jobboard.getArweave().transactions.getPrice(+this.tx.data_size);
-    cost = jobboard.getArweave().ar.winstonToAr(cost, {formatted: true, decimals: 5, trim: true});
+    const cost = arweave.ar.winstonToAr(this.tx.reward, {formatted: true, decimals: 5, trim: true});
 
     this.transferFee = Math.round((amount * 2.5) / 100);
 
@@ -179,7 +179,6 @@ export default class PageCreateJob {
 
       $(e.target).addClass('btn-loading');
 
-      const arweave = jobboard.getArweave();
       const community = jobboard.getCommunity();
       const account = jobboard.getAccount();
       const addy = await account.getAddress();
@@ -188,7 +187,7 @@ export default class PageCreateJob {
       const txid = this.tx.id;
 
       const state = await community.getState();
-      const toast = new Toast(jobboard.getArweave());
+      const toast = new Toast();
       
       if(!state.balances || !state.balances[addy] || state.balances[addy] < this.transferFee) {
         $(e.target).removeClass('btn-loading');
