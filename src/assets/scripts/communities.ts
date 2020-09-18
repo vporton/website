@@ -17,7 +17,7 @@ const getAllCommunityIds = async (): Promise<string[]> => {
   let cursor = '';
   let hasNextPage = true;
 
-  let edges: Map<string, GQLEdgeInterface> = new Map();
+  let ids: string[] = [];
   while(hasNextPage) {
     const query = {
       query: `query {
@@ -60,13 +60,7 @@ const getAllCommunityIds = async (): Promise<string[]> => {
     const data: GQLResultInterface = res.data;
 
     for(let i = 0, j = data.data.transactions.edges.length; i < j; i++) {
-      const edge = data.data.transactions.edges[i];
-      const storedEdge = edges.get(edge.node.id);
-      if(storedEdge && new Date(storedEdge.node.block.timestamp).getTime() > new Date(edge.node.block.timestamp).getTime()) {
-        continue;
-      }
-
-      edges.set(edge.node.id, edge);
+      ids.push(data.data.transactions.edges[i].node.id);
     }
     hasNextPage = data.data.transactions.pageInfo.hasNextPage;
 
@@ -75,13 +69,7 @@ const getAllCommunityIds = async (): Promise<string[]> => {
     }
   }
 
-  const res: string[] = [];
-  const edgesVal = Array.from(edges.values());
-  for(let i = 0, j = edgesVal.length; i < j; i++) {
-    res.push(edgesVal[i].node.id);
-  }
-
-  return res;
+  return ids;
 };
 
 const getAllOpportunities = async (commIds: string[]): Promise<{[key: string]: number}> => {

@@ -1,7 +1,6 @@
 import { expose } from "threads/worker";
 import { GQLNodeInterface } from "../interfaces/gqlResult";
 import OpportunityInterface from "../interfaces/opportunity";
-import Author from "../models/author";
 
 const worker = {
   nodeToOpportunity: async (node: GQLNodeInterface): Promise<OpportunityInterface> => {
