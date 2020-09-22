@@ -21,6 +21,7 @@ jobs:
           BRANCH: master # optional
           PROJECT: community
           PORT: 22 # optional
+          FLAGS: --force # optional
           SSH_PRIVATE_KEY: ${{ secrets.DOKKU_PRIVATE_KEY }}
           SSH_PUBLIC_KEY: ${{ secrets.DOKKU_PUBLIC_KEY }}
           SSH_HOST: ${{ secrets.DOKKU_HOST }}
