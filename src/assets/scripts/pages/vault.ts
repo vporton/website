@@ -46,9 +46,11 @@ export default class PageVault {
 
     $('.min-lock-length').text(state.settings.get('lockMinLength'));
     $('.max-lock-length').text(state.settings.get('lockMaxLength'));
-    
-    this.createOrUpdateTable(state);
-    if(await app.getAccount().isLoggedIn() && state.vault[(await app.getAccount().getAddress())]) {
+
+    const p = this.createOrUpdateTable(state);
+    const myVault = state.vault[(await app.getAccount().getAddress())];
+
+    if(await app.getAccount().isLoggedIn() && myVault && myVault.length) {
       this.createOrUpdateMyTable(state);
 
       const {me, others} = await this.vaultWorker.meVsOthersWeight(state.vault, await app.getAccount().getAddress());
@@ -56,6 +58,17 @@ export default class PageVault {
     } else {
       $('.table-vault').find('tbody').html('');
       $('#chart-vault').addClass('text-center').text('Account doesn\'t have any locked balances.');
+
+      const html = `
+      <tr>
+        <td class="text-muted text-center" data-label="Balance" colspan="4">
+          Account doesn't have any locked balances.
+        </td>
+      </tr>
+      `;
+      $('.table-my-vault').find('tbody').html(html).parents('.dimmer').removeClass('active');
+
+      await p;
       $('.dimmer').removeClass('active');
     }
   }
@@ -64,6 +77,7 @@ export default class PageVault {
     let html = '';
 
     const vault = state.vault[await app.getAccount().getAddress()];
+
     for(let i = 0, j = vault.length; i < j; i++) {
       const v = vault[i];
 
