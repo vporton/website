@@ -1,7 +1,6 @@
 import engine from 'store/src/store-engine';
 import localStorage from 'store/storages/localStorage';
 import memoryStorage from 'store/storages/memoryStorage';
-import cookieStorage from 'store/storages/cookieStorage';
 import expirePlugin from 'store/plugins/expire';
 
 const communityDB = engine.createStore([localStorage, memoryStorage], [expirePlugin]);
@@ -15,7 +14,7 @@ class CookieStore {
         date.setTime(date.getTime() + (days*24*60*60*1000));
         expires = "; expires=" + date.toUTCString();
     }
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/; samesite=lax";
 }
 
 get(name: string) {
