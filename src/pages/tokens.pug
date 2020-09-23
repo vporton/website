@@ -74,8 +74,9 @@
     .modal-body
       .mb-3
         label.form-label Recipient
-        input#transfer-target.form-control(type="text" placeholder="Enter the Arweave wallet address of the recipient")
+        input#transfer-target.form-control(type="text")
         .invalid-feedback Invalid recipient
+        small.form-hint Enter the Arweave wallet address of the recipient.
 
       .mb-3
         .form-label Transfer amount ( #[span.text-muted.user-unlocked-balance 0] #[span.text-muted.ticker] )
