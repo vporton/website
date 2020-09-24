@@ -8,16 +8,21 @@ export default communityDB;
 
 class CookieStore {
   set(name: string, value :string, days: number = 5) {
-    let expires = "";
-    if (days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days*24*60*60*1000));
-        expires = "; expires=" + date.toUTCString();
+    try {
+      let expires = "";
+      if (days) {
+          const date = new Date();
+          date.setTime(date.getTime() + (days*24*60*60*1000));
+          expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "")  + expires + "; path=/; samesite=lax";
+    } catch (e) {
+      console.log(e);
     }
-    document.cookie = name + "=" + (value || "")  + expires + "; path=/; samesite=lax";
 }
 
 get(name: string) {
+  try {
     const nameEQ = name + "=";
     const ca = document.cookie.split(';');
     for(let i=0; i < ca.length; i++) {
@@ -25,11 +30,18 @@ get(name: string) {
         while (c.charAt(0)==' ') c = c.substring(1,c.length);
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
     }
-    return null;
+  } catch (e) {
+    console.log(e);
+  }
+  return null;
 }
 
   remove(name: string) {   
-    document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    try {
+      document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    } catch(e) {
+      console.log(e);
+    }
   }
 }
 
