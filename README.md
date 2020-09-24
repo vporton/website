@@ -4,8 +4,10 @@ This is the official website for CommunityXYZ.
 You can access the community here: https://community.xyz
 
 ### Start it locally
-```npm i```
-```npm run dev```
+```
+npm i
+npm run dev
+```
 
 visit [http://localhost:1234/index.html](http://localhost:1234/index.html)  
 
