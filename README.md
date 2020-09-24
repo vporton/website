@@ -1,5 +1,5 @@
 <img src="src/assets/images/logo.svg" width="300px">
----
+
 This is the official website for CommunityXYZ.
 You can access the community here: https://community.xyz
 
