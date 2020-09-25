@@ -373,7 +373,9 @@ export default class PageVotes {
       const length = +$('#vote-lock-length').val().toString().trim();
       const target = $('#vote-target').val().toString().trim();
       const setKey = $('#vote-set-key').val();
-      let setValue = $('#vote-set-value').val().toString().trim();
+      let setValue = $('#vote-set-value2').css('display') !== 'none'
+        ? $('#vote-set-value2').text().trim()
+        : $('#vote-set-value').val().toString().trim();
       const note = $('#vote-note').val().toString().trim();
 
       let voteParams: VoteInterface = {
@@ -414,7 +416,7 @@ export default class PageVotes {
         }
         
         // @ts-ignore
-        voteParams['key'] = setKey;
+        voteParams['key'] = setKey === 'other' ? $('#vote-set-name').val().toString() : setKey;
         voteParams['value'] = setValue;
       }
 
