@@ -16,6 +16,7 @@ export default class Account {
   private avatar: string = '';
   private address: string = '';
   private arBalance: number = -1;
+  private isInitialized: boolean = false;
 
   constructor(community: Community) {
     this.community = community;
@@ -28,6 +29,7 @@ export default class Account {
     }
 
     this.events();
+    this.isInitialized = true;
   }
 
   async getArweaveId(address: string = this.address) {
@@ -37,6 +39,10 @@ export default class Account {
     return getIdenticon(address);
   }
   async isLoggedIn(): Promise<boolean> {
+    if(!this.isInitialized) {
+      await this.init();
+    }
+
     return this.loggedIn;
   }
   async getWallet(): Promise<JWKInterface> {

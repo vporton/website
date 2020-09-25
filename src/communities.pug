@@ -6,11 +6,12 @@ html(lang="en")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title Communities - CommunityXYZ
+    include pages/partials/favicon
   body.antialised: .page
     .content
       .container-xl
         .text-center: a(href="./")
-          img(src="./assets/images/logo.png" alt="CommunityXYZ", width="250px")
+          img(src="./assets/images/logo.svg" alt="CommunityXYZ", width="250px")
 
         .empty
           h1.mb-3 Communities
@@ -29,13 +30,13 @@ html(lang="en")
                 i.icon(data-feather="briefcase")
                 | Opportunities
       
-        .row.opps-cards.container
-          .col-md-6.offset-md-3
+        .container
+          .row.opps-cards: .col-12
             .card
               .card-body
                 h4 
                   span.loaded(style="display: none") [#[span.completed 0]/#[span.total]]  
-                  | Please wait while we load all the Communities last states.
+                  | Please wait while we load all the Communities...
                 .progress
                   .progress-bar(style="width: 0%")
 

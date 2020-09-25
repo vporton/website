@@ -1,6 +1,23 @@
-# CommunityXYZ
+<img src="src/assets/images/logo.svg" width="300px">
+
 This is the official website for CommunityXYZ.
 You can access the community here: https://community.xyz
+
+### Start it locally
+Using yarn (default):
+```
+yarn install
+yarn dev
+```
+
+Using NPM:
+```
+npm i
+npm run dev
+```
+After visit [http://localhost:1234/index.html](http://localhost:1234/index.html).
+*Note:* Visiting only `/` wont work as we have many entry points, parcel requires to send the entry point, in this case `/index.html`.
+
 
 ### Permaweb
 Starting from version 1.0.2 there's also permaweb versions stored forever on the Arweave network.

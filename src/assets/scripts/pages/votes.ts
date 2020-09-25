@@ -43,11 +43,23 @@ export default class PageVotes {
     $('.proposals').html('');
     if(state.votes.length) {
       this.votes = [];
+      $('.proposals').html('');
       for(let i = 0, j = state.votes.length; i < j; i++) {
         const vote = new Vote(state.votes[i], i);
         this.votes.push(vote);
         await vote.show();
       }
+    } else {
+      const html = `
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body text-center">
+            This Community doesn't have any votes.
+          </div>
+        </div>
+      </div>
+      `;
+      $('.proposals').html(html);
     }
 
     $('[data-toggle="tooltip"]').tooltip();
