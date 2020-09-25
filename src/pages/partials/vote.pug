@@ -67,6 +67,7 @@
             option(value="role") Role
             option(value="description") Description
             option(value="appUrl") App URL
+            option(value="discussionLinks") Discussion links
             option(value="other") Other
 
         .vote-set-name.mb-3(style="display: none")
@@ -82,7 +83,19 @@
             input#vote-set-value-is-number(type="checkbox")
             |  Numeric value
           input#vote-set-value.form-control(type="text")
-          .lock-set-value-invalid.invalid-feedback  
+          .lock-set-value-invalid.invalid-feedback
+          #vote-set-value-links-container(style="display: none")
+            table(style="width: 100%")
+              tr#vote-set-value-links-template(style="display: none")
+                td(style="width: 100%")
+                  input.form-control.url(style="width: 100%")
+                td
+                  input.move-up-tr(type="button" value="↑")
+                td
+                  input.move-down-tr(type="button" value="↓")
+                td
+                  input.delete-tr(type="button" value="Del")
+            input#vote-set-value-links-add(type="button" value="Add")
 
       .mb-3
         label.form-label Note

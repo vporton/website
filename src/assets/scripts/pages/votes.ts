@@ -95,14 +95,16 @@ export default class PageVotes {
     const setKey = $('#vote-set-key').val();
     let setValue: string | number = $('#vote-set-value').val().toString().trim();
 
-    if($('#vote-set-value').hasClass('url')) {
+    $('.url').each(() => {
       try {
-        new URL(setValue);
+        const url: string = $(this).val().toString().trim();
+        new URL(url);
         $('#vote-set-value').removeClass('is-invalid');
       } catch(_) {
         $('#vote-set-value').addClass('is-invalid');
       }
-    } else if(setKey === 'quorum' || setKey === 'support') {
+    });
+    if(setKey === 'quorum' || setKey === 'support') {
       setValue = +setValue;
       if(isNaN(setValue) || setValue < 1 || setValue > 99 || !Number.isInteger(setValue)) {
         $('#vote-set-value').addClass('is-invalid');
@@ -190,10 +192,14 @@ export default class PageVotes {
       $('.vote-recipient').hide();
       $('.vote-set-name').hide();
       $('#vote-set-value-is-number-label').hide();
-      if(setKey !== 'description') {
-        $target.replaceWith("<input id='vote-set-value' class='form-control'>");
-      } else {
+      if(setKey === 'description') {
         $target.removeClass('input-number percent url');
+      } else {
+        $target.replaceWith("<input id='vote-set-value' class='form-control'>");
+      }
+      if(setKey !== 'discussionLinks') {
+        $('#vote-set-value').show();
+        $('#vote-set-value-links-container').hide();
       }
       switch(setKey) {
         case 'role':
@@ -213,6 +219,10 @@ export default class PageVotes {
         case 'appUrl':
           $target.addClass('url');
           break;
+        case 'discussionLinks':
+          $('#vote-set-value').hide();
+          $('#vote-set-value-links-container').show();
+          break;
         case 'other':
           updateOtherIsNumber();
           $('.vote-set-name').show();
@@ -223,6 +233,40 @@ export default class PageVotes {
 
     $('#vote-set-value-is-number').on('click', e => {
       updateOtherIsNumber();
+    });
+
+    function updateUpDownArrows() {
+      // Now we have only one table with arrows, so it's efficient enough. If we add more tables, probably should restrict to one table at a time.
+      $('.move-up-tr').each(function () {
+        $(this).css('visibility', $(this).closest('tr').is(':nth-child(2)') ? 'hidden' : 'visible');
+      });
+      $('.move-down-tr').each(function () {
+        $(this).css('visibility', $(this).closest('tr').is(':last-child') ? 'hidden' : 'visible');
+      });
+    }
+
+    $('.delete-tr').on('click', e => {
+      $(e.target).closest('tr').remove();
+      updateUpDownArrows();
+    });
+
+    $('.move-up-tr').on('click', e => {
+      const row = $(e.target).closest('tr');
+      row.prev().before(row);
+      updateUpDownArrows();
+    });
+
+    $('.move-down-tr').on('click', e => {
+      const row = $(e.target).closest('tr');
+      row.next().after(row);
+      updateUpDownArrows();
+    });
+
+    $('#vote-set-value-links-add').on('click', e => {
+      const copy = $('#vote-set-value-links-template').clone(true);
+      copy.css('display', 'block');
+      $('#vote-set-value-links-template').after(copy);
+      updateUpDownArrows();
     });
 
     $('#vote-recipient, #vote-target').on('input', async e => {
