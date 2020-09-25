@@ -21,6 +21,12 @@ export default class PageVotes {
         $('#vote-set-value-logo-preview').hide();
       }
     });
+
+    // Disallow spaces
+    $('#vote-set-name').on('input', e => {
+      let setName: string = $('#vote-set-name').val().replace(' ', '-');
+      $('#vote-set-name').val(setName);
+    });
   }
 
   async open() {
