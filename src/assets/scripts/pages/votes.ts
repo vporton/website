@@ -202,7 +202,7 @@ export default class PageVotes {
     function updateOtherIsNumber() {
       if($('#vote-set-value-is-number').is(':checked')) {
         $('#vote-set-value').addClass('input-float');
-        $('#vote-set-value').val(Number($('#vote-set-value').val()));
+        $('#vote-set-value').trigger('input');
       } else {
         $('#vote-set-value').removeClass('input-float');
       }
