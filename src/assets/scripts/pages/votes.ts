@@ -373,9 +373,12 @@ export default class PageVotes {
       const length = +$('#vote-lock-length').val().toString().trim();
       const target = $('#vote-target').val().toString().trim();
       const setKey = $('#vote-set-key').val();
-      let setValue = $('#vote-set-value2').css('display') !== 'none'
+      let setValue : string | number = $('#vote-set-value2').css('display') !== 'none'
         ? $('#vote-set-value2').text().trim()
         : $('#vote-set-value').val().toString().trim();
+      if(setKey === 'other' && $('#vote-set-value-is-number').is(':checked')) {
+        setValue = Number(setValue);
+      }
       const note = $('#vote-note').val().toString().trim();
 
       let voteParams: VoteInterface = {
