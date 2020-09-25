@@ -43,5 +43,9 @@ app.get('/communities', (_, res) => {
   res.sendFile(path.join(__dirname, 'dist/communities.html'));
 });
 
+app.get('/chat', (_, res) => {
+  res.redirect('https://discord.gg/5SMgD9t');
+});
+
 app.use(express.static('dist'));
 app.listen((process.env.PORT || 8080), (process.env.HOST || '0.0.0.0'), () => console.log('ready on port 8080'));
