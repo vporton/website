@@ -407,9 +407,15 @@ export default class PageVotes {
       const length = +$('#vote-lock-length').val().toString().trim();
       const target = $('#vote-target').val().toString().trim();
       const setKey = $('#vote-set-key').val();
-      let setValue : string | number = $('#vote-set-value2').css('display') !== 'none'
-        ? $('#vote-set-value2').text().trim()
-        : $('#vote-set-value').val().toString().trim();
+      let setValue : string | number | string[];
+      if(setKey === 'discussionLinks') {
+        const rows = $('#vote-set-value-links-template').nextAll();
+        setValue = rows.find('input[type=text]').map(function() { return $(this).val().toString(); }).get();
+      } else if($('#vote-set-value2').css('display') !== 'none') {
+        setValue = $('#vote-set-value2').text().trim();
+      } else {
+        setValue = $('#vote-set-value').val().toString().trim();
+      }
       if(setKey === 'other' && $('#vote-set-value-is-number').is(':checked')) {
         setValue = Number(setValue);
       }
