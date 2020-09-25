@@ -108,7 +108,7 @@ export default class PageVotes {
     }
   }
 
-  private async setValidate() {
+  private async setValueValidate() {
     const state = await app.getCommunity().getState();
 
     const recipient = $('#vote-recipient').val().toString().trim();
@@ -173,6 +173,31 @@ export default class PageVotes {
 
     $('#vote-set-value').removeClass('is-invalid');
     return true;
+  }
+
+  private async setNameValidate() {
+    if($('#vote-set-key').val() !== 'other') {
+      return true; // no need to validate the key
+    }
+    console.log($('#vote-set-name').val())
+    if($('#vote-set-name').val() === '') {
+      $('#vote-set-name').addClass('is-invalid');
+      return false;
+    } else {
+      $('#vote-set-name').removeClass('is-invalid');
+    }
+    return true;
+  }
+
+  private async setValidate() {
+    let valid = true;
+    if(!await this.setValueValidate()) {
+      valid = false;
+    }
+    if(!await this.setNameValidate()) {
+      valid = false;
+    }
+    return valid;
   }
 
   async validateVotes() {
@@ -318,7 +343,11 @@ export default class PageVotes {
     });
 
     $('#vote-set-value').on('input', async e => {
-      await this.setValidate();
+      await this.setValueValidate();
+    });
+
+    $('#vote-set-name').on('input', async e => {
+      await this.setNameValidate();
     });
 
     $('#vote-qty').on('input', async e => {
