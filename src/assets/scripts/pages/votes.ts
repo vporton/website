@@ -24,7 +24,7 @@ export default class PageVotes {
 
     // Disallow spaces
     $('#vote-set-name').on('input', e => {
-      let setName: string = $('#vote-set-name').val().replace(' ', '-');
+      let setName: string = $('#vote-set-name').val().toString().replace(' ', '-');
       $('#vote-set-name').val(setName);
     });
   }
