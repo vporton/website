@@ -347,6 +347,10 @@ export default class PageVotes {
       await this.setValueValidate();
     });
 
+    $('.value-url').on('input', async e => {
+      await this.setValueValidate();
+    });
+
     $('#vote-set-name').on('input', async e => {
       await this.setNameValidate();
     });
