@@ -193,10 +193,10 @@ export default class PageVotes {
 
     function updateOtherIsNumber() {
       if($('#vote-set-value-is-number').is(':checked')) {
-        $('#vote-set-value').addClass('input-number');
+        $('#vote-set-value').addClass('input-float');
         $('#vote-set-value').val(Number($('#vote-set-value').val()));
       } else {
-        $('#vote-set-value').removeClass('input-number');
+        $('#vote-set-value').removeClass('input-float');
       }
     }
 
@@ -217,7 +217,7 @@ export default class PageVotes {
       if(setKey !== 'communityLogo') {
         $('#vote-set-value-logo-preview').hide();
       }
-      $('#vote-set-value').removeClass('input-number percent url');
+      $('#vote-set-value').removeClass('input-number input-float percent url');
       switch(setKey) {
         case 'role':
           $('.vote-recipient').show();
