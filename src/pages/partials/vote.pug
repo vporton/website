@@ -67,6 +67,7 @@
             option(value="role") Role
             option(value="description") Description
             option(value="appUrl") App URL
+            option(value="communityLogo") Community logo
             option(value="discussionLinks") Discussion links
             option(value="other") Other
 
@@ -83,6 +84,7 @@
             input#vote-set-value-is-number(type="checkbox")
             |  Numeric value
           input#vote-set-value.form-control(type="text")
+          textarea#vote-set-value2.form-control(style="display: none")
           .lock-set-value-invalid.invalid-feedback
           #vote-set-value-links-container(style="display: none")
             table(style="width: 100%")
@@ -96,6 +98,7 @@
                 td
                   input.delete-tr(type="button" value="Del")
             input#vote-set-value-links-add(type="button" value="Add")
+          img#vote-set-value-logo-preview(style="display: none")
 
       .mb-3
         label.form-label Note
