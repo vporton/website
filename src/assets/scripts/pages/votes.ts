@@ -125,7 +125,6 @@ export default class PageVotes {
       }
     });
     if($('#vote-set-value').hasClass('url')) {
-      console.log("ZZ")
       return false; // we have already validated it
     }
 
@@ -179,7 +178,6 @@ export default class PageVotes {
     if($('#vote-set-key').val() !== 'other') {
       return true; // no need to validate the key
     }
-    console.log($('#vote-set-name').val())
     if($('#vote-set-name').val() === '') {
       $('#vote-set-name').addClass('is-invalid');
       return false;
