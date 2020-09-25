@@ -83,7 +83,14 @@ export default class PageVotes {
     const setKey = $('#vote-set-key').val();
     let setValue: string | number = $('#vote-set-value').val().toString().trim();
 
-    if(setKey === 'quorum' || setKey === 'support') {
+    if($('#vote-set-value').hasClass('url')) {
+      try {
+        new URL(setValue);
+        $('#vote-set-value').removeClass('is-invalid');
+      } catch(_) {
+        $('#vote-set-value').addClass('is-invalid');
+      }
+    } else if(setKey === 'quorum' || setKey === 'support') {
       setValue = +setValue;
       if(isNaN(setValue) || setValue < 1 || setValue > 99 || !Number.isInteger(setValue)) {
         $('#vote-set-value').addClass('is-invalid');
@@ -155,25 +162,55 @@ export default class PageVotes {
       }
     }).trigger('change');
 
+    function updateOtherIsNumber() {
+      if($('#vote-set-value-is-number').is(':checked')) {
+        $('#vote-set-value').addClass('input-number');
+        $('#vote-set-value').val(Number($('#vote-set-value').val()));
+      } else {
+        $('#vote-set-value').removeClass('input-number');
+      }
+    }
+
     $('#vote-set-key').on('change', e => {
       const setKey = $(e.target).val();
       const $target = $('#vote-set-value').val('');
 
       $('.vote-recipient').hide();
+      $('.vote-set-name').hide();
+      $('#vote-set-value-is-number-label').hide();
+      if(setKey !== 'description') {
+        $target.replaceWith("<input id='vote-set-value' class='form-control'>");
+      } else {
+        $target.removeClass('input-number percent url');
+      }
       switch(setKey) {
         case 'role':
           $('.vote-recipient').show();
-          $target.removeClass('input-number percent');
           break;
         case 'lockMinLength':
         case 'lockMaxLength':
-          $target.addClass('input-number').removeClass('percent');
+          $target.addClass('input-number');
           break;
         case 'quorum':
         case 'support':
           $target.addClass('input-number percent');
           break;
+        case 'description':
+          $target.replaceWith("<textarea id='vote-set-value' class='form-control'>");
+          break;
+        case 'appUrl':
+          $target.addClass('url');
+          break;
+        case 'other':
+          updateOtherIsNumber();
+          $('.vote-set-name').show();
+          $('#vote-set-value-is-number-label').show();
+          break;
       }
+    });
+
+    $('#vote-set-value-is-number').on('click', e => {
+      updateOtherIsNumber();
     });
 
     $('#vote-recipient, #vote-target').on('input', async e => {
