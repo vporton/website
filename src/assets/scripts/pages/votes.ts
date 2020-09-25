@@ -11,14 +11,16 @@ export default class PageVotes {
 
   constructor() {
     $('#vote-set-value').on('input', async e => {
-      let setValue: string | number = $('#vote-set-value').val().toString().trim();
-      try { // FIXME: only in Logo mode
-        new URL(setValue);
-        $('#vote-set-value-logo-preview').attr('src', setValue);
-        $('#vote-set-value-logo-preview').show();
-      }
-      catch(_) {
-        $('#vote-set-value-logo-preview').hide();
+      if($('#vote-set-key').val() === 'communityLogo') {
+        let setValue: string | number = $('#vote-set-value').val().toString().trim();
+        try {
+          new URL(setValue);
+          $('#vote-set-value-logo-preview').attr('src', setValue);
+          $('#vote-set-value-logo-preview').show();
+        }
+        catch(_) {
+          $('#vote-set-value-logo-preview').hide();
+        }
       }
     });
 
