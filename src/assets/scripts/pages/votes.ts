@@ -125,6 +125,7 @@ export default class PageVotes {
       }
     });
     if($('#vote-set-value').hasClass('url')) {
+      $('.lock-set-value-invalid').text(''); // This line is a hack.
       return false; // we have already validated it
     }
 
@@ -168,6 +169,8 @@ export default class PageVotes {
         $('#vote-set-value').addClass('is-invalid');
         return false;
       }
+    } else {
+      $('.lock-set-value-invalid').text('');
     }
 
     $('#vote-set-value').removeClass('is-invalid');
