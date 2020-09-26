@@ -115,20 +115,19 @@ export default class PageVotes {
     const setKey = $('#vote-set-key').val();
     let setValue: string | number = $('#vote-set-value').val().toString().trim();
 
-    $('.url:visible').each(function() {
-      try {
-        const url: string = $(this).val().toString().trim();
-        new URL(url);
-        $(this).removeClass('is-invalid');
-        return true;
-      } catch(_) {
-        $(this).addClass('is-invalid');
-        return false;
-      }
-    });
-    if($('#vote-set-value').hasClass('url')) {
-      $('.lock-set-value-invalid').text(''); // This line is a hack.
-      return false; // we have already validated it
+    if($('.url:visible').length) {
+      let urlsValid = true;
+      $('.url:visible').each(function() {
+        try {
+          const url: string = $(this).val().toString().trim();
+          new URL(url);
+          $(this).removeClass('is-invalid');
+        } catch(_) {
+          $(this).addClass('is-invalid');
+          urlsValid = false;
+        }
+      });
+      return urlsValid;
     }
 
     if(setKey === 'quorum' || setKey === 'support') {
