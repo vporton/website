@@ -115,13 +115,15 @@ export default class PageVotes {
     const setKey = $('#vote-set-key').val();
     let setValue: string | number = $('#vote-set-value').val().toString().trim();
 
-    $('.url').each(function() {
+    $('.url:visible').each(function() {
       try {
         const url: string = $(this).val().toString().trim();
         new URL(url);
         $(this).removeClass('is-invalid');
+        return true;
       } catch(_) {
         $(this).addClass('is-invalid');
+        return false;
       }
     });
     if($('#vote-set-value').hasClass('url')) {
