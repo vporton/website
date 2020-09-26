@@ -323,7 +323,7 @@ export default class PageVotes {
     $('#vote-set-value-links-add').on('click', e => {
       const copy = $('#vote-set-value-links-template').clone(true);
       copy.css('display', 'block');
-      $('#vote-set-value-links-template').after(copy);
+      $('#vote-set-value-links-template').parent().append(copy);
       updateUpDownArrows();
     });
 
