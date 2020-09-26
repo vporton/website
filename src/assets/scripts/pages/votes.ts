@@ -412,7 +412,7 @@ export default class PageVotes {
         const rows = $('#vote-set-value-links-template').nextAll();
         setValue = rows.find('input[type=text]').map(function() { return $(this).val().toString(); }).get();
       } else if($('#vote-set-value2').css('display') !== 'none') {
-        setValue = $('#vote-set-value2').text().trim();
+        setValue = $('#vote-set-value2').val().toString().trim();
       } else {
         setValue = $('#vote-set-value').val().toString().trim();
       }
