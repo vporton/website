@@ -102,10 +102,21 @@ export default class Account {
         window.currentPage.syncPageState();
         
         if(this.address.length && this.arBalance >= 0) {
+          let isError = false;
           try {
             communityDB.set('sesswall', btoa(ev.target.result));
           } catch(err) {
             console.log(err);
+            isError = true;
+          }
+
+          if(isError) {
+            try {
+              communityDB.clearAll();
+              this.login(e);
+            } catch(err) {
+              console.log(err);
+            }
           }
         }
       };
