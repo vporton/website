@@ -65,6 +65,11 @@
             option(value="lockMinLength") Minimum lock length
             option(value="lockMaxLength") Maximum lock length
             option(value="role") Role
+            //- option(value="commUrl") Project URL
+            //- option(value="commDescription") Project description
+            //- option(value="commLogo") Community logo txid
+            //- option(value="commSocial") Social media link
+            //- option(value="commDiscussion") Discussion link
 
         //- This one changes depending on what the user has selected for his form-label, 
         //- also could add .input-number to input
@@ -72,6 +77,7 @@
           label.vote-set-key.form-label Value
           input#vote-set-value.form-control(type="text")
           .lock-set-value-invalid.invalid-feedback  
+          .form-hint #[a(href="https://arweave.net/PXhr5EdWuCgUmSBbuiU587GlBnmde1MdvlPCpIt1NyM/", target="_blank") Upload] your logo to Arweave and set the transaction ID here.
 
       .mb-3
         label.form-label Note
