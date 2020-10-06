@@ -10,54 +10,6 @@ export default class PageVotes {
   private votes: Vote[] = [];
   private firstCall: boolean = true;
 
-  constructor() {
-    $('#vote-set-value').on('input', async e => {
-      if($('#vote-set-key').val() === 'communityLogo') {
-        this.setLogoInvalid(); // not yet validated
-        let setValue: string = $('#vote-set-value').val().toString().trim();
-        if(setValue === "") { // TODO: more wide condition
-          this.setLogoInvalid(); // don't query the network in this case
-        } else {
-          arweave.transactions.getStatus(setValue).then(status => {
-            if(status.status === 200) {
-              this.showLogo(setValue);
-            } else {
-              this.setLogoInvalid();
-            }
-          });
-        }
-      }
-    });
-
-    $('#vote-logo-upload').on('change', e0 => {
-      const fileReader = new FileReader();
-      fileReader.onload = async e => {
-        const contentType = (e0.target as any).files[0].type;
-        // For old browsers accept="..." does not work, so check here:
-        if(['image/png', 'image/jpeg', 'image/webp'].indexOf(contentType) == -1) {
-          alert("Must be an image.");
-          return;
-        }
-        const fileContent = e.target.result as ArrayBuffer;
-
-        const { transaction, response } = await app.getCommunity().uploadFile(fileContent, contentType);
-        if(response.status != 200) {
-            alert("Failed ArWeave transaction.");
-            return;
-        }
-        $('#vote-set-value').val(transaction.id);
-        this.showLogo(transaction.id)
-      };
-      fileReader.readAsArrayBuffer((e0.target as any).files[0]);
-    });
-
-    // Disallow spaces
-    $('#vote-set-name').on('input', e => {
-      let setName: string = $('#vote-set-name').val().toString().replace(' ', '-');
-      $('#vote-set-name').val(setName);
-    });
-  }
-
   async open() {
     $('.link-votes').addClass('active');
     $('.page-votes').show();
@@ -208,6 +160,20 @@ export default class PageVotes {
         $('#vote-set-value').addClass('is-invalid');
         return false;
       }
+    } else if(setKey === 'communityLogo') {
+      this.setLogoInvalid(); // not yet validated
+      let setValue: string = $('#vote-set-value').val().toString().trim();
+      if(setValue === "") { // TODO: more wide condition
+        this.setLogoInvalid(); // don't query the network in this case
+      } else {
+        arweave.transactions.getStatus(setValue).then(status => {
+          if(status.status === 200) {
+            this.showLogo(setValue);
+          } else {
+            this.setLogoInvalid();
+          }
+        });
+      }
     } else {
       $('.lock-set-value-invalid').text('');
     }
@@ -240,6 +206,42 @@ export default class PageVotes {
       valid = false;
     }
     return valid;
+  }
+
+  // Change the input fields after input
+  private modifyVotes() {
+    $('#vote-logo-upload').on('change', e0 => {
+      const fileReader = new FileReader();
+      fileReader.onload = async e => {
+        const contentType = (e0.target as any).files[0].type;
+        // For old browsers accept="..." does not work, so check here:
+        if(['image/png', 'image/jpeg', 'image/webp'].indexOf(contentType) == -1) {
+          alert("Must be an image.");
+          return;
+        }
+        const fileContent = e.target.result as ArrayBuffer;
+
+        const { transaction, response } = await app.getCommunity().uploadFile(fileContent, contentType);
+        if(response.status != 200) {
+            alert("Failed ArWeave transaction.");
+            return;
+        }
+        $('#vote-set-value').val(transaction.id);
+        this.showLogo(transaction.id)
+      };
+      fileReader.readAsArrayBuffer((e0.target as any).files[0]);
+    });
+
+    // Disallow spaces
+    $('#vote-set-name').on('input', e => {
+      let setName: string = $('#vote-set-name').val().toString().replace(' ', '-');
+      $('#vote-set-name').val(setName);
+    });
+  }
+
+  private removeModifyVotes() {
+    $('#vote-set-name').off('input');
+    $('#vote-logo-upload').off('change');
   }
 
   async validateVotes() {
@@ -545,9 +547,11 @@ export default class PageVotes {
   }
 
   private async events() {
+    await this.modifyVotes();
     await this.validateVotes();
   }
   private async removeEvents() {
-   await this.removeValidateVotes();
+    await this.removeValidateVotes();
+    await this.removeModifyVotes();
   }
 }
