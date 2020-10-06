@@ -80,6 +80,8 @@
         //- also could add .input-number to input
         .mb-3
           label.vote-set-key.form-label Value
+          p
+            input#vote-logo-upload(type="file" style="display: none" accept="image/png,image/jpeg,image/webp")
           label#vote-set-value-is-number-label
             input#vote-set-value-is-number(type="checkbox")
             |  Numeric value
@@ -98,7 +100,7 @@
                 td
                   input.delete-tr(type="button" value="Del")
             input#vote-set-value-links-add(type="button" value="Add")
-          img#vote-set-value-logo-preview(style="display: none")
+          //- img#vote-set-value-logo-preview(style="display: none") // does not work because Arweave upload time to long
 
       .mb-3
         label.form-label Note

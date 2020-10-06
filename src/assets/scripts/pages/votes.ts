@@ -2,6 +2,7 @@ import $ from '../libs/jquery';
 import Utils from '../utils/utils';
 import Toast from '../utils/toast';
 import app from '../app';
+import arweave from "../libs/arweave";
 import Vote from '../models/vote';
 import { VoteType, VoteInterface } from 'community-js/lib/faces';
 
@@ -12,16 +13,42 @@ export default class PageVotes {
   constructor() {
     $('#vote-set-value').on('input', async e => {
       if($('#vote-set-key').val() === 'communityLogo') {
-        let setValue: string | number = $('#vote-set-value').val().toString().trim();
-        try {
-          new URL(setValue);
-          $('#vote-set-value-logo-preview').attr('src', setValue);
-          $('#vote-set-value-logo-preview').show();
-        }
-        catch(_) {
-          $('#vote-set-value-logo-preview').hide();
+        this.setLogoInvalid(); // not yet validated
+        let setValue: string = $('#vote-set-value').val().toString().trim();
+        if(setValue === "") { // TODO: more wide condition
+          this.setLogoInvalid(); // don't query the network in this case
+        } else {
+          arweave.transactions.getStatus(setValue).then(status => {
+            if(status.status === 200) {
+              this.showLogo(setValue);
+            } else {
+              this.setLogoInvalid();
+            }
+          });
         }
       }
+    });
+
+    $('#vote-logo-upload').on('change', e0 => {
+      const fileReader = new FileReader();
+      fileReader.onload = async e => {
+        const contentType = (e0.target as any).files[0].type;
+        // For old browsers accept="..." does not work, so check here:
+        if(['image/png', 'image/jpeg', 'image/webp'].indexOf(contentType) == -1) {
+          alert("Must be an image.");
+          return;
+        }
+        const fileContent = e.target.result as ArrayBuffer;
+
+        const { transaction, response } = await app.getCommunity().uploadFile(fileContent, contentType);
+        if(response.status != 200) {
+            alert("Failed ArWeave transaction.");
+            return;
+        }
+        $('#vote-set-value').val(transaction.id);
+        this.showLogo(transaction.id)
+      };
+      fileReader.readAsArrayBuffer((e0.target as any).files[0]);
     });
 
     // Disallow spaces
@@ -108,6 +135,17 @@ export default class PageVotes {
     }
   }
 
+  private showLogo(hash) {
+    $('#vote-set-value').removeClass('is-invalid');
+    // $('#vote-set-value-logo-preview').attr('src', "https://arweave.net/" + hash);
+    // $('#vote-set-value-logo-preview').show();
+  }
+
+  private setLogoInvalid() {
+    $('#vote-set-value').addClass('is-invalid');
+    // $('#vote-set-value-logo-preview').hide();
+  }
+
   private async setValueValidate() {
     const state = await app.getCommunity().getState();
 
@@ -174,7 +212,9 @@ export default class PageVotes {
       $('.lock-set-value-invalid').text('');
     }
 
-    $('#vote-set-value').removeClass('is-invalid');
+    if($('#vote-set-key').val() !== 'communityLogo') { // communityLogo is validated "dynamically", see above.
+      $('#vote-set-value').removeClass('is-invalid');
+    }
     return true;
   }
 
@@ -250,7 +290,8 @@ export default class PageVotes {
         $('#vote-set-value-links-container').hide();
       }
       if(setKey !== 'communityLogo') {
-        $('#vote-set-value-logo-preview').hide();
+        // $('#vote-set-value-logo-preview').hide();
+        $('#vote-logo-upload').hide();
       }
       $('#vote-set-value').removeClass('input-number input-float percent url');
       switch(setKey) {
@@ -273,7 +314,8 @@ export default class PageVotes {
           $target.addClass('url');
           break;
         case 'communityLogo':
-          $target.addClass('url');
+          $('#vote-logo-upload').show();
+          $target.trigger('input');
           break;
         case 'discussionLinks':
           $('#vote-set-value').hide();
