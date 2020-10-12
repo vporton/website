@@ -4,8 +4,8 @@ import $ from '../libs/jquery';
 import Toast from '../utils/toast';
 import Community from "community-js";
 import { getIdenticon, get } from "../utils/arweaveid";
-import { cookieStore } from "../libs/db";
 import arweave from "../libs/arweave";
+import communityDB from "../libs/db";
 
 export default class Account {
   private community: Community;
@@ -23,9 +23,13 @@ export default class Account {
   }
 
   async init() {
-    const sess = cookieStore.get('sesswall')
-    if(sess) {
-      await this.loadWallet(JSON.parse(sess));
+    try {
+      const sess = atob(communityDB.get('sesswall'));
+      if(sess) {
+        await this.loadWallet(JSON.parse(sess));
+      }
+    } catch(e) {
+      console.log(e);
     }
 
     this.events();
@@ -93,15 +97,26 @@ export default class Account {
 
       const fileReader = new FileReader();
       fileReader.onload = async (ev: any) => {
-        await this.loadWallet(JSON.parse(ev.target.result));
+        await this.loadWallet(JSON.parse(fileReader.result.toString()));
         // @ts-ignore
         window.currentPage.syncPageState();
         
         if(this.address.length && this.arBalance >= 0) {
+          let isError = false;
           try {
-            cookieStore.set('sesswall', ev.target.result);
+            communityDB.set('sesswall', btoa(fileReader.result.toString()));
           } catch(err) {
             console.log(err);
+            isError = true;
+          }
+
+          if(isError) {
+            try {
+              communityDB.clearAll();
+              this.login(e);
+            } catch(err) {
+              console.log(err);
+            }
           }
         }
       };
@@ -129,7 +144,7 @@ export default class Account {
 
       //@ts-ignore
       window.currentPage.syncPageState();
-      cookieStore.remove('sesswall');
+      communityDB.remove('sesswall');
 
       // Set a dummy wallet address
       this.community.setWallet(await arweave.wallets.generate());
