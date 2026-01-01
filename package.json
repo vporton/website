@@ -56,7 +56,7 @@
     "arweave-id": "^2.0.7",
     "bootstrap": "twbs/bootstrap#4fc701f",
     "community-js": "git://github.com/vporton/community-js.git#upload",
-    "express": "^4.17.1",
+    "express": "^4.22.0",
     "feather-icons": "^4.28.0",
     "jquery": "^3.5.1",
     "moment": "^2.27.0",
